@@ -19,6 +19,7 @@ use App\Http\Controllers\DojoController;
 
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth');
+Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth');
 
 Route::post('/categories', [CategoryController::class,'store'])->middleware('auth');
 Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
