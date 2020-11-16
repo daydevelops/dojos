@@ -72,9 +72,9 @@ class DojoController extends Controller
      * @param  \App\Models\Dojo  $dojo
      * @return \Illuminate\Http\Response
      */
-    public function edit(Dojo $dojo)
+    public function edit()
     {
-        //
+        return auth()->user()->dojos;
     }
 
     /**

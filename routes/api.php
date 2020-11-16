@@ -17,6 +17,7 @@ use App\Http\Controllers\DojoController;
 |
 */
 
+Route::get('/dojos/edit',[DojoController::class,'edit'])->middleware('auth');
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth');
 Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth');
