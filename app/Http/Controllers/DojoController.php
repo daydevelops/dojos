@@ -90,6 +90,8 @@ class DojoController extends Controller
      */
     public function destroy(Dojo $dojo)
     {
-        //
+        if (auth()->user()->can('delete',$dojo)) {
+            $dojo->delete();
+        }
     }
 }

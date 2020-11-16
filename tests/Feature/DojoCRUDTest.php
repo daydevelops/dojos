@@ -88,38 +88,36 @@ class DojoCRUDTest extends TestCase
 
     /** @test */
     public function a_user_can_delete_their_dojo() {
-        
+        Dojo::factory()->create();
+        $this->signIn(User::first());
+        $this->assertDatabaseCount('dojos',1);
+        $this->json('delete','/api/dojos/1');
+        $this->assertDatabaseCount('dojos',0);
     }
 
     /** @test */
     public function an_admin_can_delete_a_dojo() {
-        
+        Dojo::factory()->create();
+        $this->signIn(User::factory()->create(['is_admin'=>1]));
+        $this->assertDatabaseCount('dojos',1);
+        $this->json('delete','/api/dojos/1');
+        $this->assertDatabaseCount('dojos',0);
     }
 
     /** @test */
     public function a_guest_cannot_delete_a_dojo() {
-        
+        Dojo::factory()->create();
+        $this->assertDatabaseCount('dojos',1);
+        $this->json('delete','/api/dojos/1');
+        $this->assertDatabaseCount('dojos',1);
     }
 
     /** @test */
     public function a_user_can_only_delete_a_dojo_they_own() {
-        
-    }
-
-    // APPROVAL
-
-    /** @test */
-    public function a_dojo_must_be_approved_by_an_admin_before_being_public() {
-        
-    }
-
-    /** @test */
-    public function only_an_admin_can_approve_a_dojo() {
-        
-    }
-
-    /** @test */
-    public function a_dojo_cannot_have_an_unapproved_category() {
-        
+        Dojo::factory()->create();
+        $this->signIn();
+        $this->assertDatabaseCount('dojos',1);
+        $this->json('delete','/api/dojos/1');
+        $this->assertDatabaseCount('dojos',1);
     }
 }
