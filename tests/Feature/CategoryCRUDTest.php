@@ -3,15 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Dojo;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
 
 class CategoryCRUDTest extends TestCase
 {
-
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
     /** @test */
     public function an_admin_can_add_a_category() {
@@ -42,12 +42,50 @@ class CategoryCRUDTest extends TestCase
 
     /** @test */
     public function an_admin_can_delete_a_category() {
-        
+        $this->signIn(User::factory()->create(['is_admin'=>true]));
+        $none = Category::factory()->create(['name'=>'none']);
+        Category::factory()->create();
+        $this->assertDatabaseCount('categories',2);
+        $this->json('delete','/api/categories/2');
+        $this->assertDatabaseCount('categories',1);
     }
 
     /** @test */
     public function a_non_admin_cannot_delete_a_category() {
-        
+        $this->signIn();
+        $none = Category::factory()->create(['name'=>'none']);
+        Category::factory()->create();
+        $this->assertDatabaseCount('categories',2);
+        $this->json('delete','/api/categories/2');
+        $this->assertDatabaseCount('categories',2);
+    }
+
+    /** @test */
+    public function dojo_category_is_set_to_none_if_its_category_is_deleted() {
+        $this->signIn(User::factory()->create(['is_admin'=>true]));
+        $none = Category::factory()->create(['name'=>'none']);
+        $cat = Category::factory()->create();
+        Dojo::factory(3)->create(['category_id'=>$cat->id]);
+        $this->assertDatabaseHas('dojos',['category_id'=>$cat->id]);
+        $this->json('delete','/api/categories/2');
+        $this->assertDatabaseMissing('dojos',['category_id'=>$cat->id]);
+        $this->assertDatabaseHas('dojos',['category_id'=>$none->id]);
+    }
+
+    /** @test */
+    public function an_admin_can_approve_a_category() {
+        $this->signIn(User::factory()->create(['is_admin'=>true]));
+        Category::factory()->create(['approved'=>0]);
+        $this->json('patch','/api/categories/1/approve');
+        $this->assertDatabaseHas('categories',['approved'=>1]);
+    }
+
+    /** @test */
+    public function only_an_admin_can_approve_a_category() {
+        $this->signIn();
+        Category::factory()->create(['approved'=>0]);
+        $this->json('patch','/api/categories/1/approve')->assertStatus(401);
+        $this->assertDatabaseHas('categories',['approved'=>0]);
     }
 
 }

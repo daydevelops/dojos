@@ -69,9 +69,9 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function approve(Request $request, Category $category)
     {
-        //
+        $category->update(['approved'=>1]);
     }
 
     /**
@@ -82,6 +82,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $none = Category::where(['name'=>'None'])->first();
+        $category->dojos()->update(['category_id' => $none->id]);
+        $category->delete();
     }
 }

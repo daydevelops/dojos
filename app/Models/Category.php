@@ -10,4 +10,8 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = ['name','approved'];
+
+    public function dojos() {
+        return $this->hasMany(Dojo::class);
+    }
 }

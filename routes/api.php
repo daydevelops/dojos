@@ -17,3 +17,5 @@ use App\Http\Controllers\CategoryController;
 */
 
 Route::post('/categories', [CategoryController::class,'store'])->middleware('auth');
+Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
+Route::patch('/categories/{category}/approve',[CategoryController::class,'approve'])->middleware('admin');

@@ -78,4 +78,9 @@ class DojoCRUDTest extends TestCase
     public function only_an_admin_can_approve_a_dojo() {
         
     }
+
+    /** @test */
+    public function a_dojo_cannot_have_an_unapproved_category() {
+        
+    }
 }
