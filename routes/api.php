@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DojoController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,6 @@ Route::get('/categories',[CategoryController::class,'index'])->middleware('auth'
 Route::post('/categories', [CategoryController::class,'store'])->middleware('auth');
 Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
 Route::patch('/categories/{category}/approve',[CategoryController::class,'approve'])->middleware('admin');
+
+Route::get('/users',[UserController::class,'index'])->middleware('admin');
+Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
