@@ -88,4 +88,14 @@ class CategoryCRUDTest extends TestCase
         $this->assertDatabaseHas('categories',['approved'=>0]);
     }
 
+    /** @test */
+    public function category_names_must_be_unique() {
+        
+    }
+
+    /** @test */
+    public function admin_can_see_a_list_of_categories_on_the_edit_page() {
+        
+    }
+
 }

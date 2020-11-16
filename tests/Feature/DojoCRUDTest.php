@@ -106,6 +106,16 @@ class DojoCRUDTest extends TestCase
         $this->assertDatabaseMissing('dojos',$this->sampleDojo());
     }
 
+    /** @test */
+    public function auth_users_can_browse_a_list_of_their_dojos_to_edit() {
+        
+    }
+
+    /** @test */
+    public function users_can_only_see_their_own_dojos_on_the_edit_page() {
+        
+    }
+
     // DELETING
 
     /** @test */

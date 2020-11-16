@@ -11,17 +11,24 @@ class BrowsingTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function A_list_of_categories_can_be_seen() {
+    public function a_list_of_categories_is_provided_to_home_page() {
         
     }
 
     /** @test */
-    public function a_dojo_is_shown_under_its_category() {
+    public function unapproved_categories_are_not_provided_to_the_user() {
         
     }
 
     /** @test */
-    public function a_dojo_is_not_shown_under_the_wrong_category() {
+    public function a_dojo_is_provided_within_its_category() {
         
     }
+
+    /** @test */
+    public function a_dojo_is_not_provided_in_the_wrong_category() {
+        
+    }
+
+
 }
