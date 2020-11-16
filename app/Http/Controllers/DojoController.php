@@ -35,7 +35,17 @@ class DojoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = request()->validate([
+            'name' => 'required|string|max:200|unique:dojos,name',
+            'owner' => 'required|string|max:200',
+            'url' => 'required|url',
+            'location' => 'required|max:200',
+            'price' => 'required|max:120',
+            'category_id' => 'required|integer|exists:categories,id'
+        ]);
+
+        $data['user_id'] = auth()->id();
+        Dojo::create($data)->save();
     }
 
     /**
