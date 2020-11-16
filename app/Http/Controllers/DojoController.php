@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dojo;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class DojoController extends Controller
 {
@@ -41,7 +42,13 @@ class DojoController extends Controller
             'url' => 'required|url',
             'location' => 'required|max:200',
             'price' => 'required|max:120',
-            'category_id' => 'required|integer|exists:categories,id'
+            'category_id' => [
+                'required',
+                'integer',
+                Rule::exists('categories','id')->where(function($query) {
+                    $query->where('approved',1);
+                }),
+            ]
         ]);
 
         $data['user_id'] = auth()->id();

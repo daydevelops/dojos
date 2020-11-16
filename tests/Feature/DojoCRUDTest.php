@@ -53,6 +53,14 @@ class DojoCRUDTest extends TestCase
     }
 
     /** @test */
+    public function a_dojo_cannot_have_an_unapproved_category() {
+        Category::factory()->create(['approved'=>0]);
+        $this->signIn();
+        $this->post('/api/dojos',$this->sampleDojo());
+        $this->assertDatabaseCount('dojos',0);
+    }
+
+    /** @test */
     public function dojos_must_have_unique_names() {
         $this->signIn();
         Category::factory()->create(['approved'=>1]);
