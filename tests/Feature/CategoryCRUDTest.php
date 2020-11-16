@@ -97,23 +97,4 @@ class CategoryCRUDTest extends TestCase
         $this->assertDatabaseCount('categories',1);
     }
 
-    /** @test */
-    public function admin_can_see_a_list_of_categories_on_the_edit_page() {
-        $this->signIn(User::factory()->create(['is_admin'=>true]));
-        Category::factory(2)->create();
-        $res = $this->get('/api/categories')->json();
-        $this->assertContains(Category::find(1)->toArray(),$res);
-        $this->assertContains(Category::find(2)->toArray(),$res);
-    }
-
-    /** @test */
-    public function users_cannot_see_unapproved_categories() {
-        $this->signIn();
-        Category::factory()->create();
-        Category::factory()->create(['approved'=>0]);
-        $res = $this->get('/api/categories')->json();
-        $this->assertContains(Category::find(1)->toArray(),$res);
-        $this->assertNotContains(Category::find(2)->toArray(),$res);
-    }
-
 }

@@ -15,7 +15,14 @@ class DojoController extends Controller
      */
     public function index()
     {
-        //
+        if (auth()->check() && auth()->user()->is_admin) {
+            return Dojo::all();
+        } else {
+            // dont show dojos that belong to a deactivated user
+            return Dojo::whereHas('user',function($q) {
+                $q->where(['is_active'=>1]);
+            })->get();
+        }
     }
 
     /**

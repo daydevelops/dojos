@@ -14,11 +14,17 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->is_admin) {
+        if (auth()->check() && auth()->user()->is_admin) {
             return Category::all();
         } else {
             return Category::where(['approved'=>1])->get();
         }
+    }
+
+    public function dojos(Category $category) {
+        return $category->dojos()->whereHas('user',function($q) {
+            $q->where(['is_active'=>1]);
+        })->get();
     }
 
     /**
