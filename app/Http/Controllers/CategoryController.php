@@ -14,7 +14,11 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        if (auth()->user()->is_admin) {
+            return Category::all();
+        } else {
+            return Category::where(['approved'=>1])->get();
+        }
     }
 
     /**
@@ -35,7 +39,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $data = request()->validate(['name' => 'required']);
+        $data = request()->validate(['name' => 'required|unique:categories,name']);
         $data['approved'] = auth()->user()->is_admin;
         Category::create($data);
     }

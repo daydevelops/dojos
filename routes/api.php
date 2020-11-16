@@ -22,6 +22,7 @@ Route::post('/dojos',[DojoController::class,'store'])->middleware('auth');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth');
 Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth');
 
+Route::get('/categories',[CategoryController::class,'index'])->middleware('auth');
 Route::post('/categories', [CategoryController::class,'store'])->middleware('auth');
 Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
 Route::patch('/categories/{category}/approve',[CategoryController::class,'approve'])->middleware('admin');
