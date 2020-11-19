@@ -29,8 +29,10 @@ class DojoFactory extends Factory
             'category_id' => Category::factory(),
             'location' => $this->faker->address,
             'price' => "$" . rand(20, 40) . "/month",
-            'url' => $this->faker->url,
-            'owner' => $this->faker->name
+            'contact' => $this->faker->sentence,
+            'classes' => $this->faker->sentence,
+            'description' => $this->faker->sentence,
+            'image' => 'default.jpg'
         ];
     }
 }

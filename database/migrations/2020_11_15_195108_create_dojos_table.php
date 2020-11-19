@@ -18,10 +18,12 @@ class CreateDojosTable extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id');
             $table->string('name')->unique();
-            $table->string('url');
-            $table->string('owner');
             $table->string('location');
             $table->string('price');
+            $table->string('contact');
+            $table->text('description');
+            $table->string('classes');
+            $table->string('image')->default('default.jpg');
             $table->timestamps();
         });
     }

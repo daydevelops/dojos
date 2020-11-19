@@ -43,20 +43,7 @@ class DojoController extends Controller
      */
     public function store(Request $request)
     {
-        $data = request()->validate([
-            'name' => 'required|string|max:200|unique:dojos,name',
-            'owner' => 'required|string|max:200',
-            'url' => 'required|url',
-            'location' => 'required|max:200',
-            'price' => 'required|max:120',
-            'category_id' => [
-                'required',
-                'integer',
-                Rule::exists('categories','id')->where(function($query) {
-                    $query->where('approved',1);
-                }),
-            ]
-        ]);
+        $data = $this->vaildateForm(request());
 
         $data['user_id'] = auth()->id();
         Dojo::create($data)->save();
@@ -93,20 +80,7 @@ class DojoController extends Controller
      */
     public function update(Request $request, Dojo $dojo)
     {
-        $data = request()->validate([
-            'name' => 'required|string|max:200|unique:dojos,name',
-            'owner' => 'required|string|max:200',
-            'url' => 'required|url',
-            'location' => 'required|max:200',
-            'price' => 'required|max:120',
-            'category_id' => [
-                'required',
-                'integer',
-                Rule::exists('categories','id')->where(function($query) {
-                    $query->where('approved',1);
-                }),
-            ]
-        ]);
+        $data = $this->vaildateForm(request());
         if (auth()->user()->can('update',$dojo)) {
             $dojo->update($data);
         }
@@ -123,5 +97,23 @@ class DojoController extends Controller
         if (auth()->user()->can('delete',$dojo)) {
             $dojo->delete();
         }
+    }
+
+    protected function vaildateForm($request) {
+        return $request->validate([
+            'name' => 'required|string|max:200|unique:dojos,name',
+            'description' => 'required|max:600',
+            'location' => 'required|max:200',
+            'classes' => 'required|max:200',
+            'price' => 'required|max:120',
+            'contact' => 'required|max:200',
+            'category_id' => [
+                'required',
+                'integer',
+                Rule::exists('categories','id')->where(function($query) {
+                    $query->where('approved',1);
+                }),
+            ]
+        ]);
     }
 }

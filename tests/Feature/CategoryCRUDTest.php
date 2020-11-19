@@ -13,6 +13,10 @@ class CategoryCRUDTest extends TestCase
 {
     use DatabaseMigrations;
 
+    protected function addNone() {
+        return Category::factory()->create(['name'=>'None']);
+    }
+
     /** @test */
     public function an_admin_can_add_a_category() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
@@ -43,7 +47,7 @@ class CategoryCRUDTest extends TestCase
     /** @test */
     public function an_admin_can_delete_a_category() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
-        $none = Category::factory()->create(['name'=>'none']);
+        $this->addNone();
         Category::factory()->create();
         $this->assertDatabaseCount('categories',2);
         $this->json('delete','/api/categories/2');
@@ -53,7 +57,7 @@ class CategoryCRUDTest extends TestCase
     /** @test */
     public function a_non_admin_cannot_delete_a_category() {
         $this->signIn();
-        $none = Category::factory()->create(['name'=>'none']);
+        $this->addNone();
         Category::factory()->create();
         $this->assertDatabaseCount('categories',2);
         $this->json('delete','/api/categories/2');
@@ -63,7 +67,7 @@ class CategoryCRUDTest extends TestCase
     /** @test */
     public function dojo_category_is_set_to_none_if_its_category_is_deleted() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
-        $none = Category::factory()->create(['name'=>'none']);
+        $none = $this->addNone();
         $cat = Category::factory()->create();
         Dojo::factory(3)->create(['category_id'=>$cat->id]);
         $this->assertDatabaseHas('dojos',['category_id'=>$cat->id]);

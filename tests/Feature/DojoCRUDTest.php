@@ -18,10 +18,15 @@ class DojoCRUDTest extends TestCase
         return [
             'name' => 'foobar',
             'category_id' => $cat_id,
-            'url' => 'https://someWebsite.com',
             'location' => '123 main st. Planet Mars',
             'price' => '99$/month',
-            'owner' => 'Mr. Bar'
+            'classes' => 'Monday-Friday at 730pm-9pm',
+            'contact' => 'Call me at my 1111111111',
+            'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
+                reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
         ];
     }
 
