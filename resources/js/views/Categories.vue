@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+        Categories
     </div>
 </template>
 
