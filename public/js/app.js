@@ -1959,9 +1959,57 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      categories: {},
+      selected_category: 1,
+      dojos: {},
+      filtered_dojos: {}
+    };
+  },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    var _this = this;
+
+    axios.get("/api/categories").then(function (response) {
+      _this.categories = response.data;
+      _this.selected_category = 1;
+    });
+    axios.get("/api/dojos").then(function (response) {
+      _this.dojos = response.data;
+      _this.filtered_dojos = response.data;
+    });
+  },
+  methods: {
+    changeCategory: function changeCategory() {
+      var _this2 = this;
+
+      if (this.selected_category == 1) {
+        this.filtered_dojos = this.dojos; // all
+      } else {
+        this.filtered_dojos = this.dojos.filter(function (d) {
+          return d.category_id == _this2.selected_category;
+        });
+      }
+    }
   }
 });
 
@@ -1982,9 +2030,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      users: {}
+    };
+  },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    var _this = this;
+
+    axios.get('/api/users').then(function (response) {
+      return _this.users = response.data;
+    });
   }
 });
 
@@ -37628,7 +37687,82 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [_vm._v("\n    Home\n")])
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col col-md-8 offset-md-2 col-12" }, [
+        _c("div", { staticClass: "form-group" }, [
+          _c("label", { attrs: { for: "" } }, [_vm._v("Category")]),
+          _vm._v(" "),
+          _c(
+            "select",
+            {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.selected_category,
+                  expression: "selected_category"
+                }
+              ],
+              staticClass: "form-control",
+              on: {
+                change: [
+                  function($event) {
+                    var $$selectedVal = Array.prototype.filter
+                      .call($event.target.options, function(o) {
+                        return o.selected
+                      })
+                      .map(function(o) {
+                        var val = "_value" in o ? o._value : o.value
+                        return val
+                      })
+                    _vm.selected_category = $event.target.multiple
+                      ? $$selectedVal
+                      : $$selectedVal[0]
+                  },
+                  function($event) {
+                    return _vm.changeCategory()
+                  }
+                ]
+              }
+            },
+            _vm._l(_vm.categories, function(cat) {
+              return _c(
+                "option",
+                { key: cat.id, domProps: { value: cat.id } },
+                [_vm._v(_vm._s(cat.name))]
+              )
+            }),
+            0
+          )
+        ])
+      ])
+    ]),
+    _vm._v(" "),
+    _c(
+      "div",
+      { staticClass: "row" },
+      _vm._l(_vm.filtered_dojos, function(dojo) {
+        return _c("div", { key: dojo.id, staticClass: "card" }, [
+          _c("img", {
+            staticClass: "card-img-top",
+            attrs: { src: "holder.js/100x180/", alt: "" }
+          }),
+          _vm._v(" "),
+          _c("div", { staticClass: "card-body" }, [
+            _c("h4", { staticClass: "card-title" }, [
+              _vm._v(_vm._s(dojo.name))
+            ]),
+            _vm._v(" "),
+            _c("p", { staticClass: "card-text" }, [
+              _vm._v(_vm._s(dojo.description))
+            ])
+          ])
+        ])
+      }),
+      0
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -37652,7 +37786,15 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [_vm._v("\n    Users\n")])
+  return _c("div", { staticClass: "container" }, [
+    _c(
+      "ul",
+      _vm._l(_vm.users, function(user) {
+        return _c("li", { key: user.id }, [_vm._v(_vm._s(user.name))])
+      }),
+      0
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
