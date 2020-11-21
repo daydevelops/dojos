@@ -30,5 +30,9 @@ Route::post('/categories', [CategoryController::class,'store'])->middleware('aut
 Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
 Route::patch('/categories/{category}/approve',[CategoryController::class,'approve'])->middleware('admin');
 
-Route::get('/users',[UserController::class,'index'])->middleware('admin');
+Route::get('/users',[UserController::class,'index'])->middleware('auth:sanctum');
 Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});

@@ -42,6 +42,8 @@ export default {
       this.dojos = response.data;
       this.filtered_dojos = response.data;
     });
+    
+    axios.get('/api/user').then(response => console.log(response))
   },
   methods: {
     changeCategory() {
