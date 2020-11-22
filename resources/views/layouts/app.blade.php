@@ -11,6 +11,7 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
+    <script src="https://kit.fontawesome.com/4719078df9.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->
@@ -19,6 +20,14 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+	
+	<script>
+	    window.App = {!! json_encode([
+		    'signedIn' => Auth::check(),
+		    'user' => Auth::user()
+		]) !!};
+	</script>
 </head>
 
 <body>
@@ -62,6 +71,9 @@
                         </li>
                         @endif
                         <li class="nav-item">
+                            <router-link class="nav-link" to="/dojos/new">New Dojo</router-link>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="/logout" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                 Logout
@@ -80,9 +92,7 @@
             @yield('content')
         </main>
     </div>
-<script>
 
-</script>
 </body>
 
 </html>

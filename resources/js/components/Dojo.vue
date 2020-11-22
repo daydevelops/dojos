@@ -1,0 +1,65 @@
+<template>
+  <div class="card mb-4 p-3">
+    <div class="row">
+      <div class="col-lg-3">
+        <img class="dojo-img mb-2" v-bind:src="'/images/'+dojo.image" />
+      </div>
+      <div class="col-lg-9">
+          <div class="row">
+              <div class="col-10">
+                <h4 class="card-title">{{dojo.name}}</h4>
+                </div>
+              <div v-if="canEdit" class="col-2 text-right">
+                  <i class="fas fa-2x fa-trash-alt m-2 text-danger" @click="deleteDojo(dojo.id)"></i>
+                  <router-link :to='{name:"EditDojo",params:{id:this.dojo.id}}'><i class="fas fa-2x fa-edit m-2 text-success"></i></router-link>
+              </div>
+          </div>
+        <p class="m-0 p-0">{{dojo.description}}</p>
+        <p class="m-0 p-0">
+          <u>Location:</u>
+          {{dojo.location}}
+        </p>
+        <p class="m-0 p-0">
+          <u>Contact Information:</u>
+          {{dojo.contact}}
+        </p>
+        <p class="m-0 p-0">
+          <u>Price:</u>
+          {{dojo.price}}
+        </p>
+        <p class="m-0 p-0">
+          <u>Class Times:</u>
+          {{dojo.classes}}
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+    props: ['dojo'],
+    computed: {
+		canEdit() {
+			return window.App.user.is_admin || window.App.user.id == this.dojo.user_id;
+		},
+    },
+    methods: {
+        deleteDojo() {
+
+        }
+    }
+}
+</script>
+
+<style>
+.dojo-img {
+  max-width: 200px;
+  display: block;
+  margin: auto;
+  width: 100%;
+}
+.card {
+  box-shadow:0px 0px 26px -18px black
+}
+</style>

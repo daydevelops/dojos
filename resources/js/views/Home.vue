@@ -11,12 +11,8 @@
       </div>
     </div>
     <div class="row">
-      <div class="card" v-for="dojo in filtered_dojos" :key="dojo.id">
-        <img class="card-img-top" src="holder.js/100x180/" alt />
-        <div class="card-body">
-          <h4 class="card-title">{{dojo.name}}</h4>
-          <p class="card-text">{{dojo.description}}</p>
-        </div>
+      <div class="col col-12" v-for="dojo in filtered_dojos" :key="dojo.id">
+       <dojo v-bind:dojo="dojo"></dojo>
       </div>
     </div>
   </div>
