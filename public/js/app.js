@@ -1997,9 +1997,6 @@ __webpack_require__.r(__webpack_exports__);
       _this.dojos = response.data;
       _this.filtered_dojos = response.data;
     });
-    axios.get('/api/user').then(function (response) {
-      return console.log(response);
-    });
   },
   methods: {
     changeCategory: function changeCategory() {
@@ -53065,6 +53062,16 @@ var app = new Vue({
   el: '#app',
   router: _routes_js__WEBPACK_IMPORTED_MODULE_0__["default"]
 });
+
+function initializeCSRF() {
+  axios.get('/sanctum/csrf-cookie').then(function (response) {
+    axios.post('/login', {
+      email: $('#email').val(),
+      password: $('#password').val()
+    });
+  });
+  return false;
+}
 
 /***/ }),
 

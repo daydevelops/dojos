@@ -8,3 +8,13 @@ const app = new Vue({
     el: '#app',
     router:router
 });
+
+function initializeCSRF() {
+    axios.get('/sanctum/csrf-cookie').then(response => {
+        axios.post('/login', {
+            email:$('#email').val(),
+            password: $('#password').val()
+        })
+    });
+    return false;
+}

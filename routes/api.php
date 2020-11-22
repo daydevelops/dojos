@@ -20,19 +20,15 @@ use App\Http\Controllers\UserController;
 
 Route::get('/dojos',[DojoController::class,'index']);
 Route::get('/dojos/category/{category}',[CategoryController::class,'dojos']);
-Route::get('/dojos/edit',[DojoController::class,'edit'])->middleware('auth');
-Route::post('/dojos',[DojoController::class,'store'])->middleware('auth');
-Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth');
-Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth');
+Route::get('/dojos/edit',[DojoController::class,'edit'])->middleware('auth:sanctum');
+Route::post('/dojos',[DojoController::class,'store'])->middleware('auth:sanctum');
+Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth:sanctum');
+Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth:sanctum');
 
 Route::get('/categories',[CategoryController::class,'index']);
-Route::post('/categories', [CategoryController::class,'store'])->middleware('auth');
+Route::post('/categories', [CategoryController::class,'store'])->middleware('auth:sanctum');
 Route::delete('/categories/{category}',[CategoryController::class,'destroy'])->middleware('admin');
 Route::patch('/categories/{category}/approve',[CategoryController::class,'approve'])->middleware('admin');
 
-Route::get('/users',[UserController::class,'index'])->middleware('auth:sanctum');
+Route::get('/users',[UserController::class,'index'])->middleware('admin');
 Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});

@@ -81,15 +81,6 @@
         </main>
     </div>
 <script>
-    function initializeCSRF() {
-        axios.get('/sanctum/csrf-cookie').then(response => {
-            axios.post('/login', {
-                email:'admin@admin.com',
-                password: 'password'
-            })
-        });
-        return false;
-    }
 
 </script>
 </body>
