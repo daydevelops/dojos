@@ -111,26 +111,6 @@ class DojoCRUDTest extends TestCase
         $this->assertDatabaseMissing('dojos',$this->sampleDojo());
     }
 
-    /** @test */
-    public function auth_users_can_browse_a_list_of_their_dojos_to_edit() {
-        $this->signIn();
-        Dojo::factory(3)->create(['user_id'=>auth()->id()]);
-        $res = $this->get('/api/dojos/edit')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertContains(Dojo::find(2)->toArray(),$res);
-        $this->assertContains(Dojo::find(3)->toArray(),$res);
-    }
-
-    /** @test */
-    public function users_can_only_see_their_own_dojos_on_the_edit_page() {
-        $this->signIn();
-        Dojo::factory()->create(['user_id'=>auth()->id()]);
-        Dojo::factory()->create();
-        $res = $this->get('/api/dojos/edit')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertNotContains(Dojo::find(2)->toArray(),$res);
-    }
-
     // DELETING
 
     /** @test */
