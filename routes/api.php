@@ -20,7 +20,7 @@ use App\Http\Controllers\UserController;
 
 Route::get('/dojos',[DojoController::class,'index']);
 Route::get('/dojos/category/{category}',[CategoryController::class,'dojos']);
-Route::get('/dojos/edit',[DojoController::class,'edit'])->middleware('auth:sanctum');
+Route::get('/dojos/{dojo}',[DojoController::class,'edit'])->middleware('auth:sanctum');
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth:sanctum');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth:sanctum');
 Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth:sanctum');

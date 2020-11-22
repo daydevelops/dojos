@@ -31,8 +31,7 @@ class DojoFactory extends Factory
             'price' => "$" . rand(20, 40) . "/month",
             'contact' => $this->faker->sentence,
             'classes' => $this->faker->sentence,
-            'description' => $this->faker->sentence,
-            'image' => 'default.jpg'
+            'description' => $this->faker->paragraph,
         ];
     }
 }

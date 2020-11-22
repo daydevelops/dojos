@@ -13,10 +13,21 @@ let routes = [
     {
         path: '/categories',
         component: require('./views/Categories.vue').default
-    }
+    },
+    {
+        path: '/dojos/new',
+        component: require('./views/DojoForm.vue').default
+    },
+    {
+        name: 'EditDojo',
+        path: '/dojos/:id',
+        component: require('./views/DojoForm.vue').default,
+        props:true
+    },
+
 ]
 
 export default new VueRouter({
-    routes:routes
+    routes:routes,
 })
 
