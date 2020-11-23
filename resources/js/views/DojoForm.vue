@@ -1,89 +1,110 @@
 <template>
-  <div class="card mb-4 p-3">
-    <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
-      <div class="col-lg-3">
-        <img class="dojo-img mb-2" v-bind:src="'/images/'+form.image" />
-      </div>
-      <div class="col-lg-9">
-        <div class="row">
-          <div class="col-10">
-            <div class="card-title">
-              <div class="form-group">
-                <input type="text" class="form-control" name="name" v-model="form.name" />
-                <span class="help" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></span>
+  <div>
+    <div class="card mb-4 p-3">
+      <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
+        <div class="col-lg-3">
+          <img class="dojo-img mb-2" v-bind:src="'/images/'+form.image" />
+        </div>
+        <div class="col-lg-9">
+          <div class="row">
+            <div class="col-10">
+              <div class="card-title">
+                <div class="form-group">
+                  <input type="text" class="form-control" name="name" v-model="form.name" />
+                  <span
+                    class="help"
+                    v-if="form.errors.has('name')"
+                    v-text="form.errors.get('name')"
+                  ></span>
+                </div>
               </div>
             </div>
+            <div class="col-2 text-right" v-if="is_editing">
+              <i
+                class="fas fa-2x fa-trash-alt m-2 text-danger"
+                data-toggle="modal"
+                data-target="#aysm"
+              ></i>
+            </div>
           </div>
-          <div class="col-2 text-right" v-if="is_editing">
-            <i class="fas fa-2x fa-trash-alt m-2 text-danger" @click="deleteDojo(dojo.id)"></i>
-          </div>
-        </div>
-        <div class="m-1 p-0">
-          <textarea class="form-control" name="description" v-model="form.description"></textarea>
-          <span
-            class="help"
-            v-if="form.errors.has('description')"
-            v-text="form.errors.get('description')"
-          ></span>
-        </div>
-        <div class="m-1 p-0 form-group row">
-          <label class="col-sm-3 col-form-label">Location:</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="price" v-model="form.location" />
+          <div class="m-1 p-0">
+            <textarea class="form-control" name="description" v-model="form.description"></textarea>
             <span
               class="help"
-              v-if="form.errors.has('location')"
-              v-text="form.errors.get('location')"
+              v-if="form.errors.has('description')"
+              v-text="form.errors.get('description')"
             ></span>
           </div>
-        </div>
-        <div class="m-1 p-0 form-group row">
-          <label class="col-sm-3 col-form-label">Contact Information:</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="price" v-model="form.contact" />
-            <span
-              class="help"
-              v-if="form.errors.has('contact')"
-              v-text="form.errors.get('contact')"
-            ></span>
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Location:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="price" v-model="form.location" />
+              <span
+                class="help"
+                v-if="form.errors.has('location')"
+                v-text="form.errors.get('location')"
+              ></span>
+            </div>
+          </div>
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Contact Information:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="price" v-model="form.contact" />
+              <span
+                class="help"
+                v-if="form.errors.has('contact')"
+                v-text="form.errors.get('contact')"
+              ></span>
+            </div>
+          </div>
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Price:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="price" v-model="form.price" />
+              <span class="help" v-if="form.errors.has('price')" v-text="form.errors.get('price')"></span>
+            </div>
+          </div>
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Class Times:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="price" v-model="form.classes" />
+              <span
+                class="help"
+                v-if="form.errors.has('classes')"
+                v-text="form.errors.get('classes')"
+              ></span>
+            </div>
+          </div>
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Category:</label>
+            <div class="col-sm-9">
+              <select class="form-control" name="category_id" v-model="form.category_id">
+                <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
+              </select>
+              <span
+                class="help"
+                v-if="form.errors.has('category_id')"
+                v-text="form.errors.get('category_id')"
+              ></span>
+            </div>
+          </div>
+          <div class="form-group row mt-3">
+            <button
+              type="submit"
+              class="btn btn-primary d-block m-auto"
+              v-bind:disabled="form.errors.any()"
+            >Save</button>
           </div>
         </div>
-        <div class="m-1 p-0 form-group row">
-          <label class="col-sm-3 col-form-label">Price:</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="price" v-model="form.price" />
-            <span class="help" v-if="form.errors.has('price')" v-text="form.errors.get('price')"></span>
-          </div>
-        </div>
-        <div class="m-1 p-0 form-group row">
-          <label class="col-sm-3 col-form-label">Class Times:</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" name="price" v-model="form.classes" />
-            <span
-              class="help"
-              v-if="form.errors.has('classes')"
-              v-text="form.errors.get('classes')"
-            ></span>
-          </div>
-        </div>
-        <div class="m-1 p-0 form-group row">
-          <label class="col-sm-3 col-form-label">Category:</label>
-          <div class="col-sm-9">
-            <select class="form-control" name="category_id" v-model="form.category_id">
-              <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
-            </select>
-            <span
-              class="help"
-              v-if="form.errors.has('category_id')"
-              v-text="form.errors.get('category_id')"
-            ></span>
-          </div>
-          </div>
-        <div class="form-group row mt-3">
-          <button type="submit" class="btn btn-primary d-block m-auto" v-bind:disabled="form.errors.any()">Save</button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
+    <AreYouSureModal
+      :id="'aysm'"
+      action="delete this dojo"
+      btncolor="danger"
+      btntext="Delete"
+      v-on:confirm="deleteDojo"
+    ></AreYouSureModal>
   </div>
 </template>
 
@@ -148,12 +169,17 @@ export default {
         .submit(action, path)
         .then(data => {
           if (!this.is_editing) {
-            this.$router.push('/');
+            this.$router.push("/");
           } else {
-            alert('Dojo Updated!')
+            alert("Dojo Updated!");
           }
         })
         .catch(error => console.log(error));
+    },
+    deleteDojo() {
+      axios.delete("/api/dojos/" + this.dojo_id).then(response => {
+        this.$router.push("/");
+      });
     }
   }
 };

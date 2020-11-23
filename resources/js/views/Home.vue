@@ -11,8 +11,8 @@
       </div>
     </div>
     <div class="row">
-      <div class="col col-12" v-for="dojo in filtered_dojos" :key="dojo.id">
-       <dojo v-bind:dojo="dojo"></dojo>
+      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="dojo.id">
+       <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
       </div>
     </div>
   </div>
