@@ -3,7 +3,7 @@
     <div class="card mb-4 p-3">
       <div class="row">
         <div class="col-lg-3">
-          <img class="dojo-img mb-2" v-bind:src="'/images/'+dojo.image" />
+          <img class="dojo-img mb-2" v-bind:src="dojo.image" />
         </div>
         <div class="col-lg-9">
           <div class="row">

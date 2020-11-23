@@ -1,9 +1,15 @@
 <template>
   <div>
     <div class="card mb-4 p-3">
-      <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
+      <form
+        class="row"
+        @submit.prevent="onSubmit"
+        @keydown="form.errors.clear($event.target.name)"
+      >
         <div class="col-lg-3">
-          <img class="dojo-img mb-2" v-bind:src="'/images/'+form.image" />
+          <div class="form-group">
+            <AvatarForm :currentimage="form.image" :dojo_id="this.dojo_id"></AvatarForm>
+          </div>
         </div>
         <div class="col-lg-9">
           <div class="row">
@@ -119,7 +125,8 @@ export default {
         price: "How much do you charge for your services?",
         contact: "How can people contact you?",
         classes: "Describe your class schedule",
-        category_id: 2 // none
+        category_id: 2, // none
+        image: null
       }),
       is_editing: false, // are we editing an existing dojo. or creating a new one?
       dojo_id: 0,
@@ -144,7 +151,8 @@ export default {
           price: response.data.price,
           contact: response.data.contact,
           classes: response.data.classes,
-          category_id: response.data.category_id
+          category_id: response.data.category_id,
+          image: response.data.image
         });
         this.dojo_id = response.data.id;
       });

@@ -19,8 +19,10 @@ class AvatarController extends Controller
                 })
             ]
         ]);
-        Dojo::find($data['dojo'])->update([
+        $dojo = Dojo::find($data['dojo']);
+        $dojo->update([
             'image' => request()->file('image')->store('images','public')
         ]);
+        return $dojo->fresh()->image;
     }
 }
