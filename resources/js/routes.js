@@ -24,6 +24,10 @@ let routes = [
         component: require('./views/DojoForm.vue').default,
         props:true
     },
+    {
+        path: '/categories/new',
+        component: require('./views/CategoryForm.vue').default
+    },
 
 ]
 

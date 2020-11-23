@@ -1,11 +1,23 @@
 <template>
   <div>
+    <div class="m-3 p-1 form-group row">
+      <label class="col-sm-3 col-form-label">Category:</label>
+      <div class="col-sm-6">
+        <select class="form-control" name="category_id" v-model="form.category_id">
+          <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
+        </select>
+        <span
+          class="help"
+          v-if="form.errors.has('category_id')"
+          v-text="form.errors.get('category_id')"
+        ></span>
+      </div>
+      <div class="col col-sm-3">
+        <router-link to="/categories/new"><button class="btn btn-primary">Add New</button></router-link>
+      </div>
+    </div>
     <div class="card mb-4 p-3">
-      <form
-        class="row"
-        @submit.prevent="onSubmit"
-        @keydown="form.errors.clear($event.target.name)"
-      >
+      <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         <div class="col-lg-3">
           <div class="form-group">
             <AvatarForm :currentimage="form.image" :dojo_id="this.dojo_id"></AvatarForm>
@@ -78,19 +90,6 @@
                 class="help"
                 v-if="form.errors.has('classes')"
                 v-text="form.errors.get('classes')"
-              ></span>
-            </div>
-          </div>
-          <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Category:</label>
-            <div class="col-sm-9">
-              <select class="form-control" name="category_id" v-model="form.category_id">
-                <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
-              </select>
-              <span
-                class="help"
-                v-if="form.errors.has('category_id')"
-                v-text="form.errors.get('category_id')"
               ></span>
             </div>
           </div>

@@ -33,7 +33,7 @@ class CategoryCRUDTest extends TestCase
         $data = ['name' => 'FooBar'];
         $this->assertDatabaseMissing('categories',$data);
         $this->post('/api/categories',$data);
-        $data['approved'] = 0;
+        $data['approved'] = 1;
         $this->assertDatabaseHas('categories',$data);
     }
 

@@ -46,7 +46,8 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $data = request()->validate(['name' => 'required|unique:categories,name']);
-        $data['approved'] = auth()->user()->is_admin;
+        // allow all categories to be approved
+        $data['approved'] = 1; // auth()->user()->is_admin;
         Category::create($data);
     }
 
