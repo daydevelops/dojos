@@ -2097,6 +2097,46 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -2104,10 +2144,143 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      categories: {},
+      form: new Form({
+        name: ""
+      })
+    };
+  },
   mounted: function mounted() {
-    console.log('Component mounted.');
+    var _this = this;
+
+    axios.get("/api/categories").then(function (response) {
+      _this.categories = response.data;
+    });
+  },
+  methods: {
+    deleteCategory: function deleteCategory(id, index) {
+      var _this2 = this;
+
+      axios["delete"]("/api/categories/" + id).then(function (response) {
+        _this2.categories.splice(index, 1);
+      })["catch"](function (errors) {
+        console.log(errors);
+      });
+    },
+    onSubmit: function onSubmit() {
+      var _this3 = this;
+
+      this.form.submit("post", "/api/categories").then(function (data) {
+        _this3.categories.push(data);
+      })["catch"](function (error) {
+        return console.log(error);
+      });
+    }
   }
 });
+
+var Errors = /*#__PURE__*/function () {
+  function Errors() {
+    _classCallCheck(this, Errors);
+
+    this.errors = {};
+  }
+
+  _createClass(Errors, [{
+    key: "get",
+    value: function get(field) {
+      return this.errors[field] ? this.errors[field][0] : "";
+    }
+  }, {
+    key: "record",
+    value: function record(error) {
+      this.errors = error;
+    }
+  }, {
+    key: "clear",
+    value: function clear(field) {
+      delete this.errors[field];
+    }
+  }, {
+    key: "has",
+    value: function has(field) {
+      return !!this.errors[field];
+    }
+  }, {
+    key: "any",
+    value: function any() {
+      return Object.keys(this.errors).length > 0;
+    }
+  }]);
+
+  return Errors;
+}();
+
+var Form = /*#__PURE__*/function () {
+  function Form(fields) {
+    _classCallCheck(this, Form);
+
+    this.original_data = fields;
+
+    for (var f in fields) {
+      this[f] = fields[f];
+    }
+
+    this.errors = new Errors();
+  }
+
+  _createClass(Form, [{
+    key: "reset",
+    value: function reset(fields) {
+      for (var f in fields) {
+        this[f] = "";
+      }
+    }
+  }, {
+    key: "data",
+    value: function data() {
+      var data = {};
+
+      for (var property in this.original_data) {
+        data[property] = this[property];
+      }
+
+      return data;
+    }
+  }, {
+    key: "submit",
+    value: function submit(method, url) {
+      var _this4 = this;
+
+      return new Promise(function (resolve, reject) {
+        axios[method](url, _this4.data()).then(function (response) {
+          _this4.onSuccess(response.data);
+
+          resolve(response.data);
+        })["catch"](function (error) {
+          _this4.onFail(error);
+
+          reject(error);
+        });
+      });
+    }
+  }, {
+    key: "onSuccess",
+    value: function onSuccess(data) {
+      this.reset(this.original_data);
+    }
+  }, {
+    key: "onFail",
+    value: function onFail(error) {
+      // debugger
+      this.errors.record(error.response.data.errors);
+    }
+  }]);
+
+  return Form;
+}();
 
 /***/ }),
 
@@ -39275,9 +39448,115 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [_vm._v("\n    Categories\n")])
+  return _c("div", { staticClass: "container" }, [
+    _c(
+      "form",
+      {
+        staticClass: "row",
+        on: {
+          submit: function($event) {
+            $event.preventDefault()
+            return _vm.onSubmit($event)
+          },
+          keydown: function($event) {
+            return _vm.form.errors.clear($event.target.name)
+          }
+        }
+      },
+      [
+        _c("div", { staticClass: "col col-sm-6 offset-sm-3" }, [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.form.name,
+                expression: "form.name"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text", name: "name", placeholder: "Name..." },
+            domProps: { value: _vm.form.name },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(_vm.form, "name", $event.target.value)
+              }
+            }
+          }),
+          _vm._v(" "),
+          _vm.form.errors.has("name")
+            ? _c("span", {
+                staticClass: "help",
+                domProps: { textContent: _vm._s(_vm.form.errors.get("name")) }
+              })
+            : _vm._e()
+        ]),
+        _vm._v(" "),
+        _vm._m(0)
+      ]
+    ),
+    _vm._v(" "),
+    _c("h2", { staticClass: " col-sm-6 offset-sm-3 text-center" }, [
+      _vm._v("Available Categories:")
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "row" }, [
+      _c("div", { staticClass: "col-sm-6 offset-sm-3" }, [
+        _c(
+          "ul",
+          { staticClass: "p-0" },
+          _vm._l(_vm.categories, function(cat, index) {
+            return _c(
+              "li",
+              {
+                key: cat.id,
+                staticClass:
+                  "mb-1 alert alert-primary d-flex justify-content-between",
+                staticStyle: { "list-style-type": "none" }
+              },
+              [
+                _c("span", { domProps: { textContent: _vm._s(cat.name) } }),
+                _vm._v(" "),
+                cat.id > 2
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-danger btn-sm mr-2",
+                        on: {
+                          click: function($event) {
+                            return _vm.deleteCategory(cat.id, index)
+                          }
+                        }
+                      },
+                      [_vm._v("x")]
+                    )
+                  : _vm._e()
+              ]
+            )
+          }),
+          0
+        )
+      ])
+    ])
+  ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col col-sm-3" }, [
+      _c(
+        "button",
+        { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+        [_vm._v("Add")]
+      )
+    ])
+  }
+]
 render._withStripped = true
 
 

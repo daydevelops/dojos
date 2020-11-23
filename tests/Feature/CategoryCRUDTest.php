@@ -77,6 +77,11 @@ class CategoryCRUDTest extends TestCase
     }
 
     /** @test */
+    public function categories_all_and_none_cannot_be_deleted() {
+        
+    }
+
+    /** @test */
     public function an_admin_can_approve_a_category() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
         Category::factory()->create(['approved'=>0]);

@@ -48,7 +48,8 @@ class CategoryController extends Controller
         $data = request()->validate(['name' => 'required|unique:categories,name']);
         // allow all categories to be approved
         $data['approved'] = 1; // auth()->user()->is_admin;
-        Category::create($data);
+        $cat = Category::create($data);
+        return $cat;
     }
 
     /**
