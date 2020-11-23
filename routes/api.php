@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AvatarController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DojoController;
@@ -30,3 +31,5 @@ Route::patch('/categories/{category}/approve',[CategoryController::class,'approv
 
 Route::get('/users',[UserController::class,'index'])->middleware('admin');
 Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
+
+Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
