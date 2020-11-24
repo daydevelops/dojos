@@ -178,10 +178,11 @@ export default {
           if (!this.is_editing) {
             this.$router.push("/");
           } else {
-            alert("Dojo Updated!");
+            window.flash("Your dojo has been updated!","success")
           }
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+        });
     },
     deleteDojo() {
       axios.delete("/api/dojos/" + this.dojo_id).then(response => {

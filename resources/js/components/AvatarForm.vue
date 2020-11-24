@@ -3,7 +3,7 @@
     <div class="form-group">
       <input id="new-dojo-img" class="form-control" type="file" name="avatar" accept="image/*" />
     </div>
-      <button type="button" class="form-control btn btn-primary" @click="uploadImage">upload</button>
+    <button type="button" class="form-control btn btn-primary" @click="uploadImage">upload</button>
     <img id="dojo-image" :src="path" />
   </div>
 </template>
@@ -35,9 +35,13 @@ export default {
       axios.post("/api/avatar", data).then(
         response => {
           this.path = response.data;
+          window.flash("Your dojo's image has been updated!", "success");
         },
         error => {
-          console.log(error);
+          window.flash(
+            "Looks like something went wrong :(. If this continues, please let the webmaster know",
+            "danger"
+          );
         }
       );
     }

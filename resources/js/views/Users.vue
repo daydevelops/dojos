@@ -44,7 +44,13 @@ export default {
     toggleActive(id, index) {
       axios
         .patch("/api/users/" + id, { is_active: !this.users[index].is_active })
-        .then(response => (this.users[index].is_active = response.data));
+        .then(response => {
+          this.users[index].is_active = response.data;
+          window.flash(
+            "User has been "+(response.data ? "" : "de") + "activated",
+            "success"
+          );
+        });
     },
     ago(user) {
       return moment(user.created_at).fromNow();

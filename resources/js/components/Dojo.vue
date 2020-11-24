@@ -70,6 +70,10 @@ export default {
       axios.delete("/api/dojos/" + this.dojo.id)
       .then(response => {
         this.$emit('deleted');
+          window.flash(
+            "Dojo has been deleted",
+            "success"
+          );
       })
     }
   }

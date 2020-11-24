@@ -59,6 +59,10 @@ export default {
         .delete("/api/categories/" + id)
         .then(response => {
           this.categories.splice(index, 1);
+          window.flash(
+            "Category has been deleted",
+            "success"
+          );
         })
         .catch(errors => {
           console.log(errors);
@@ -69,6 +73,10 @@ export default {
         .submit("post", "/api/categories")
         .then(data => {
           this.categories.push(data);
+          window.flash(
+            "Category has been added",
+            "success"
+          );
         })
         .catch(error => console.log(error));
     }
