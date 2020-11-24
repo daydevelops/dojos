@@ -8,7 +8,7 @@
         <div class="col-lg-9">
           <div class="row">
             <div class="col-10">
-              <h4 class="card-title">{{dojo.name}}</h4>
+              <h4 class="card-title">{{dojo.name}} <small class='text-danger' v-if="!dojo.is_active">[Hidden due to owner deactivation]</small></h4>
             </div>
             <div v-if="canEdit" class="col-2 text-right">
               <i

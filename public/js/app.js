@@ -61123,7 +61123,12 @@ var render = function() {
             _c("div", { staticClass: "row" }, [
               _c("div", { staticClass: "col-10" }, [
                 _c("h4", { staticClass: "card-title" }, [
-                  _vm._v(_vm._s(_vm.dojo.name))
+                  _vm._v(_vm._s(_vm.dojo.name) + " "),
+                  !_vm.dojo.is_active
+                    ? _c("small", { staticClass: "text-danger" }, [
+                        _vm._v("[Hidden due to owner deactivation]")
+                      ])
+                    : _vm._e()
                 ])
               ]),
               _vm._v(" "),
