@@ -65,10 +65,6 @@
                         <li class="nav-item">
                             <router-link to="/users" class="nav-link">Users</router-link>
                         </li>
-                        @else
-                        <li class="nav-item">
-                            <router-link class="nav-link" to="/dojos">My Dojos</router-link>
-                        </li>
                         @endif
                         <li class="nav-item">
                             <router-link class="nav-link" to="/dojos/new">New Dojo</router-link>
