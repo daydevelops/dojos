@@ -48,9 +48,9 @@ class CategoryCRUDTest extends TestCase
     public function an_admin_can_delete_a_category() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
         $this->addNone();
-        Category::factory()->create();
+        $cat = Category::factory()->create();
         $this->assertDatabaseCount('categories',2);
-        $this->json('delete','/api/categories/2');
+        $this->json('delete','/api/categories/'.$cat->id);
         $this->assertDatabaseCount('categories',1);
     }
 
@@ -78,7 +78,13 @@ class CategoryCRUDTest extends TestCase
 
     /** @test */
     public function categories_all_and_none_cannot_be_deleted() {
-        
+        $this->signIn(User::factory()->create(['is_admin'=>true]));
+        $cat1 = Category::factory()->create(['name'=>'All']);
+        $cat2 = Category::factory()->create(['name'=>'None']);
+        $this->assertDatabaseCount('categories',2);
+        $this->json('delete','/api/categories/'.$cat1->id);
+        $this->json('delete','/api/categories/'.$cat2->id);
+        $this->assertDatabaseCount('categories',2);
     }
 
     /** @test */

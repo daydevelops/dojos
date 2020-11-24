@@ -14,6 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'App\Models\Dojo' => 'App\Policies\DojoPolicy',
+        'App\Models\Category' => 'App\Policies\CategoryPolicy',
     ];
 
     /**
