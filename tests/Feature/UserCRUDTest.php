@@ -32,8 +32,8 @@ class UserCRUDTest extends TestCase
         $this->signIn(User::factory()->create(['is_admin'=>true]));
         User::factory(2)->create();
         $res = $this->get('/api/users')->json();
-        $this->assertContains(User::find(1)->toArray(),$res);
-        $this->assertContains(User::find(2)->toArray(),$res);
+        $this->assertContains(User::find(1)->loadCount('dojos')->toArray(),$res);
+        $this->assertContains(User::find(2)->loadCount('dojos')->toArray(),$res);
     }
     
     /** @test */
