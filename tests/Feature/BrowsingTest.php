@@ -86,5 +86,14 @@ class BrowsingTest extends TestCase
         $this->assertNotContains(Dojo::find(2)->toArray(),$res);
     }
 
-
+    /** @test */
+    public function a_user_can_see_their_own_dojo_even_if_they_are_deactivated() {
+        $user = User::factory()->create(['is_active'=>0]);
+        $this->signIn($user);
+        Dojo::factory()->create();
+        Dojo::factory()->create(['user_id'=>$user->id]);
+        $res = $this->get('/api/dojos')->json();
+        $this->assertContains(Dojo::find(1)->toArray(),$res);
+        $this->assertContains(Dojo::find(2)->toArray(),$res);
+    }
 }

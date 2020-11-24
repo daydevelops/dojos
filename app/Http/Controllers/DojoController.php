@@ -18,9 +18,10 @@ class DojoController extends Controller
         if (auth()->check() && auth()->user()->is_admin) {
             return Dojo::all();
         } else {
-            // dont show dojos that belong to a deactivated user
-            return Dojo::whereHas('user',function($q) {
-                $q->where(['is_active'=>1]);
+            // show dojos that belong to the auth user, or activated users
+            $user_id = auth()->check() ? auth()->id() : null;
+            return Dojo::where(['user_id' => $user_id])->orWhereHas('user', function ($q) {
+                $q->where(['is_active' => 1]);
             })->get();
         }
     }
@@ -53,8 +54,8 @@ class DojoController extends Controller
             'category_id' => [
                 'required',
                 'integer',
-                Rule::exists('categories','id')->where(function($query) {
-                    $query->where('approved',1);
+                Rule::exists('categories', 'id')->where(function ($query) {
+                    $query->where('approved', 1);
                 }),
             ]
         ]);
@@ -109,12 +110,12 @@ class DojoController extends Controller
             'category_id' => [
                 'required',
                 'integer',
-                Rule::exists('categories','id')->where(function($query) {
-                    $query->where('approved',1);
+                Rule::exists('categories', 'id')->where(function ($query) {
+                    $query->where('approved', 1);
                 }),
             ]
         ]);
-        if (auth()->user()->can('update',$dojo)) {
+        if (auth()->user()->can('update', $dojo)) {
             $dojo->update($data);
         }
     }
@@ -127,7 +128,7 @@ class DojoController extends Controller
      */
     public function destroy(Dojo $dojo)
     {
-        if (auth()->user()->can('delete',$dojo)) {
+        if (auth()->user()->can('delete', $dojo)) {
             $dojo->delete();
         }
     }

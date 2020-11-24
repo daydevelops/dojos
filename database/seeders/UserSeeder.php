@@ -19,5 +19,10 @@ class UserSeeder extends Seeder
             'email'=>'admin@admin.com',
             'is_admin' => true
         ]);
+        User::factory()->create([
+            'name'=>'user',
+            'email'=>'user@user.com',
+            'is_admin' => false
+        ]);
     }
 }
