@@ -25,6 +25,11 @@ let routes = [
         props:true
     },
     {
+        path: '/dojos/user/:user_id',
+        component: require('./views/Home.vue').default,
+        props:true
+    },
+    {
         path: '/categories/new',
         component: require('./views/CategoryForm.vue').default
     },

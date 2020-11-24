@@ -2791,13 +2791,30 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       categories: {},
       selected_category: 1,
+      filter_by_user: 0,
+      user_id_filter: window.App.signedIn ? window.App.user.id : null,
       dojos: {},
-      filtered_dojos: {}
+      filtered_dojos: {},
+      signedIn: window.App.signedIn
     };
   },
   mounted: function mounted() {
@@ -2808,21 +2825,48 @@ __webpack_require__.r(__webpack_exports__);
       _this.selected_category = 1;
     });
     axios.get("/api/dojos").then(function (response) {
-      _this.dojos = response.data;
-      _this.filtered_dojos = response.data;
+      _this.dojos = response.data; // filter dojos by incoming user id
+
+      if (_this.$route.params.user_id) {
+        _this.user_id_filter = parseInt(_this.$route.params.user_id);
+        _this.filter_by_user = 1;
+      }
+
+      _this.filterDojos();
     });
   },
   methods: {
-    changeCategory: function changeCategory() {
+    toggleUserFilter: function toggleUserFilter() {
+      if (this.filter_by_user) {
+        this.filterByUser();
+      } else {
+        this.filtered_dojos = this.dojos;
+        this.changeCategory();
+      }
+    },
+    filterByUser: function filterByUser() {
       var _this2 = this;
 
-      if (this.selected_category == 1) {
-        this.filtered_dojos = this.dojos; // all
-      } else {
-        this.filtered_dojos = this.dojos.filter(function (d) {
-          return d.category_id == _this2.selected_category;
+      if (this.filter_by_user == true) {
+        this.filtered_dojos = this.filtered_dojos.filter(function (d) {
+          return d.user_id == _this2.user_id_filter;
         });
       }
+    },
+    filterByCategory: function filterByCategory() {
+      var _this3 = this;
+
+      if (this.selected_category == 1) {// do nothing
+      } else {
+        this.filtered_dojos = this.filtered_dojos.filter(function (d) {
+          return d.category_id == _this3.selected_category;
+        });
+      }
+    },
+    filterDojos: function filterDojos() {
+      this.filtered_dojos = this.dojos;
+      this.filterByCategory();
+      this.filterByUser();
     }
   }
 });
@@ -61677,7 +61721,7 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
     _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col col-md-8 offset-md-2 col-12" }, [
+      _c("div", { staticClass: "col col-md-7 offset-md-2" }, [
         _c("div", { staticClass: "form-group" }, [
           _c("label", { attrs: { for: "" } }, [_vm._v("Category")]),
           _vm._v(" "),
@@ -61709,7 +61753,7 @@ var render = function() {
                       : $$selectedVal[0]
                   },
                   function($event) {
-                    return _vm.changeCategory()
+                    return _vm.filterDojos()
                   }
                 ]
               }
@@ -61724,7 +61768,60 @@ var render = function() {
             0
           )
         ])
-      ])
+      ]),
+      _vm._v(" "),
+      _vm.signedIn
+        ? _c("div", { staticClass: "col-md-3" }, [
+            _c("div", { staticClass: "form-check" }, [
+              _c("label", { staticClass: "form-check-label" }, [
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.filter_by_user,
+                      expression: "filter_by_user"
+                    }
+                  ],
+                  staticClass: "form-check-input",
+                  attrs: { type: "checkbox", value: "0" },
+                  domProps: {
+                    checked: Array.isArray(_vm.filter_by_user)
+                      ? _vm._i(_vm.filter_by_user, "0") > -1
+                      : _vm.filter_by_user
+                  },
+                  on: {
+                    change: [
+                      function($event) {
+                        var $$a = _vm.filter_by_user,
+                          $$el = $event.target,
+                          $$c = $$el.checked ? true : false
+                        if (Array.isArray($$a)) {
+                          var $$v = "0",
+                            $$i = _vm._i($$a, $$v)
+                          if ($$el.checked) {
+                            $$i < 0 && (_vm.filter_by_user = $$a.concat([$$v]))
+                          } else {
+                            $$i > -1 &&
+                              (_vm.filter_by_user = $$a
+                                .slice(0, $$i)
+                                .concat($$a.slice($$i + 1)))
+                          }
+                        } else {
+                          _vm.filter_by_user = $$c
+                        }
+                      },
+                      function($event) {
+                        return _vm.filterDojos()
+                      }
+                    ]
+                  }
+                }),
+                _vm._v("\n          Show My Dojos\n        ")
+              ])
+            ])
+          ])
+        : _vm._e()
     ]),
     _vm._v(" "),
     _c(
@@ -77446,6 +77543,10 @@ var routes = [{
   name: 'EditDojo',
   path: '/dojos/:id',
   component: __webpack_require__(/*! ./views/DojoForm.vue */ "./resources/js/views/DojoForm.vue")["default"],
+  props: true
+}, {
+  path: '/dojos/user/:user_id',
+  component: __webpack_require__(/*! ./views/Home.vue */ "./resources/js/views/Home.vue")["default"],
   props: true
 }, {
   path: '/categories/new',
