@@ -53,7 +53,7 @@ class AvatarTest extends TestCase
             'dojo' => $dojo->id
 		])->assertStatus(200);
 		Storage::disk('public')->assertExists('images/'.$avatar->hashName());
-		$this->assertEquals('images/'.$avatar->hashName(),Dojo::first()->image);
+		$this->assertEquals('storage/images/'.$avatar->hashName(),Dojo::first()->image);
     }
 
 }
