@@ -21,7 +21,7 @@ class AvatarController extends Controller
         ]);
         $dojo = Dojo::find($data['dojo']);
         $dojo->update([
-            'image' => request()->file('image')->store('images','public')
+            'image' => 'storage/' . request()->file('image')->store('images','public')
         ]);
         return $dojo->fresh()->image;
     }

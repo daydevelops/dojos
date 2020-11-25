@@ -23,7 +23,7 @@ class CreateDojosTable extends Migration
             $table->string('contact');
             $table->text('description');
             $table->string('classes');
-            $table->string('image')->default('images/default.png');
+            $table->string('image')->default('storage/images/default.png');
             $table->timestamps();
         });
     }
