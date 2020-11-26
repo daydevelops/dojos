@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
-      <div class="col col-sm-6 offset-sm-3">
+      <div class="col-12 col-sm-6 offset-sm-3 mt-1">
         <input
           type="text"
           class="form-control"
@@ -15,7 +15,7 @@
           v-text="form.errors.get('name')"
         ></span>
       </div>
-      <div class="col col-sm-3">
+      <div class="col-12 col-sm-3 mt-1">
         <button type="submit" class="btn btn-primary">Add</button>
       </div>
     </form>

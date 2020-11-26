@@ -1,15 +1,15 @@
 <template>
   <div class="container">
-    <div class="row">
-      <div class="col col-md-7 offset-md-2">
-        <div class="form-group">
-          <label for>Category</label>
-          <select class="form-control" @change="filterDojos()" v-model="selected_category">
+    <div class="row mb-3">
+      <div class="col col-md-9">
+        <div class="form-group row">
+          <label class="col-sm-2 text-center text-sm-left">Category:</label>
+          <select class="form-control col-sm-10" @change="filterDojos()" v-model="selected_category">
             <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
           </select>
         </div>
       </div>
-      <div class="col-md-3" v-if="signedIn">
+      <div class="col-md-3 text-center text-md-right" v-if="signedIn">
         <div class="form-check">
           <label class="form-check-label">
             <input

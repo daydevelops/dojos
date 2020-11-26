@@ -13,7 +13,7 @@
 */ 
 
 <template>
-  <div class="alert alert-flash" :class="'alert-'+color" role="alert" v-show="show">{{ body }}</div>
+  <div class="alert alert-flash border border-dark" :class="'alert-'+color" role="alert" v-show="show">{{ body }}</div>
 </template>
 
 <script>

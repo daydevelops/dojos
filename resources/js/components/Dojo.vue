@@ -7,10 +7,10 @@
         </div>
         <div class="col-lg-9">
           <div class="row">
-            <div class="col-10">
+            <div class="col-sm-8">
               <h4 class="card-title">{{dojo.name}} <small class='text-danger' v-if="!dojo.is_active">[Hidden due to owner deactivation]</small></h4>
             </div>
-            <div v-if="canEdit" class="col-2 text-right">
+            <div v-if="canEdit" class="col-sm-4 text-sm-right">
               <i
                 class="fas fa-2x fa-trash-alt m-2 text-danger"
                 data-toggle="modal"

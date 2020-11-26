@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
-      <div class="col col-sm-6 offset-sm-3">
+    <form class="row mb-2" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
+      <div class="col col-10 col-sm-8 offset-sm-1">
         <input
           type="text"
           class="form-control"
@@ -11,26 +11,26 @@
         />
         <span class="help" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></span>
       </div>
-      <div class="col col-sm-3">
+      <div class="col col-2">
         <button type="submit" class="btn btn-primary">Add</button>
       </div>
     </form>
-    <h2 class=" col-sm-6 offset-sm-3 text-center">Available Categories:</h2>
+    <h2 class="text-center">Available Categories:</h2>
     <div class="row">
-      <div class="col-sm-6 offset-sm-3">
+      <div class="col-sm-10 offset-sm-1">
         <ul class="p-0">
           <li
             v-for="(cat,index) in categories"
             :key="cat.id"
-            class="mb-1 alert alert-primary d-flex justify-content-between"
+            class="mb-1 alert border border-dark d-flex justify-content-between p-1 pl-2"
             style="list-style-type:none;"
           >
             <span v-text="cat.name"></span>
-            <button
+              <i
+                class="fas fa-trash-alt m-2 text-danger"
               v-if="cat.id > 2"
-              class="btn btn-danger btn-sm mr-2"
               @click="deleteCategory(cat.id,index)"
-            >x</button>
+              ></i>
           </li>
         </ul>
       </div>

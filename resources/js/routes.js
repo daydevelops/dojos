@@ -4,7 +4,7 @@ import VueRouter from 'vue-router';
 let routes = [
     {
         path: '/',
-        component: require('./views/Home.vue').default
+        component: require('./views/DojoList.vue').default
     },
     {
         path: '/users',
@@ -26,7 +26,7 @@ let routes = [
     },
     {
         path: '/dojos/user/:user_id',
-        component: require('./views/Home.vue').default,
+        component: require('./views/DojoList.vue').default,
         props:true
     },
     {

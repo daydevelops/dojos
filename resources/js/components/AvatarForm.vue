@@ -1,10 +1,18 @@
 <template>
-  <div>
-    <div class="form-group">
-      <input id="new-dojo-img" class="form-control" type="file" name="avatar" accept="image/*" />
+  <div class="row">
+    <div class="col-sm-6 offset-sm-3 col-lg-12 offset-lg-0">
+      <div class="form-group mb-1 text-center">
+        <input
+          id="new-dojo-img"
+          class="form-control-file d-inline text-center"
+          type="file"
+          name="avatar"
+          accept="image/*"
+        />
+      </div>
+      <button type="button" class="form-control btn btn-primary mb-1" @click="uploadImage">upload</button>
+      <img id="dojo-image" :src="path" />
     </div>
-    <button type="button" class="form-control btn btn-primary" @click="uploadImage">upload</button>
-    <img id="dojo-image" :src="path" />
   </div>
 </template>
 
