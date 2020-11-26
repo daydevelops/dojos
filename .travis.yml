@@ -8,11 +8,9 @@ before_script:
   - composer install --no-interaction
 
 script:
+  - cp .env.example .env
   - php artisan key:generate
   - vendor/bin/phpunit
-
-services:
-  - redis-server
 
 cache:
   directories:
