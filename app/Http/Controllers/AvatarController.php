@@ -15,17 +15,25 @@ class AvatarController extends Controller
             'dojo' => [
                 'required',
                 'integer',
-                Rule::exists('dojos','id')->where(function($query) {
-                    $query->where('user_id',auth()->id());
-                })
+                'exists:dojos,id'
             ]
         ]);
+
         $dojo = Dojo::find($data['dojo']);
-        $old_image = $dojo->image;
-        $dojo->update([
-            'image' => 'storage/' . request()->file('image')->store('images','public')
-        ]);
-        File::delete(public_path($old_image));
-        return $dojo->fresh()->image;
+
+        if (auth()->user()->can('update', $dojo)) {
+            // delete old file to keep disc clean
+            $old_image = $dojo->image;
+            if ($old_image != 'storage/images/default.png') { // dont delete default
+                File::delete(public_path($old_image));
+            }
+    
+            $dojo->update([
+                'image' => 'storage/' . request()->file('image')->store('images','public')
+            ]);
+            return $dojo->fresh()->image;
+        } else {
+            return response()->json(['errors' => 'You cannot edit this dojo'],422);
+        }
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Dojo;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -46,6 +47,20 @@ class AvatarTest extends TestCase
         $dojo = Dojo::factory()->create([
             'user_id' => auth()->id()
         ]);
+		$avatar = UploadedFile::fake()->image('avatar.jpg');
+		Storage::fake('public');
+		$this->json('post','/api/avatar',[
+			'image' => $avatar,
+            'dojo' => $dojo->id
+		])->assertStatus(200);
+		Storage::disk('public')->assertExists('images/'.$avatar->hashName());
+		$this->assertEquals('storage/images/'.$avatar->hashName(),Dojo::first()->image);
+    }
+
+    /** @test */
+    public function admin_can_update_a_users_dojo_avatar() {
+		$this->signIn(User::factory()->create(['is_admin'=>1]));
+        $dojo = Dojo::factory()->create();
 		$avatar = UploadedFile::fake()->image('avatar.jpg');
 		Storage::fake('public');
 		$this->json('post','/api/avatar',[
