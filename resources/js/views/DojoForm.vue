@@ -21,13 +21,13 @@
     <div class="card mb-4 p-3">
       <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         <!-- Avater Form -->
-        <div class="col-lg-3">
+        <div v-if="is_editing" class="col-lg-3">
           <div class="form-group">
             <AvatarForm :currentimage="form.image" :dojo_id="this.dojo_id"></AvatarForm>
           </div>
         </div>
 
-        <div class="col-lg-9">
+        <div class="col" :class="{'col-lg-9':is_editing}">
           <!-- Name -->
           <div class="row m-1 p-0 form-group">
             <label class="col-sm-3 col-form-label">Name:</label>
@@ -107,7 +107,7 @@
                 v-bind:disabled="form.errors.any()"
               >Save</button>
             </div>
-            <div class="col-6">
+            <div v-if="is_editing" class="col-6">
               <button
                 type="button"
                 class="btn btn-danger d-block m-auto"
@@ -192,7 +192,7 @@ export default {
         .submit(action, path)
         .then(data => {
           if (!this.is_editing) {
-            this.$router.push("/");
+            this.$router.push("/dojos/"+data[0].id);
           } else {
             window.flash("Your dojo has been updated!", "success");
           }

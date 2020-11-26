@@ -62,6 +62,7 @@ class DojoController extends Controller
 
         $data['user_id'] = auth()->id();
         Dojo::create($data)->save();
+        return Dojo::where(['name'=>$data['name']])->get();
     }
 
     /**
