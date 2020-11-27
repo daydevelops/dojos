@@ -24,10 +24,13 @@
         </div>
       </div>
     </div>
-    <div class="row">
+    <div v-if="filtered_dojos.length > 0" class="row">
       <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="dojo.id">
         <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
       </div>
+    </div>
+    <div v-else class="row">
+      <div class="col-12"><h4 class="text-center">There are no dojos here yet</h4></div>
     </div>
   </div>
 </template>
