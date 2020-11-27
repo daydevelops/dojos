@@ -16,7 +16,7 @@ class DojoController extends Controller
     public function index()
     {
         if (auth()->check() && auth()->user()->is_admin) {
-            return Dojo::all();
+            return Dojo::with('category')->get();
         } else {
             // show dojos that belong to the auth user, or activated users
             $user_id = auth()->check() ? auth()->id() : null;

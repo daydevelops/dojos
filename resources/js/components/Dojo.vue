@@ -8,6 +8,7 @@
         <div class="col-lg-9">
           <div class="row">
             <div class="col-sm-8">
+              <i><small v-text="dojo.category.name"></small></i>
               <h4 class="card-title">{{dojo.name}} <small class='text-danger' v-if="!dojo.is_active">[Hidden due to owner deactivation]</small></h4>
             </div>
             <div v-if="canEdit" class="col-sm-4 text-sm-right">
@@ -23,19 +24,19 @@
           </div>
           <p class="m-0 p-0">{{dojo.description}}</p>
           <p class="m-0 p-0">
-            <u>Location:</u>
+            <u class="mr-3">Location:</u>
             {{dojo.location}}
           </p>
           <p class="m-0 p-0">
-            <u>Contact Information:</u>
+            <u class="mr-3">Contact Information:</u>
             {{dojo.contact}}
           </p>
           <p class="m-0 p-0">
-            <u>Price:</u>
+            <u class="mr-3">Price:</u>
             {{dojo.price}}
           </p>
           <p class="m-0 p-0">
-            <u>Class Times:</u>
+            <u class="mr-3">Class Times:</u>
             {{dojo.classes}}
           </p>
         </div>
