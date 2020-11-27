@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class ProductionSeeder extends Seeder
 {
@@ -17,7 +18,7 @@ class ProductionSeeder extends Seeder
         User::factory()->create([
             'name'=>env('ADMIN_NAME'),
             'email'=> env('ADMIN_EMAIL'),
-            'password' => env('ADMIN_PASSWORD'),
+            'password' => Hash::make(env('ADMIN_PASSWORD')),
             'is_admin' => true
         ]);
     }
