@@ -21,5 +21,7 @@ class ProductionSeeder extends Seeder
             'password' => Hash::make(env('ADMIN_PASSWORD')),
             'is_admin' => true
         ]);
+        Category::factory()->create(['name'=>'All']);
+        Category::factory()->create(['name'=>'None']);
     }
 }
