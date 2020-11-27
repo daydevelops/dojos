@@ -22,7 +22,7 @@ class DojoController extends Controller
             $user_id = auth()->check() ? auth()->id() : null;
             return Dojo::where(['user_id' => $user_id])->orWhereHas('user', function ($q) {
                 $q->where(['is_active' => 1]);
-            })->get();
+            })->with('category')->get();
         }
     }
 

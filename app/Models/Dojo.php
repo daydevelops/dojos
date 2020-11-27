@@ -11,6 +11,8 @@ class Dojo extends Model
 
     protected $guarded = [];
 
+    protected $hidden = ["user"];
+
     protected $appends = ['is_active'];
 
     public function getIsActiveAttribute() {
@@ -20,4 +22,9 @@ class Dojo extends Model
     public function user() {
         return $this->belongsTo(User::class);
     }
+
+    public function category() {
+        return $this->belongsTo(Category::class);
+    }
+
 }
