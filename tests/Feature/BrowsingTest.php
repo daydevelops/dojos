@@ -58,25 +58,6 @@ class BrowsingTest extends TestCase
     }
 
     /** @test */
-    public function a_dojo_is_provided_within_its_category() {
-        $cat = Category::factory()->create();
-        Dojo::factory(2)->create(['category_id'=>$cat->id]);
-        $res = $this->get('/api/dojos/category/1')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertContains(Dojo::find(2)->toArray(),$res);
-    }
-
-    /** @test */
-    public function a_dojo_is_not_provided_in_the_wrong_category() {
-        $cat = Category::factory()->create();
-        Dojo::factory()->create(['category_id'=>$cat->id]);
-        Dojo::factory()->create();
-        $res = $this->get('/api/dojos/category/1')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertNotContains(Dojo::find(2)->toArray(),$res);
-    }
-
-    /** @test */
     public function dojos_from_inactive_users_are_not_shown() {
         $user = User::factory()->create(['is_active'=>0]);
         Dojo::factory()->create();

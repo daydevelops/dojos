@@ -21,22 +21,6 @@ class CategoryController extends Controller
         }
     }
 
-    public function dojos(Category $category) {
-        return $category->dojos()->whereHas('user',function($q) {
-            $q->where(['is_active'=>1]);
-        })->get();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -50,28 +34,6 @@ class CategoryController extends Controller
         $data['approved'] = 1; // auth()->user()->is_admin;
         $cat = Category::create($data);
         return $cat;
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Category $category)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
-    {
-        //
     }
 
     /**
