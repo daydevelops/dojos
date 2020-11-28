@@ -28,7 +28,7 @@
             <span v-text="cat.name"></span>
               <i
                 class="fas fa-trash-alt m-2 text-danger"
-              v-if="cat.id > 2"
+              v-if="cat.id > 2 && canEdit"
               @click="deleteCategory(cat.id,index)"
               ></i>
           </li>
@@ -47,6 +47,11 @@ export default {
         name: ""
       })
     };
+  },
+  computed: {
+    canEdit() {
+      return window.App.user != null && window.App.user.is_admin;
+    }
   },
   mounted() {
     axios.get("/api/categories").then(response => {
