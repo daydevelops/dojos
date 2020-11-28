@@ -14,7 +14,7 @@ class BrowsingTest extends TestCase
     use DatabaseMigrations;
 
     /** @test */
-    public function a_guest_can_see_a_list_of_categories() {
+    public function a_guest_can_access_a_list_of_categories() {
         Category::factory(2)->create();
         $res = $this->get('/api/categories')->json();
         $this->assertContains(Category::find(1)->toArray(),$res);
@@ -22,7 +22,7 @@ class BrowsingTest extends TestCase
     }
 
     /** @test */
-    public function guests_cannot_see_unapproved_categories() {
+    public function guests_cannot_access_unapproved_categories() {
         Category::factory()->create();
         Category::factory()->create(['approved'=>0]);
         $res = $this->get('/api/categories')->json();
@@ -31,7 +31,7 @@ class BrowsingTest extends TestCase
     }
 
     /** @test */
-    public function users_cannot_see_unapproved_categories() {
+    public function users_cannot_access_unapproved_categories() {
         $this->signIn();
         Category::factory()->create();
         Category::factory()->create(['approved'=>0]);
@@ -53,8 +53,8 @@ class BrowsingTest extends TestCase
     public function a_guest_can_see_all_dojos() {
         Dojo::factory(2)->create();
         $res = $this->get('/api/dojos')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertContains(Dojo::find(2)->toArray(),$res);
+        $this->assertContains(Dojo::with('category')->find(1)->toArray(),$res);
+        $this->assertContains(Dojo::with('category')->find(2)->toArray(),$res);
     }
 
     /** @test */
@@ -82,8 +82,8 @@ class BrowsingTest extends TestCase
         Dojo::factory()->create();
         Dojo::factory()->create(['user_id'=>$user->id]);
         $res = $this->get('/api/dojos')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertNotContains(Dojo::find(2)->toArray(),$res);
+        $this->assertContains(Dojo::with('category')->find(1)->toArray(),$res);
+        $this->assertNotContains(Dojo::with('category')->find(2)->toArray(),$res);
     }
 
     /** @test */
@@ -93,7 +93,7 @@ class BrowsingTest extends TestCase
         Dojo::factory()->create();
         Dojo::factory()->create(['user_id'=>$user->id]);
         $res = $this->get('/api/dojos')->json();
-        $this->assertContains(Dojo::find(1)->toArray(),$res);
-        $this->assertContains(Dojo::find(2)->toArray(),$res);
+        $this->assertContains(Dojo::with('category')->find(1)->toArray(),$res);
+        $this->assertContains(Dojo::with('category')->find(2)->toArray(),$res);
     }
 }
