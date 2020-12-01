@@ -4,7 +4,7 @@
       <div class="col col-md-9">
         <div class="form-group row">
           <label class="col-sm-2 text-center text-sm-left">Category:</label>
-          <select class="form-control col-sm-10" @change="filterDojos()" v-model="selected_category">
+          <select class="form-control col-sm-10" name='category' @change="filterDojos()" v-model="selected_category">
             <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
           </select>
         </div>
@@ -14,6 +14,7 @@
           <label class="form-check-label">
             <input
               type="checkbox"
+              name="show_my_dojos"
               class="form-check-input"
               value="0"
               v-model="filter_by_user"

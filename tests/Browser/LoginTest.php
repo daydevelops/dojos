@@ -8,18 +8,4 @@ use Tests\DuskTestCase;
 
 class LoginTest extends DuskTestCase
 {
-    /** @test */
-    public function a_user_can_login() {
-        
-    }
-
-    /** @test */
-    public function a_user_can_logout() {
-        
-    }
-
-    /** @test */
-    public function a_guest_can_register() {
-        
-    }
 }
