@@ -84,7 +84,11 @@ class DojoController extends Controller
      */
     public function edit(Dojo $dojo)
     {
-        return $dojo;
+        if (auth()->user()->can('update', $dojo)) {
+            return $dojo;
+        } else {
+            return response('You Cannot Edit This Dojo', 403);
+        }
     }
 
     /**

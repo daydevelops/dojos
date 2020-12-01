@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="card mb-4 p-3">
-      <form class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
+      <form name='dojo-form' class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         <!-- Avater Form -->
         <div v-if="is_editing" class="col-lg-3">
           <div class="form-group">
@@ -158,7 +158,8 @@ export default {
     if (this.dojo_id) {
       // if so, then we are editing a current dojo
       // get the data for that dojo
-      axios.get("/api/dojos/" + this.dojo_id).then(response => {
+      axios.get("/api/dojos/" + this.dojo_id)
+        .then(response => {
         this.form = new Form({
           name: response.data.name,
           description: response.data.description,
@@ -170,6 +171,11 @@ export default {
           image: response.data.image
         });
         this.dojo_id = response.data.id;
+      })
+      .catch(error => {
+        if (error.response.status == 403) {
+          this.$router.push("/");
+        }
       });
       // this.dojo = this.$route.params.dojo;
       this.is_editing = true;

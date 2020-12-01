@@ -78,6 +78,13 @@ class DojoCRUDTest extends TestCase
     // EDITING
 
     /** @test */
+    public function a_user_cannot_see_the_edit_page_for_a_dojo_they_do_not_own() {
+        $this->signIn();
+        Dojo::factory()->create();
+        $this->json('get','/api/dojos/1')->assertStatus(403);
+    }
+
+    /** @test */
     public function a_user_can_edit_a_dojo() {
         $this->signIn();
         Dojo::factory()->create(['user_id'=>User::first()->id]);
