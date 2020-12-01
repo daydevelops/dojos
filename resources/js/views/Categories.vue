@@ -12,7 +12,7 @@
         <span class="help" v-if="form.errors.has('name')" v-text="form.errors.get('name')"></span>
       </div>
       <div class="col col-2">
-        <button type="submit" class="btn btn-primary">Add</button>
+        <button name='submit' type="submit" class="btn btn-primary">Add</button>
       </div>
     </form>
     <h2 class="text-center">Available Categories:</h2>

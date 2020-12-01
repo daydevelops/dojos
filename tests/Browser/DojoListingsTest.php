@@ -131,7 +131,8 @@ class DojoListingsTest extends DuskTestCase
                 ->select('category',$dojos[0]->category_id)
                 ->assertSee($dojos[0]->name)
                 ->assertDontSee($dojos[1]->name)
-                ->assertDontSee($dojos[2]->name);
+                ->assertDontSee($dojos[2]->name)
+                ->logout();
         });
     }
 }
