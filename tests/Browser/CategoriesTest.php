@@ -18,6 +18,7 @@ class CategoriesTest extends DuskTestCase
         $cats = Category::factory(3)->create();
         $this->browse(function (Browser $browser) use ($cats) {
             $browser->visit('/#/categories')
+            ->waitFor('li.alert')
             ->assertSee('Available Categories')
             ->assertSee($cats[0]->name)
             ->assertSee($cats[1]->name)
