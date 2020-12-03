@@ -120,8 +120,11 @@ class DojoController extends Controller
                 }),
             ]
         ]);
+
         if (auth()->user()->can('update', $dojo)) {
             $dojo->update($data);
+        } else {
+            return response('You Cannot Edit This Dojo', 403);
         }
     }
 
@@ -135,6 +138,8 @@ class DojoController extends Controller
     {
         if (auth()->user()->can('delete', $dojo)) {
             $dojo->delete();
+        } else {
+            return response('You Cannot Edit This Dojo', 403);
         }
     }
 }

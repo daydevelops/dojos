@@ -10,7 +10,7 @@
           accept="image/*"
         />
       </div>
-      <button type="button" class="form-control btn btn-primary mb-1" @click="uploadImage">upload</button>
+      <button id="uploadavatar" type="button" class="form-control btn btn-primary mb-1" @click="uploadImage">upload</button>
       <img id="dojo-image" :src="path" />
     </div>
   </div>

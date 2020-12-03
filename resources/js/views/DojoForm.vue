@@ -102,6 +102,7 @@
           <div class="form-group row mt-3">
             <div class="col-6">
               <button
+                id="updatedojo"
                 type="submit"
                 class="btn btn-primary d-block m-auto"
                 v-bind:disabled="form.errors.any()"

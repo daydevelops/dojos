@@ -27,7 +27,7 @@ class DojoFactory extends Factory
             'name' => $this->faker->word . " " . $this->faker->word,
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
-            'location' => $this->faker->address,
+            'location' => $this->faker->sentence,
             'price' => "$" . rand(20, 40) . "/month",
             'contact' => $this->faker->sentence,
             'classes' => $this->faker->sentence,
