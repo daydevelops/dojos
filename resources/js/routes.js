@@ -33,6 +33,11 @@ let routes = [
         path: '/categories/new',
         component: require('./views/CategoryForm.vue').default
     },
+    {
+        path: '/profile/:user_id',
+        component: require('./views/Profile.vue').default,
+        props:true
+    },
 
 ]
 
