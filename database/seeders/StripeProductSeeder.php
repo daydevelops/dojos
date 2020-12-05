@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\StripeProducts;
+use App\Models\StripeProduct;
 use Illuminate\Database\Seeder;
 
 class StripeProductSeeder extends Seeder
@@ -14,23 +14,23 @@ class StripeProductSeeder extends Seeder
      */
     public function run()
     {
-        StripeProducts::insert([
+        StripeProduct::insert([
             'stripe_id'=>null,
             'description' => "No Plan"
         ]);
-        StripeProducts::insert([
+        StripeProduct::insert([
             'stripe_id'=>env("STANDARD_MONTHLY_PLAN_ID"),
             'description' => "5 CAD/month"
         ]);
-        StripeProducts::insert([
+        StripeProduct::insert([
             'stripe_id'=>env("STANDARD_YEARLY_PLAN_ID"),
             'description' => "50 CAD/year"
         ]);
-        StripeProducts::insert([
+        StripeProduct::insert([
             'stripe_id'=>env("PREMIUM_MONTHLY_PLAN_ID"),
             'description' => "10 CAD/month"
         ]);
-        StripeProducts::insert([
+        StripeProduct::insert([
             'stripe_id'=>env("PREMIUM_YEARLY_PLAN_ID"),
             'description' => "100 CAD/year"
         ]);

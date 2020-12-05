@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dojo;
-use App\Models\StripeProducts;
+use App\Models\StripeProduct;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -149,7 +149,7 @@ class DojoController extends Controller
         if (auth()->user()->can('update', $dojo)) {
             if ($dojo->subscription) {
                 $stripe_plan = $dojo->subscription->stripe_plan;
-                $plan_id = StripeProducts::where(['stripe_id'=>$stripe_plan])->first()->id;
+                $plan_id = StripeProduct::where(['stripe_id'=>$stripe_plan])->first()->id;
             } else {
                 // dojo does not have a plan yet, return id for free plan
                 $plan_id = 1;

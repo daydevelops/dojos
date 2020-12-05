@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dojo;
-use App\Models\StripeProducts;
+use App\Models\StripeProduct;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +40,6 @@ class PaymentsController extends Controller
     }
 
     public function plans() {
-        return StripeProducts::all();
+        return StripeProduct::all();
     }
 }

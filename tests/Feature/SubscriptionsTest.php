@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\StripeProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,6 +14,11 @@ class SubscriptionsTest extends TestCase
 {
     
     use DatabaseMigrations;
+
+    public function createSubscribedDojo() {
+        $dojo = Dojo::factory()->create();
+        $plan = StripeProduct::factory()->make();
+    }
 
     /** @test */
     public function a_user_can_get_their_payments_intent() {
