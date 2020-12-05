@@ -27,4 +27,29 @@ class SubscriptionsTest extends TestCase
         $this->signIn(User::factory()->create(['is_active'=>0]));
         $this->post('/api/subscribe')->assertStatus(403);
     }
+
+    /** @test */
+    public function a_user_can_see_the_current_plan_for_a_dojo() {
+        
+    }
+
+    /** @test */
+    public function a_user_can_see_a_list_of_all_plans() {
+        
+    }
+
+    /** @test */
+    public function a_user_can_subscribe_a_dojo_they_own() {
+        
+    }
+
+    /** @test */
+    public function a_user_cannot_subscribe_a_dojo_they_do_not_own() {
+        
+    }
+
+    /** @test */
+    public function a_user_can_change_a_dojos_subscription() {
+        
+    }
 }
