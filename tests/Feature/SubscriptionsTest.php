@@ -19,7 +19,12 @@ class SubscriptionsTest extends TestCase
         $user = User::factory()->create();
         $this->signIn($user);
         $res = $this->get('/api/payments/getIntents');
-        dd($res);
-        $res->assertInstanceOf(SetupIntent::class);
+        $this->assertInstanceOf('Stripe\SetupIntent',$res->original);
+    }
+
+    /** @test */
+    public function a_user_cannot_subscribe_to_a_plan_if_they_are_not_activated() {
+        $this->signIn(User::factory()->create(['is_active'=>0]));
+        $this->post('/api/subscribe')->assertStatus(403);
     }
 }

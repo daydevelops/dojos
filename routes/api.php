@@ -38,7 +38,5 @@ Route::patch('/users/{user}', [UserController::class,'update'])->middleware('adm
 
 Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
 
-Route::post('/subscriptions',function(Request $request) {
-    auth()->user()->newSubscription('standard_monthly',request('plan'))->create(request('payment_method'));
-});
+Route::post('/subscribe',[PaymentsController::class,'subscribe'])->middleware('auth:sanctum');
 Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');
