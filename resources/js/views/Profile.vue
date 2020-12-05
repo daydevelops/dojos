@@ -1,7 +1,8 @@
 <template>
   <div class="container">
-        <p v-text="user.name"></p>
-        <p v-text="user.email"></p>
+    <p v-text="user.name"></p>
+    <p v-text="user.email"></p>
+    <paymentplans :plan_id="1" :dojo_id="1"></paymentplans>
   </div>
 </template>
 
@@ -22,7 +23,7 @@ export default {
         if (error.response.status == 403) {
           this.$router.push("/");
         }
-      });;
+      });
   }
 };
 </script>

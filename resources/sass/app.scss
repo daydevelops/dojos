@@ -24,3 +24,7 @@
     background-image: linear-gradient($info, $primary);
     text-align: center;
   }
+
+  .highlighted-card {
+    box-shadow: 0px 0px 18px 7px $primary;
+  }

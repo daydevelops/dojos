@@ -12,6 +12,7 @@ Vue.component('dojo', require('./components/Dojo.vue').default);
 Vue.component('AreYouSureModal', require('./components/AreYouSureModal.vue').default);
 Vue.component('AvatarForm', require('./components/AvatarForm.vue').default);
 Vue.component('flash', require('./components/Flash.vue').default);
+Vue.component('paymentplans', require('./components/PaymentPlans.vue').default);
 
 const app = new Vue({
     el: '#app',

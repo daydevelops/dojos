@@ -4,7 +4,9 @@ use App\Http\Controllers\AvatarController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DojoController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\UserController;
+use Symfony\Component\HttpFoundation\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,3 +37,8 @@ Route::delete('/users/{user}',[UserController::class,'destroy'])->middleware('au
 Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
 
 Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
+
+Route::post('/subscriptions',function(Request $request) {
+    auth()->user()->newSubscription('standard_monthly',request('plan'))->create(request('payment_method'));
+});
+Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');
