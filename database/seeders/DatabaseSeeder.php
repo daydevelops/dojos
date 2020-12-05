@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 CategorySeeder::class,
                 UserSeeder::class,
-                DojoSeeder::class
+                DojoSeeder::class,
+                StripeProductSeeder::class
             ]);
         } else {
             $this->call([ProductionSeeder::class]);

@@ -120,6 +120,7 @@
         </div>
       </form>
     </div>
+    <paymentplans :dojo_id="dojo_id"></paymentplans>
     <AreYouSureModal
       :id="'aysm'"
       action="delete this dojo"

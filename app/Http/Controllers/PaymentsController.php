@@ -2,15 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dojo;
+use App\Models\StripeProducts;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaymentsController extends Controller
 {
     public function subscribe()
     {
+        $dojo = Dojo::find(request('dojo_id'));
         $user = auth()->user();
+
+        // if user can edit this dojo
+
         if ($user->is_active) {
-            auth()->user()->newSubscription('standard_monthly', request('plan'))->create(request('payment_method'));
+            // subscribe the user
+            $subscription = auth()->user()
+            ->newSubscription('standard_monthly', request('plan'))
+            ->create(request('payment_method'));
+
+            // link the dojo to this subscription plan
+            // if ($dojo->subscription_id == null) {
+                // no subscription in place already
+                $dojo->update(['subscription_id'=>$subscription->id]);
+            // } else {
+                // switch from previous subscription to new
+            // }
         } else {
             return response('You cannot subscribe to this plan because your account has been deactivated.', 403);
         }
@@ -19,5 +37,9 @@ class PaymentsController extends Controller
     public function getIntents()
     {
         return auth()->user()->createSetupIntent();
+    }
+
+    public function plans() {
+        return StripeProducts::all();
     }
 }

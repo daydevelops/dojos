@@ -24,5 +24,9 @@ class ProductionSeeder extends Seeder
         ]);
         Category::factory()->create(['name'=>'All']);
         Category::factory()->create(['name'=>'None']);
+
+        $this->call([
+            StripeProductSeeder::class
+        ]);
     }
 }

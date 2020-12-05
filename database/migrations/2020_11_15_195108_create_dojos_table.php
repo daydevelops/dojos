@@ -17,6 +17,7 @@ class CreateDojosTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id');
+            $table->foreignId('subscription_id')->nullable();
             $table->string('name')->unique();
             $table->string('location');
             $table->string('price');

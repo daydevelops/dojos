@@ -25,9 +25,10 @@
 
       <!-- Used to display form errors. -->
       <div id="card-errors" role="alert"></div>
-      <input type="hidden" name="plan" v-model="selected_id" />
+      <input type="hidden" name="plan" v-model="plan_id" />
       <button>Submit Payment</button>
     </form>
+
     <div class="row">
       <div class="col-md-4">
         <h5 class="m-0">No Plan:</h5>
@@ -35,16 +36,14 @@
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div
-            class="card-body"
-            :class="{'highlighted-card':selected_id==0}"
-            @click="selected_id=0"
-          >
-            <h5 class="card-title" v-text="plans[0].price"></h5>
+          <div class="card-body" :class="{'highlighted-card':plan_id==1}" @click="plan_id=1">
+            <h5 class="card-title" v-text="plans[0].description"></h5>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Standard Plans -->
     <div class="row mt-4">
       <div class="col-md-4">
         <h5 class="m-0">Standard Plans:</h5>
@@ -52,27 +51,21 @@
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div
-            class="card-body"
-            :class="{'highlighted-card':selected_id==1}"
-            @click="selected_id=1"
-          >
-            <h5 class="card-title" v-text="plans[1].price"></h5>
+          <div class="card-body" :class="{'highlighted-card':plan_id==2}" @click="plan_id=2">
+            <h5 class="card-title" v-text="plans[1].description"></h5>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div
-            class="card-body"
-            :class="{'highlighted-card':selected_id==2}"
-            @click="selected_id=2"
-          >
-            <h5 class="card-title" v-text="plans[2].price"></h5>
+          <div class="card-body" :class="{'highlighted-card':plan_id==3}" @click="plan_id=3">
+            <h5 class="card-title" v-text="plans[2].description"></h5>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Premium Plans -->
     <div class="row mt-4">
       <div class="col-md-4">
         <h5 class="m-0">Premium Plans:</h5>
@@ -80,23 +73,15 @@
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div
-            class="card-body"
-            :class="{'highlighted-card':selected_id==3}"
-            @click="selected_id=3"
-          >
-            <h5 class="card-title" v-text="plans[3].price"></h5>
+          <div class="card-body" :class="{'highlighted-card':plan_id==4}" @click="plan_id=4">
+            <h5 class="card-title" v-text="plans[3].description"></h5>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div
-            class="card-body"
-            :class="{'highlighted-card':selected_id==4}"
-            @click="selected_id=4"
-          >
-            <h5 class="card-title" v-text="plans[4].price"></h5>
+          <div class="card-body" :class="{'highlighted-card':plan_id==5}" @click="plan_id=5">
+            <h5 class="card-title" v-text="plans[4].description"></h5>
           </div>
         </div>
       </div>
@@ -112,7 +97,7 @@
 
 <script>
 export default {
-  props: ["plan_id", "dojo_id"],
+  props: ["dojo_id"],
   data() {
     return {
       stripeKey: "pk_test_uAJ3ZPwpRHr52pYcFM4EBDQg",
@@ -120,37 +105,39 @@ export default {
       elements: "",
       card: "",
       setup_intents: {},
-      selected_id: 0,
+      plan_id: null,
       plans: [
-        {
-          stripe_id: null,
-          price: "Free"
-        },
-        {
-          stripe_id: "price_1HuOEsLJoFktZSCLnWRHetER",
-          price: "5 CAD/month"
-        },
-        {
-          stripe_id: "price_1HuOEsLJoFktZSCLrl93uWwZ",
-          price: "50 CAD/year"
-        },
-        {
-          stripe_id: "price_1HuOEsLJoFktZSCL5ehIiVpv",
-          price: "10 CAD/month"
-        },
-        {
-          stripe_id: "price_1HuOEsLJoFktZSCLtrn8qBdr",
-          price: "100 CAD/year"
-        }
+        { description: "No Plan" },
+        { description: "5 CAD/month" },
+        { description: "50 CAD/year" },
+        { description: "10 CAD/month" },
+        { description: "100 CAD/year" }
       ]
     };
   },
+  watch: {
+    // fetch current plan id for this dojo once the dojo id is given to us
+    dojo_id: function(val) {
+      if (this.plan_id == null) {
+        axios.get("/api/dojos/" + this.dojo_id + "/plan").then(response => {
+          this.plan_id = response.data;
+        });
+      }
+    }
+  },
   mounted() {
-    this.selected_id = this.plan_id;
+    this.getStripePlans();
     this.getPaymentsIntent();
     this.setUpStripe();
   },
   methods: {
+    // et the details for the available plans
+    getStripePlans() {
+      axios.get("/api/subscribe/plans").then(response => {
+        this.plans = response.data;
+      });
+    },
+    // get the users stripe information ready
     getPaymentsIntent() {
       axios.get("/api/payments/getIntents").then(response => {
         this.setup_intents = response.data;
@@ -163,26 +150,8 @@ export default {
       // Create an instance of Elements.
       this.elements = this.stripe.elements();
 
-      // Custom styling can be passed to options when creating an Element.
-      // (Note that this demo uses a wider set of styles than the guide below.)
-      var style = {
-        base: {
-          color: "#32325d",
-          fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-          fontSmoothing: "antialiased",
-          fontSize: "16px",
-          "::placeholder": {
-            color: "#aab7c4"
-          }
-        },
-        invalid: {
-          color: "#fa755a",
-          iconColor: "#fa755a"
-        }
-      };
-
       // Create an instance of the card Element.
-      this.card = this.elements.create("card", { style: style });
+      this.card = this.elements.create("card");
 
       // Add an instance of the card Element into the `card-element` <div>.
       this.card.mount("#card-element");
@@ -207,30 +176,17 @@ export default {
           }
         })
         .then(response => {
-            // Send the payment method to your server.
-            axios.post("/api/subscriptions", {
-              plan: this.plans[this.selected_id].stripe_id,
-              payment_method: response.setupIntent.payment_method
-            });
+          // Send the payment to the server
+          axios.post("/api/subscribe", {
+            plan: this.plans[this.plan_id-1].stripe_id, // stripe product/plan id
+            payment_method: response.setupIntent.payment_method,
+            dojo_id: this.dojo_id
+          });
         })
         .catch(error => {
-            var errorElement = document.getElementById("card-errors");
-            errorElement.textContent = error.message;
+          var errorElement = document.getElementById("card-errors");
+          errorElement.textContent = error.message;
         });
-
-      //   this.stripe.createToken(this.card).then(result => {
-      //     if (result.error) {
-      //       // Inform the user if there was an error.
-      //       var errorElement = document.getElementById("card-errors");
-      //       errorElement.textContent = result.error.message;
-      //     } else {
-      //       // Send the token to your server.
-      //       axios.post("/api/subscriptions", {
-      //         plan: this.plans[this.selected_id].stripe_id,
-      //         stripeToken: result.token.id
-      //       });
-      //     }
-      //   });
     }
   }
 };

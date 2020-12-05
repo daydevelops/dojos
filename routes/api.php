@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 Route::get('/dojos',[DojoController::class,'index']);
 Route::get('/dojos/category/{category}',[CategoryController::class,'dojos']);
+Route::get('/dojos/{dojo}/plan',[DojoController::class,'subscriptionPlan'])->middleware('auth:sanctum');
 Route::get('/dojos/{dojo}',[DojoController::class,'edit'])->middleware('auth:sanctum');
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth:sanctum');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth:sanctum');
@@ -39,4 +40,5 @@ Route::patch('/users/{user}', [UserController::class,'update'])->middleware('adm
 Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
 
 Route::post('/subscribe',[PaymentsController::class,'subscribe'])->middleware('auth:sanctum');
+Route::get('/subscribe/plans',[PaymentsController::class,'plans'])->middleware('auth:sanctum');
 Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');

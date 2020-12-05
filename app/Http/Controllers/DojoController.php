@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dojo;
+use App\Models\StripeProducts;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -138,6 +139,22 @@ class DojoController extends Controller
     {
         if (auth()->user()->can('delete', $dojo)) {
             $dojo->delete();
+        } else {
+            return response('You Cannot Edit This Dojo', 403);
+        }
+    }
+
+    public function subscriptionPlan(Dojo $dojo) {
+        // return the id of the payment plan for the dojo
+        if (auth()->user()->can('update', $dojo)) {
+            if ($dojo->subscription) {
+                $stripe_plan = $dojo->subscription->stripe_plan;
+                $plan_id = StripeProducts::where(['stripe_id'=>$stripe_plan])->first()->id;
+            } else {
+                // dojo does not have a plan yet, return id for free plan
+                $plan_id = 1;
+            }
+            return $plan_id;
         } else {
             return response('You Cannot Edit This Dojo', 403);
         }
