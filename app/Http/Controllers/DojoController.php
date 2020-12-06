@@ -147,8 +147,9 @@ class DojoController extends Controller
     public function subscriptionPlan(Dojo $dojo) {
         // return the id of the payment plan for the dojo
         if (auth()->user()->can('update', $dojo)) {
-            if ($dojo->subscription) {
-                $stripe_plan = $dojo->subscription->stripe_plan;
+            $subscription = $dojo->subscription;
+            if ($subscription) {
+                $stripe_plan = $subscription->stripe_plan;
                 $plan_id = StripeProduct::where(['stripe_id'=>$stripe_plan])->first()->id;
             } else {
                 // dojo does not have a plan yet, return id for free plan
@@ -156,7 +157,7 @@ class DojoController extends Controller
             }
             return $plan_id;
         } else {
-            return response('You Cannot Edit This Dojo', 403);
+            return response("You Cannot See This Dojo's Subscription", 403);
         }
     }
 }
