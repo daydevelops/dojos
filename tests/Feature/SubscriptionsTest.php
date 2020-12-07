@@ -49,8 +49,33 @@ class SubscriptionsTest extends TestCase
     /** @test */
     public function a_user_cannot_subscribe_to_a_plan_if_they_are_not_activated()
     {
+        // EXCEPT for selecting the free plan as in the test below
+        $this->addProducts();
         $this->signIn(User::factory()->create(['is_active' => 0]));
-        $this->post('/api/subscribe')->assertStatus(403);
+        $dojo = Dojo::factory()->create();
+        $this->post("/api/subscribe", [
+            "plan" => StripeProduct::find(1)->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $dojo->id
+        ])->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_user_can_select_the_free_plan_if_they_are_not_activated()
+    {
+        $data = $this->createSubscribedDojo();
+        auth()->user()->update(['is_active' => 0]);
+        $this->post("/api/subscribe", [
+            "plan" => StripeProduct::find(1)->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $data['dojo']['id']
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
     }
 
     /** @test */
@@ -110,7 +135,8 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->stripe_id
+            'stripe_plan' => StripeProduct::find(2)->stripe_id,
+            'name' => "dojo-" . $data['dojo']['id']
         ]);
     }
 
@@ -134,27 +160,94 @@ class SubscriptionsTest extends TestCase
     public function a_user_can_subscribe_multiple_dojos()
     {
         // given the user has a subscribed dojo already
+        $data = $this->createSubscribedDojo();
         // when they subscribe a new dojo
+        $dojo = Dojo::factory()->create(['user_id' => auth()->id()]);
+        $new_plan = StripeProduct::find(4);
+        $this->post("/api/subscribe", [
+            "plan" => $new_plan->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $dojo->id
+        ]);
         // the user will have 2 subscription items under their subscription
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseCount('subscription_items', 2);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 2]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->stripe_id,
+            'name' => "dojo-" . $dojo->id
+        ]);
     }
 
     /** @test */
     public function a_user_can_change_a_dojos_subscription()
     {
         // given a user has a standard plan
+        $data = $this->createSubscribedDojo();
         // when the user switched to a premium plan
-        // the users subscription is updated and prorated
+        $new_plan = StripeProduct::find(4);
+        $this->post("/api/subscribe", [
+            "plan" => $new_plan->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $data['dojo']['id']
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->stripe_id,
+            'name' => "dojo-" . $data['dojo']['id']
+        ]);
     }
 
     /** @test */
     public function a_user_can_cancel_a_dojos_subscription()
-    { }
+    {
+        // given a user has a standard plan
+        $data = $this->createSubscribedDojo();
+        $this->post("/api/subscribe", [
+            "plan" => StripeProduct::find(1)->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $data['dojo']['id']
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
 
     /** @test */
     public function a_user_cannot_subscribe_unless_stripe_accepts_their_payment()
     { }
 
     /** @test */
-    public function a_dojo_cannot_be_deleted_without_first_cancelling_its_subscription()
-    { }
+    public function subscription_is_cancelled_when_a_dojo_is_deleted()
+    {
+        $data = $this->createSubscribedDojo();
+        $this->json('delete', '/api/dojos/' . $data['dojo']['id']);
+        $this->assertDatabaseCount('dojos', 0);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
+
+    /** @test */
+    public function a_users_subscriptions_are_deleted_if_they_delete_their_account()
+    {
+        $data = $this->createSubscribedDojo();
+        $this->json('delete', '/api/users/' . $data['user']['id']);
+        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('dojos', 0);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
 }

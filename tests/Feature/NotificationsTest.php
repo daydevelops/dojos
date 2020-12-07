@@ -25,7 +25,17 @@ class NotificationsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_is_notified_when_they_change_a_dojos_subscription() {
+    public function a_user_is_notified_when_they_add_a_dojos_subscription() {
+        
+    }
+
+    /** @test */
+    public function a_user_is_notified_when_they_cancel_a_dojos_subscription() {
+        
+    }
+
+    /** @test */
+    public function a_user_is_notified_when_they_update_a_dojos_subscription() {
         
     }
 }

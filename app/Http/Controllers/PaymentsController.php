@@ -11,29 +11,25 @@ class PaymentsController extends Controller
 {
     public function subscribe()
     {
+        // VALIDATION 
+
         $dojo = Dojo::find(request('dojo_id'));
         $user = auth()->user();
+        $plan = StripeProduct::where(['stripe_id' => request('plan')])->first();
 
-        if (auth()->user()->can('update', $dojo)) {
-
-            if ($user->is_active) {
-                // subscribe the user
-                $subscription = auth()->user()
-                    ->newSubscription('standard_monthly', request('plan'))
-                    ->create(request('payment_method'));
-
-                // link the dojo to this subscription plan
-                // if ($dojo->subscription_id == null) {
-                // no subscription in place already
-                $dojo->update(['subscription_id' => $subscription->id]);
-                // } else {
-                // switch from previous subscription to new
-                // }
+        // an inactive user cannot subscribe to a new plan, unless cancelling a current plan
+        if ($user->is_active || $plan->stripe_id == "free_plan") {
+            if (auth()->user()->can('update', $dojo)) {
+                if ($dojo->isSubscribed()) {
+                    $dojo->swapPlans($plan);
+                } else {
+                    $dojo->newPlan($plan);
+                }
             } else {
-                return response('You cannot subscribe to this plan because your account has been deactivated.', 403);
+                return response('You are not authorized to edit this dojo.', 403);
             }
         } else {
-            return response('You are not authorized to edit this dojo.', 403);
+            return response('You cannot subscribe to this plan because your account has been deactivated.', 403);
         }
     }
 
