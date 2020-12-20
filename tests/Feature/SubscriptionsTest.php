@@ -37,6 +37,24 @@ class SubscriptionsTest extends TestCase
         ];
     }
 
+    // assert a user can subscribe using a specified card
+    protected function testSubscribedDojo($payment_method) {
+        $this->assertDatabaseCount('dojos', 0);
+        $this->assertDatabaseCount('subscriptions', 0);
+        $this->assertDatabaseCount('subscription_items', 0);
+        $data = $this->createSubscribedDojo($payment_method);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => StripeProduct::find(2)->stripe_id,
+            'name' => "dojo-" . $data['dojo']['id']
+        ]);
+    }
+
     /** @test */
     public function a_user_can_get_their_payments_intent()
     {
@@ -124,20 +142,19 @@ class SubscriptionsTest extends TestCase
     /** @test */
     public function a_user_can_subscribe_a_dojo_they_own()
     {
-        $this->assertDatabaseCount('dojos', 0);
-        $this->assertDatabaseCount('subscriptions', 0);
-        $this->assertDatabaseCount('subscription_items', 0);
-        $data = $this->createSubscribedDojo();
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
-        $this->assertDatabaseHas('subscriptions', [
-            'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->stripe_id,
-            'name' => "dojo-" . $data['dojo']['id']
-        ]);
+        $payment_methods = [
+            'pm_card_visa',
+            'pm_card_visa_debit',
+            'pm_card_mastercard',
+            'pm_card_mastercard_debit',
+            'pm_card_mastercard_prepaid',
+            'pm_card_amex'
+        ];
+
+        foreach ($payment_methods as $pm) {
+            $this->runDatabaseMigrations();
+            $this->testSubscribedDojo($pm);
+        }
     }
 
     /** @test */
