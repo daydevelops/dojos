@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\DojoSubscriptionUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,7 @@ class Dojo extends Model
             // switching to new paid plan
             $this->subscription->swap($new_plan->stripe_id);
         }
+        $this->user->notify(new DojoSubscriptionUpdated($this,$new_plan));
     }
 
     public function cancelPlan()
@@ -74,5 +76,6 @@ class Dojo extends Model
             ->newSubscription("dojo-" . $this->id, $plan->stripe_id)
             ->create(request('payment_method'));
         $this->update(['subscription_id' => $subscription->id]);
+        $this->user->notify(new DojoSubscriptionUpdated($this,$plan));
     }
 }
