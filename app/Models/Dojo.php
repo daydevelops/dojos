@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Notifications\DojoSubscriptionUpdated;
+// use App\Notifications\DojoSubscriptionUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+use Laravel\Cashier\Subscription;
 
 class Dojo extends Model
 {
@@ -16,16 +16,17 @@ class Dojo extends Model
     protected $hidden = ["user", "subscription_id"];
 
     protected $appends = ['is_active'];
-    
-    public static function boot() {
-	    parent::boot();
-	    static::deleting(function(Dojo $dojo) {
+
+    public static function boot()
+    {
+        parent::boot();
+        static::deleting(function (Dojo $dojo) {
             // cancel subscription before deleting
             if ($dojo->isSubscribed()) {
                 $dojo->subscription->cancelNow();
             }
-	    });
-	}
+        });
+    }
 
     public function getIsActiveAttribute()
     {
@@ -44,38 +45,17 @@ class Dojo extends Model
 
     public function subscription()
     {
-        return $this->belongsTo(\Laravel\Cashier\Subscription::class);
+        return $this->belongsTo(Subscription::class);
     }
 
     // is the user subscribed to a stripe plan
-    public function isSubscribed() {   
-        return $this->subscription_id != null && $this->subscription->stripe_status=="active";
+    public function isSubscribed()
+    {
+        return $this->subscription_id != null && $this->subscription->stripe_status == "active";
     }
 
-    public function swapPlans($new_plan)
-    {
-        if ($new_plan->stripe_id == "free_plan") {
-            // user is switching to free plan, cancel their subscription
-            $this->cancelPlan();
-        } else {
-            // switching to new paid plan
-            $this->subscription->swap($new_plan->stripe_id);
-        }
-        $this->user->notify(new DojoSubscriptionUpdated($this,$new_plan));
-    }
-
-    public function cancelPlan()
-    {
-        $this->subscription->cancelNow();
-        $this->update(['subscription_id' => null]);
-    }
-
-    public function newPlan($plan)
-    {
-        $subscription = auth()->user()
-            ->newSubscription("dojo-" . $this->id, $plan->stripe_id)
-            ->create(request('payment_method'));
-        $this->update(['subscription_id' => $subscription->id]);
-        $this->user->notify(new DojoSubscriptionUpdated($this,$plan));
+    // gt any incomplete subscriptions in our database for this dojo
+    public function getIncompleteSubscriptions() {
+        return Subscription::where(['name'=>'dojo-'.$this->id,'stripe_status'=>'incomplete'])->get();
     }
 }

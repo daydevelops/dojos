@@ -243,7 +243,83 @@ class SubscriptionsTest extends TestCase
 
     /** @test */
     public function a_user_cannot_subscribe_unless_stripe_accepts_their_payment()
-    { }
+    {
+        // payment methods that should fail
+        $incomplete_pm = [
+            'pm_card_chargeCustomerFail', // incomplete
+            'pm_card_riskLevelHighest', // incomplete
+            'pm_card_chargeDeclinedFraudulent', // incomplete
+        ];
+        
+        $bad_pm = [
+            'pm_card_chargeDeclinedExpiredCard', // card error
+            'pm_card_cvcCheckFail', // card error
+        ];
+
+        foreach ($incomplete_pm as $pm) {
+            $this->runDatabaseMigrations();
+            // test a proper response when the user uses a bad card
+            $this->addProducts();
+            $dojo = Dojo::factory()->create();
+            $user = User::first();
+            $this->signIn($user); 
+            $this->post("/api/subscribe", [
+                "plan" => StripeProduct::find(2)->stripe_id,
+                "payment_method" => $pm,
+                "dojo_id" => $dojo->id
+            ])->assertStatus(302);
+            $this->assertDatabaseCount('dojos', 1);
+            $this->assertDatabaseCount('subscriptions', 1);
+            $this->assertDatabaseCount('subscription_items', 1);
+            $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+            $this->assertDatabaseHas('subscriptions', ['stripe_status' => "incomplete"]);
+        }
+        foreach ($bad_pm as $pm) {
+            $this->runDatabaseMigrations();
+            // test a proper response when the user uses a bad card
+            $data = $this->createSubscribedDojo($pm);
+            $this->assertDatabaseCount('dojos', 1);
+            $this->assertDatabaseCount('subscriptions', 0);
+            $this->assertDatabaseCount('subscription_items', 0);
+            $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        }
+    }
+
+    /** @test */
+    public function a_user_can_swap_from_an_incomplete_payment_plan_to_a_free_plan() {
+        
+        $data = $this->createSubscribedDojo('pm_card_chargeCustomerFail');
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "incomplete"]);
+        $this->post("/api/subscribe", [
+            "plan" => StripeProduct::find(1)->stripe_id,
+            "payment_method" => 'pm_card_chargeCustomerFail',
+            "dojo_id" => $data['dojo']['id']
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
+
+    /** @test */
+    public function a_user_cannot_subscribe_to_a_plan_they_are_already_on() {
+        $data = $this->createSubscribedDojo();
+        $this->post("/api/subscribe", [
+            "plan" => StripeProduct::find(2)->stripe_id,
+            "payment_method" => 'pm_card_visa',
+            "dojo_id" => $data['dojo']['id']
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
+    }
 
     /** @test */
     public function subscription_is_cancelled_when_a_dojo_is_deleted()
