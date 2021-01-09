@@ -43,6 +43,7 @@ class PaymentsController extends Controller
             //load the currently subscribed plan, if there is one
             $current_subscription = $dojo->subscription;
 
+            // my attempt at being verbose
             $is_on_free_plan = !$dojo->isSubscribed();
             $is_on_paid_plan = $dojo->isSubscribed();
             $wants_free_plan = $plan->stripe_id == "free_plan";

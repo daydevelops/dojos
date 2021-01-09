@@ -54,7 +54,7 @@ class Dojo extends Model
         return $this->subscription_id != null && $this->subscription->stripe_status == "active";
     }
 
-    // gt any incomplete subscriptions in our database for this dojo
+    // get any incomplete subscriptions in our database for this dojo
     public function getIncompleteSubscriptions() {
         return Subscription::where(['name'=>'dojo-'.$this->id,'stripe_status'=>'incomplete'])->get();
     }
