@@ -7,7 +7,7 @@
       @submit.prevent="submitPayment"
     >
       <div class="form-group">
-        <label for="card-holder-name"></label>
+        <label for="card-holder-name">Card Holder Name</label>
         <input
           type="text"
           class="form-control"
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Used to display form errors. -->
-      <div id="card-errors" role="alert"></div>
+      <div id="card-errors" class="text-danger" role="alert"></div>
       <input type="hidden" name="plan" v-model="plan_id" />
       <button>Submit Payment</button>
     </form>
@@ -176,12 +176,19 @@ export default {
           }
         })
         .then(response => {
-          // Send the payment to the server
-          axios.post("/api/subscribe", {
-            plan: this.plans[this.plan_id-1].stripe_id, // stripe product/plan id
-            payment_method: response.setupIntent.payment_method,
-            dojo_id: this.dojo_id
-          });
+          if (response.error) {
+            var errorElement = document.getElementById("card-errors");
+            errorElement.textContent += response.error.message;
+          } else {
+            // Send the payment to the server
+            var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].stripe_id + "&payment_method=" + "pm_card_chargeCustomerFail" + "&dojo_id=" + this.dojo_id;
+            window.location = url;
+            // axios.post("/api/subscribe", {
+            //   plan: this.plans[this.plan_id-1].stripe_id, // stripe product/plan id
+            //   payment_method: "pm_card_chargeCustomerFail", //response.setupIntent.payment_method,
+            //   dojo_id: this.dojo_id
+            // });
+          }
         })
         .catch(error => {
           var errorElement = document.getElementById("card-errors");

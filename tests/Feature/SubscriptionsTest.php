@@ -26,15 +26,16 @@ class SubscriptionsTest extends TestCase
         $dojo = Dojo::factory()->create();
         $user = User::first();
         $this->signIn($user);
+        $route = $this->getSubscribeRoute($stripe_product_id,$payment_method,$dojo);
         return [
-            'response' => $this->post("/api/subscribe", [
-                "plan" => StripeProduct::find($stripe_product_id)->stripe_id,
-                "payment_method" => $payment_method,
-                "dojo_id" => $dojo->id
-            ]),
+            'response' => $this->get($route),
             'dojo' => $dojo,
             'user' => $user
         ];
+    }
+
+    protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo) {
+        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->stripe_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
     }
 
     // assert a user can subscribe using a specified card
@@ -71,11 +72,8 @@ class SubscriptionsTest extends TestCase
         $this->addProducts();
         $this->signIn(User::factory()->create(['is_active' => 0]));
         $dojo = Dojo::factory()->create();
-        $this->post("/api/subscribe", [
-            "plan" => StripeProduct::find(1)->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $dojo->id
-        ])->assertStatus(403);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
+        $this->get($route)->assertStatus(403);
     }
 
     /** @test */
@@ -83,11 +81,8 @@ class SubscriptionsTest extends TestCase
     {
         $data = $this->createSubscribedDojo();
         auth()->user()->update(['is_active' => 0]);
-        $this->post("/api/subscribe", [
-            "plan" => StripeProduct::find(1)->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $data['dojo']['id']
-        ]);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('subscriptions', 1);
@@ -164,9 +159,8 @@ class SubscriptionsTest extends TestCase
         $dojo = Dojo::factory()->create();
         $user = User::factory()->create();
         $this->signIn($user->fresh());
-        $res = $this->post("/api/subscribe", [
-            "dojo_id" => $dojo->id
-        ])->assertStatus(403);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
+        $res = $this->get($route)->assertStatus(403);
         $this->assertDatabaseCount('subscriptions', 0);
         $this->assertDatabaseCount('subscription_items', 0);
         $this->assertDatabaseCount('dojos', 1);
@@ -181,11 +175,8 @@ class SubscriptionsTest extends TestCase
         // when they subscribe a new dojo
         $dojo = Dojo::factory()->create(['user_id' => auth()->id()]);
         $new_plan = StripeProduct::find(4);
-        $this->post("/api/subscribe", [
-            "plan" => $new_plan->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $dojo->id
-        ]);
+        $route = $this->getSubscribeRoute(4,'pm_card_visa',$dojo);
+        $this->get($route);
         // the user will have 2 subscription items under their subscription
         $this->assertDatabaseCount('dojos', 2);
         $this->assertDatabaseCount('users', 1);
@@ -206,11 +197,8 @@ class SubscriptionsTest extends TestCase
         $data = $this->createSubscribedDojo();
         // when the user switched to a premium plan
         $new_plan = StripeProduct::find(4);
-        $this->post("/api/subscribe", [
-            "plan" => $new_plan->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $data['dojo']['id']
-        ]);
+        $route = $this->getSubscribeRoute(4,'pm_card_visa',$data['dojo']);
+        $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('subscriptions', 1);
@@ -228,11 +216,8 @@ class SubscriptionsTest extends TestCase
     {
         // given a user has a standard plan
         $data = $this->createSubscribedDojo();
-        $this->post("/api/subscribe", [
-            "plan" => StripeProduct::find(1)->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $data['dojo']['id']
-        ]);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('subscriptions', 1);
@@ -263,11 +248,8 @@ class SubscriptionsTest extends TestCase
             $dojo = Dojo::factory()->create();
             $user = User::first();
             $this->signIn($user); 
-            $this->post("/api/subscribe", [
-                "plan" => StripeProduct::find(2)->stripe_id,
-                "payment_method" => $pm,
-                "dojo_id" => $dojo->id
-            ])->assertStatus(302);
+            $route = $this->getSubscribeRoute(2,$pm,$dojo);
+            $this->get($route)->assertStatus(302);
             $this->assertDatabaseCount('dojos', 1);
             $this->assertDatabaseCount('subscriptions', 1);
             $this->assertDatabaseCount('subscription_items', 1);
@@ -294,11 +276,8 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseCount('subscription_items', 1);
         $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "incomplete"]);
-        $this->post("/api/subscribe", [
-            "plan" => StripeProduct::find(1)->stripe_id,
-            "payment_method" => 'pm_card_chargeCustomerFail',
-            "dojo_id" => $data['dojo']['id']
-        ]);
+        $route = $this->getSubscribeRoute(1,'pm_card_chargeCustomerFail',$data['dojo']);
+        $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('subscriptions', 1);
         $this->assertDatabaseCount('subscription_items', 1);
@@ -309,11 +288,8 @@ class SubscriptionsTest extends TestCase
     /** @test */
     public function a_user_cannot_subscribe_to_a_plan_they_are_already_on() {
         $data = $this->createSubscribedDojo();
-        $this->post("/api/subscribe", [
-            "plan" => StripeProduct::find(2)->stripe_id,
-            "payment_method" => 'pm_card_visa',
-            "dojo_id" => $data['dojo']['id']
-        ]);
+        $route = $this->getSubscribeRoute(2,'pm_card_visa',$data['dojo']);
+        $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('subscriptions', 1);
         $this->assertDatabaseCount('subscription_items', 1);
@@ -343,4 +319,15 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseCount('subscription_items', 1);
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
     }
+
+    /** @test */
+    public function a_user_sees_payment_confirm_page_if_incomplete_payment() {
+        
+    }
+
+    /** @test */
+    public function confirmed_payment_webhook_updates_the_dojo_and_plan() {
+        
+    }
+
 }

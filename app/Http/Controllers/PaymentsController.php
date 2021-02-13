@@ -17,8 +17,11 @@ class PaymentsController extends Controller
 {
     public function subscribe()
     {
-        // VALIDATION 
-
+        request()->validate([
+            'dojo_id' => 'required|exists:dojos,id',
+            'plan' => 'required|exists:stripe_products,stripe_id',
+            'payment_method' => 'required'
+        ]);
         $dojo = Dojo::find(request('dojo_id'));
         $user = auth()->user();
         $plan = StripeProduct::where(['stripe_id' => request('plan')])->first();
@@ -28,6 +31,7 @@ class PaymentsController extends Controller
             return response('You cannot subscribe to this plan because your account has been deactivated.', 403);
         }
 
+        // authorized user?
         if (!auth()->user()->can('update', $dojo)) {
             return response('You are not authorized to edit this dojo.', 403);
         }
@@ -61,9 +65,9 @@ class PaymentsController extends Controller
 
             } else if ($wants_paid_plan && $is_on_free_plan) {
                 // user is moving from free plan to a paid plan
-                $subscription = auth()->user()
+                $subscription = $dojo->user
                     ->newSubscription("dojo-" . $dojo->id, $plan->stripe_id)
-                    ->create(request('payment_method'));
+                    ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $dojo->id]]);
                 $dojo->update(['subscription_id' => $subscription->id]);
 
             } else {
@@ -77,13 +81,13 @@ class PaymentsController extends Controller
             // redirect to cashiers payment confirmation page
             return redirect()->route(
                 'cashier.payment',
-                [$exception->payment->id, 'redirect' => '/']
+                [$exception->payment->id, 'redirect' => url("/#/dojos/".$dojo->id)]
             );
         } catch (SubscriptionUpdateFailure $exception) {
             // redirect to cashiers payment confirmation page
             return redirect()->route(
                 'cashier.payment',
-                [$exception->payment->id, 'redirect' => '/']
+                [$exception->payment->id, 'redirect' => url("/#/dojos/".$dojo->id)]
             );
         } catch (CardException $exception) {
             return array(
@@ -91,11 +95,56 @@ class PaymentsController extends Controller
                 "message" => "There was a problem with your card. Please check your information and try again"
             );
         }
-        $user->notify(new DojoSubscriptionUpdated($dojo, $plan));
-        return array(
-            "status" => true,
-            "message" => "Your subscription has been updated!"
-        );
+        // return to a view
+    }
+
+    /**
+     * Stripe Webhook Endpoint
+     * 
+     * Stripe will hit this method when a subscription is successfully created or updated
+     * This method will update the dojos information to reflect the new plan and notify the owner
+     */
+    public function subscriptionSuccess() {
+        // the user is redirected here if their payment confirmation has success
+        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
+
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $event = null;
+
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch(\UnexpectedValueException $e) {
+            // Invalid payload
+            return "UnexpectedValueException";
+            exit();
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            return "SignatureVerificationException";
+            exit();
+        }
+
+        // Handle the event
+        if ($event->type == 'customer.subscription.created' || $event->type == 'customer.subscription.updated') {
+            // update dojo information
+            $dojo = Dojo::find($event->data->object->metadata['dojo_id']);
+            $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
+            $dojo->update(['subscription_id' => $subscription_id]);
+            $subscription = $dojo->subscription;
+            $subscription->update(['stripe_status' => $event->data->object->status]);
+            $user = $dojo->user;
+            $plan_id = $event->data->object->plan['id'];
+            $user->notify(new DojoSubscriptionUpdated(
+                $dojo, 
+                StripeProduct::where(['stripe_id' => $plan_id])->first()
+            ));
+        } else {
+            return 'Received unknown event type ' . $event->type;
+        }
+
+        http_response_code(200);
     }
 
     public function getIntents()
