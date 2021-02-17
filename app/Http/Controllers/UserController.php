@@ -44,7 +44,7 @@ class UserController extends Controller
         if (auth()->user()->can('delete', $user)) {
             $user->notify(new UserDeleted());
             $user->delete();
-            Auth::logout();
+            Auth::guard('web')->logout();
         } else {
             return response('You Cannot Delete This User', 403);
         }
