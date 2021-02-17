@@ -95,7 +95,7 @@ class PaymentsController extends Controller
                 "message" => "There was a problem with your card. Please check your information and try again"
             );
         }
-        // return to a view
+        return redirect("/#/dojos/".$dojo->id);
     }
 
     /**
@@ -104,38 +104,36 @@ class PaymentsController extends Controller
      * Stripe will hit this method when a subscription is successfully created or updated
      * This method will update the dojos information to reflect the new plan and notify the owner
      */
-    public function subscriptionSuccess() {
+    public function subscriptionSuccess(Request $request) {
         // the user is redirected here if their payment confirmation has success
-        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
 
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-        $event = null;
-
-        try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
-        } catch(\UnexpectedValueException $e) {
-            // Invalid payload
-            return "UnexpectedValueException";
-            exit();
-        } catch(\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            return "SignatureVerificationException";
-            exit();
+        if ($request['is_testing']) {
+            $event = json_decode($request['mock']);
+            $dojo_id = $event->data->object->metadata->dojo_id;
+            $plan_id = $event->data->object->plan->id;
+        } else {
+            // Retrieve the request's body and parse it as JSON
+            $input = @file_get_contents("php://input");
+            $event_json = json_decode($input);
+            $event = \Stripe\Event::retrieve($event_json->id);
+            if(!isset($event)) {
+                // error
+                return false;
+            }
+            $dojo_id = $event->data->object->metadata['dojo_id'];
+            $plan_id = $event->data->object->plan['id'];
         }
 
         // Handle the event
         if ($event->type == 'customer.subscription.created' || $event->type == 'customer.subscription.updated') {
             // update dojo information
-            $dojo = Dojo::find($event->data->object->metadata['dojo_id']);
+            $dojo = Dojo::find($dojo_id);
             $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
             $dojo->update(['subscription_id' => $subscription_id]);
             $subscription = $dojo->subscription;
             $subscription->update(['stripe_status' => $event->data->object->status]);
             $user = $dojo->user;
-            $plan_id = $event->data->object->plan['id'];
+            $plan_id = $plan_id;
             $user->notify(new DojoSubscriptionUpdated(
                 $dojo, 
                 StripeProduct::where(['stripe_id' => $plan_id])->first()

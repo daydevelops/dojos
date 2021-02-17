@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
 use Database\Seeders\DatabaseSeeder;
@@ -322,12 +323,39 @@ class SubscriptionsTest extends TestCase
 
     /** @test */
     public function a_user_sees_payment_confirm_page_if_incomplete_payment() {
-        
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $user = User::first();
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute(2,'pm_card_chargeCustomerFail',$dojo);
+        $this->get($route)->assertStatus(302);
     }
 
     /** @test */
     public function confirmed_payment_webhook_updates_the_dojo_and_plan() {
-        
+        $data = $this->createSubscribedDojo('pm_card_visa',1); // set up free plan
+        // try to subscribe with a bad card
+        $route = $this->getSubscribeRoute(2,'pm_card_chargeCustomerFail',$data['dojo']);
+        $this->get($route)->assertStatus(302);
+        // assume the user goes to the redirected page and completes the payment
+        // mock the request to the webhook
+        $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
+        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->stripe_id,$subscription->stripe_id);
+        $this->post('/api/payments/success',[
+            'is_testing'=>1,
+            'mock' => $mock_response
+        ]);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => StripeProduct::find(2)->stripe_id,
+            'name' => "dojo-" . $data['dojo']['id'],
+            'stripe_status' => 'active'
+        ]);
     }
 
 }
