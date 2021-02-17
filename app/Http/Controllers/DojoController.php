@@ -150,7 +150,7 @@ class DojoController extends Controller
             $subscription = $dojo->subscription;
             if ($subscription) {
                 $stripe_plan = $subscription->stripe_plan;
-                $plan_id = StripeProduct::where(['stripe_id'=>$stripe_plan])->first()->id;
+                $plan_id = StripeProduct::where(['product_id'=>$stripe_plan])->first()->id;
             } else {
                 // dojo does not have a plan yet, return id for free plan
                 $plan_id = 1;

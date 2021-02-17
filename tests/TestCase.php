@@ -30,13 +30,13 @@ abstract class TestCase extends BaseTestCase
 	}
 
     protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo) {
-        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->stripe_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
+        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->product_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
     }
 
 	protected function triggerSubscriptionWebhook() {
 		$data = $this->createSubscribedDojo();
         $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
-        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->stripe_id,$subscription->stripe_id);
+        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->product_id,$subscription->stripe_id);
         $this->post('/api/payments/success',[
             'is_testing'=>1,
             'mock' => $mock_response
@@ -44,13 +44,13 @@ abstract class TestCase extends BaseTestCase
 		return $data;
 	}
 
-    protected function createSubscribedDojo($payment_method = 'pm_card_visa', $stripe_product_id = 2)
+    protected function createSubscribedDojo($payment_method = 'pm_card_visa', $product_id = 2)
     {
         $this->addProducts();
         $dojo = Dojo::factory()->create();
         $user = User::first();
         $this->signIn($user);
-        $route = $this->getSubscribeRoute($stripe_product_id,$payment_method,$dojo);
+        $route = $this->getSubscribeRoute($product_id,$payment_method,$dojo);
         return [
             'response' => $this->get($route),
             'dojo' => $dojo,
@@ -58,7 +58,7 @@ abstract class TestCase extends BaseTestCase
         ];
     }
 
-	protected function getStripeWebhookMock($dojo_id,$plan_id,$stripe_id) {
+	protected function getStripeWebhookMock($dojo_id,$product_id,$stripe_id) {
 		return '{
 			"id": "evt_1IKU7NLJoFktZSCLc5WDj0NX",
 			"object": "event",
@@ -170,7 +170,7 @@ abstract class TestCase extends BaseTestCase
 				"pending_setup_intent": null,
 				"pending_update": null,
 				"plan": {
-				  "id": "'.$plan_id.'",
+				  "id": "'.$product_id.'",
 				  "object": "plan",
 				  "active": true,
 				  "aggregate_usage": null,

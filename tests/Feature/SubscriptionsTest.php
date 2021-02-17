@@ -34,7 +34,7 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->stripe_id,
+            'stripe_plan' => StripeProduct::find(2)->product_id,
             'name' => "dojo-" . $data['dojo']['id']
         ]);
     }
@@ -168,7 +168,7 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('dojos', ['subscription_id' => 2]);
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
-            'stripe_plan' => $new_plan->stripe_id,
+            'stripe_plan' => $new_plan->product_id,
             'name' => "dojo-" . $dojo->id
         ]);
     }
@@ -189,7 +189,7 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
-            'stripe_plan' => $new_plan->stripe_id,
+            'stripe_plan' => $new_plan->product_id,
             'name' => "dojo-" . $data['dojo']['id']
         ]);
     }
@@ -322,7 +322,7 @@ class SubscriptionsTest extends TestCase
         // assume the user goes to the redirected page and completes the payment
         // mock the request to the webhook
         $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
-        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->stripe_id,$subscription->stripe_id);
+        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->product_id,$subscription->stripe_id);
         $this->post('/api/payments/success',[
             'is_testing'=>1,
             'mock' => $mock_response
@@ -334,7 +334,7 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->stripe_id,
+            'stripe_plan' => StripeProduct::find(2)->product_id,
             'name' => "dojo-" . $data['dojo']['id'],
             'stripe_status' => 'active'
         ]);

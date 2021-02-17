@@ -22,7 +22,7 @@ class StripeProductFactory extends Factory
     public function definition()
     {
         return [
-            'stripe_id'=>$this->faker->uuid,
+            'product_id'=>$this->faker->uuid,
             'description' => $this->faker->sentence
         ];
     }

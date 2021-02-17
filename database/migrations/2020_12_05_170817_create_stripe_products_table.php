@@ -15,7 +15,7 @@ class CreateStripeProductsTable extends Migration
     {
         Schema::create('stripe_products', function (Blueprint $table) {
             $table->id();
-            $table->string('stripe_id')->nullable();
+            $table->string('product_id')->nullable();
             $table->string('description');
             $table->timestamps();
         });

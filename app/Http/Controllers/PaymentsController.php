@@ -17,15 +17,15 @@ class PaymentsController extends Controller
     {
         request()->validate([
             'dojo_id' => 'required|exists:dojos,id',
-            'plan' => 'required|exists:stripe_products,stripe_id',
+            'plan' => 'required|exists:stripe_products,product_id',
             'payment_method' => 'required'
         ]);
         $dojo = Dojo::find(request('dojo_id'));
         $user = auth()->user();
-        $plan = StripeProduct::where(['stripe_id' => request('plan')])->first();
+        $plan = StripeProduct::where(['product_id' => request('plan')])->first();
 
         // an inactive user cannot subscribe to a new plan, unless cancelling a current plan
-        if (!$user->is_active && $plan->stripe_id != "free_plan") {
+        if (!$user->is_active && $plan->product_id != "free_plan") {
             return response('You cannot subscribe to this plan because your account has been deactivated.', 403);
         }
 
@@ -48,9 +48,9 @@ class PaymentsController extends Controller
             // my attempt at being verbose
             $is_on_free_plan = !$dojo->isSubscribed();
             $is_on_paid_plan = $dojo->isSubscribed();
-            $wants_free_plan = $plan->stripe_id == "free_plan";
-            $wants_paid_plan = $plan->stripe_id != "free_plan";
-            $wants_different_paid_plan = ($current_subscription ? $current_subscription->stripe_plan : "free_plan") != $plan->stripe_id;
+            $wants_free_plan = $plan->product_id == "free_plan";
+            $wants_paid_plan = $plan->product_id != "free_plan";
+            $wants_different_paid_plan = ($current_subscription ? $current_subscription->stripe_plan : "free_plan") != $plan->product_id;
 
             if ($is_on_paid_plan && $wants_free_plan) {
                 // user is switching to free plan, cancel their subscription
@@ -58,17 +58,17 @@ class PaymentsController extends Controller
                 $dojo->update(['subscription_id' => null]);
                 $user->notify(new DojoSubscriptionUpdated(
                     $dojo, 
-                    StripeProduct::where(['stripe_id' => "free_plan"])->first()
+                    StripeProduct::where(['product_id' => "free_plan"])->first()
                 ));
                 
             } else if ($is_on_paid_plan && $wants_different_paid_plan) {
                 // user wants to switch to a new paid plan
-                $current_subscription->swap($plan->stripe_id);
+                $current_subscription->swap($plan->product_id);
 
             } else if ($wants_paid_plan && $is_on_free_plan) {
                 // user is moving from free plan to a paid plan
                 $subscription = $dojo->user
-                    ->newSubscription("dojo-" . $dojo->id, $plan->stripe_id)
+                    ->newSubscription("dojo-" . $dojo->id, $plan->product_id)
                     ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $dojo->id]]);
                 $dojo->update(['subscription_id' => $subscription->id]);
 
@@ -139,7 +139,7 @@ class PaymentsController extends Controller
             $plan_id = $plan_id;
             $user->notify(new DojoSubscriptionUpdated(
                 $dojo, 
-                StripeProduct::where(['stripe_id' => $plan_id])->first()
+                StripeProduct::where(['product_id' => $plan_id])->first()
             ));
         } else {
             return 'Received unknown event type ' . $event->type;
