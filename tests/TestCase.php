@@ -3,6 +3,9 @@
 namespace Tests;
 
 use App\Models\User;
+use App\Models\StripeProduct;
+use App\Models\Dojo;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\Handler;
@@ -25,6 +28,35 @@ abstract class TestCase extends BaseTestCase
 	protected function signout() {
 		Auth::logout();
 	}
+
+    protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo) {
+        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->stripe_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
+    }
+
+	protected function triggerSubscriptionWebhook() {
+		$data = $this->createSubscribedDojo();
+        $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
+        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->stripe_id,$subscription->stripe_id);
+        $this->post('/api/payments/success',[
+            'is_testing'=>1,
+            'mock' => $mock_response
+		]);
+		return $data;
+	}
+
+    protected function createSubscribedDojo($payment_method = 'pm_card_visa', $stripe_product_id = 2)
+    {
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $user = User::first();
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute($stripe_product_id,$payment_method,$dojo);
+        return [
+            'response' => $this->get($route),
+            'dojo' => $dojo,
+            'user' => $user
+        ];
+    }
 
 	protected function getStripeWebhookMock($dojo_id,$plan_id,$stripe_id) {
 		return '{

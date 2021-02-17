@@ -26,23 +26,6 @@ class NotificationsTest extends TestCase
         (new DatabaseSeeder())->call(StripeProductSeeder::class);
     }
 
-    protected function createSubscribedDojo($payment_method = 'pm_card_visa', $stripe_product_id = 2)
-    {
-        $this->addProducts();
-        $dojo = Dojo::factory()->create();
-        $user = User::first();
-        $this->signIn($user);
-        return [
-            'response' => $this->post("/api/subscribe", [
-                "plan" => StripeProduct::find($stripe_product_id)->stripe_id,
-                "payment_method" => $payment_method,
-                "dojo_id" => $dojo->id
-            ]),
-            'dojo' => $dojo,
-            'user' => $user
-        ];
-    }
-
     /** @test */
     public function a_user_is_notified_when_they_register() {
         Notification::fake();
@@ -82,51 +65,26 @@ class NotificationsTest extends TestCase
         Notification::assertSentTo($user, UserReactivated::class);
     }
 
-    // /** @test */
-    // public function a_user_is_notified_when_they_add_a_dojos_subscription() {
-    //     Notification::fake();
-    //     $data = $this->createSubscribedDojo();
-    //     Notification::assertSentTo(
-    //         $data['user'], 
-    //         function(DojoSubscriptionUpdated $notification) {
-    //             return $notification->plan->description == "5 CAD/month";
-    //         }
-    //     );
-    // }
-
-    // /** @test */
-    // public function a_user_is_notified_when_they_cancel_a_dojos_subscription() {
-    //     Notification::fake();
-    //     $data = $this->createSubscribedDojo();
-    //     $this->post("/api/subscribe", [
-    //         "plan" => StripeProduct::find(1)->stripe_id,
-    //         "payment_method" => 'pm_card_visa',
-    //         "dojo_id" => $data['dojo']['id']
-    //     ]);
-    //     Notification::assertSentTo(
-    //         $data['user'], 
-    //         function(DojoSubscriptionUpdated $notification) {
-    //             return $notification->plan->description == "No Plan";
-    //         }
-    //     );
+    /** @test */
+    public function a_user_is_notified_when_they_update_or_cancel_a_dojos_subscription() {
+        Notification::fake();
+        // create a dojo subscribed to the 5 dollar plan
+        $data = $this->triggerSubscriptionWebhook();
+        Notification::assertSentTo(
+            $data['user'], 
+            function(DojoSubscriptionUpdated $notification) {
+                return $notification->plan->description == "5 CAD/month";
+            }
+        );
+        // subscribe the dojo to the free plan
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        Notification::assertSentTo(
+            $data['user'], 
+            function(DojoSubscriptionUpdated $notification) {
+                return $notification->plan->description == "No Plan";
+            }
+        );
         
-    // }
-
-    // /** @test */
-    // public function a_user_is_notified_when_they_update_a_dojos_subscription() {
-    //     Notification::fake();
-    //     $data = $this->createSubscribedDojo();
-    //     $new_plan = StripeProduct::find(4);
-    //     $this->post("/api/subscribe", [
-    //         "plan" => $new_plan->stripe_id,
-    //         "payment_method" => 'pm_card_visa',
-    //         "dojo_id" => $data['dojo']['id']
-    //     ]);
-    //     Notification::assertSentTo(
-    //         $data['user'], 
-    //         function(DojoSubscriptionUpdated $notification) {
-    //             return $notification->plan->description == "10 CAD/month";
-    //         }
-    //     );
-    // }
+    }
 }

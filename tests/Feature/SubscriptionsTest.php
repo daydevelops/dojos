@@ -21,24 +21,6 @@ class SubscriptionsTest extends TestCase
         (new DatabaseSeeder())->call(StripeProductSeeder::class);
     }
 
-    protected function createSubscribedDojo($payment_method = 'pm_card_visa', $stripe_product_id = 2)
-    {
-        $this->addProducts();
-        $dojo = Dojo::factory()->create();
-        $user = User::first();
-        $this->signIn($user);
-        $route = $this->getSubscribeRoute($stripe_product_id,$payment_method,$dojo);
-        return [
-            'response' => $this->get($route),
-            'dojo' => $dojo,
-            'user' => $user
-        ];
-    }
-
-    protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo) {
-        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->stripe_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
-    }
-
     // assert a user can subscribe using a specified card
     protected function testSubscribedDojo($payment_method) {
         $this->assertDatabaseCount('dojos', 0);

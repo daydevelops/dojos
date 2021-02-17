@@ -9,9 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Laravel\Cashier\Exceptions\SubscriptionUpdateFailure;
-use PHPUnit\Framework\Error\Error;
 use Stripe\Exception\CardException;
-use Stripe\Subscription;
 
 class PaymentsController extends Controller
 {
@@ -58,7 +56,11 @@ class PaymentsController extends Controller
                 // user is switching to free plan, cancel their subscription
                 $current_subscription->cancelNow();
                 $dojo->update(['subscription_id' => null]);
-
+                $user->notify(new DojoSubscriptionUpdated(
+                    $dojo, 
+                    StripeProduct::where(['stripe_id' => "free_plan"])->first()
+                ));
+                
             } else if ($is_on_paid_plan && $wants_different_paid_plan) {
                 // user wants to switch to a new paid plan
                 $current_subscription->swap($plan->stripe_id);
@@ -112,6 +114,7 @@ class PaymentsController extends Controller
             $dojo_id = $event->data->object->metadata->dojo_id;
             $plan_id = $event->data->object->plan->id;
         } else {
+            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
             // Retrieve the request's body and parse it as JSON
             $input = @file_get_contents("php://input");
             $event_json = json_decode($input);
