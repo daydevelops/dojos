@@ -36,7 +36,7 @@
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
-          <div class="card-body" :class="{'highlighted-card':plan_id==1}" @click="plan_id=1">
+          <div class="card-body" :class="{'highlighted-card':plan_id==1}" @click="getFreePlan">
             <h5 class="card-title" v-text="plans[0].description"></h5>
           </div>
         </div>
@@ -91,6 +91,13 @@
         <button class="btn btn-primary d-block m-auto">Update Plan</button>
       </div>
     </div>
+    <AreYouSureModal
+      id="free-plan-selected-modal"
+      action="downgrade (your dojo will not be advertised)"
+      btncolor="danger"
+      btntext="Downgrade"
+      v-on:confirm="downgradeToFreePlan"
+    ></AreYouSureModal>
   </div>
 </template>
 
@@ -142,6 +149,15 @@ export default {
       axios.get("/api/payments/getIntents").then(response => {
         this.setup_intents = response.data;
       });
+    },
+    // user has selected free plan, show are you sure modal
+    getFreePlan() {
+      this.plan_id = 1;
+      $('#free-plan-selected-modal').modal('show');
+    },
+    // user has confirmed to downgrade to free plan
+    downgradeToFreePlan() {
+      window.location = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=NA&dojo_id=" + this.dojo_id;
     },
     setUpStripe() {
       // Create a Stripe client.
