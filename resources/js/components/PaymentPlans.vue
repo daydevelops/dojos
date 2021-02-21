@@ -197,13 +197,8 @@ export default {
             errorElement.textContent += response.error.message;
           } else {
             // Send the payment to the server
-            var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=" + "pm_card_chargeCustomerFail" + "&dojo_id=" + this.dojo_id;
+            var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=" + response.setupIntent.payment_method + "&dojo_id=" + this.dojo_id;
             window.location = url;
-            // axios.post("/api/subscribe", {
-            //   plan: this.plans[this.plan_id-1].product_id, // stripe product/plan id
-            //   payment_method: "pm_card_chargeCustomerFail", //response.setupIntent.payment_method,
-            //   dojo_id: this.dojo_id
-            // });
           }
         })
         .catch(error => {
