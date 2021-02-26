@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Support\Facades\DB;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
+use Laravel\Cashier\Subscription;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\StripeProductSeeder;
 use App\Models\User;
@@ -251,21 +252,21 @@ class SubscriptionsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_can_swap_from_an_incomplete_payment_plan_to_a_free_plan() {
-        
+    public function a_user_can_swap_from_an_incomplete_payment_plan_to_another_plan() {
         $data = $this->createSubscribedDojo('pm_card_chargeCustomerFail');
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('subscriptions', 1);
         $this->assertDatabaseCount('subscription_items', 1);
         $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "incomplete"]);
-        $route = $this->getSubscribeRoute(1,'pm_card_chargeCustomerFail',$data['dojo']);
+        $route = $this->getSubscribeRoute(2,'pm_card_visa',$data['dojo']);
         $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseCount('subscription_items', 2);
+        $this->assertDatabaseMissing('dojos', ['subscription_id' => null]);
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
     }
 
     /** @test */
