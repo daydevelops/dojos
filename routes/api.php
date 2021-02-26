@@ -42,4 +42,4 @@ Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanct
 Route::get('/subscribe',[PaymentsController::class,'subscribe'])->middleware('auth:sanctum');
 Route::get('/subscribe/plans',[PaymentsController::class,'plans']);
 Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');
-Route::post('/payments/success',[PaymentsController::class,'subscriptionSuccess']);// stripe webhook endpoint
+Route::post('/payments/webhook',[PaymentsController::class,'handleStripeWebhook']);// stripe webhook endpoint

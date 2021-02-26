@@ -37,7 +37,7 @@ abstract class TestCase extends BaseTestCase
 		$data = $this->createSubscribedDojo();
         $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
         $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->product_id,$subscription->stripe_id);
-        $this->post('/api/payments/success',[
+        $this->post('/api/payments/webhook',[
             'is_testing'=>1,
             'mock' => $mock_response
 		]);
@@ -101,7 +101,7 @@ abstract class TestCase extends BaseTestCase
 					  "metadata": {
 					  },
 					  "plan": {
-						"id": "price_1HuOEsLJoFktZSCLnWRHetER",
+						"id": "'.$product_id.'",
 						"object": "plan",
 						"active": true,
 						"aggregate_usage": null,
@@ -124,7 +124,7 @@ abstract class TestCase extends BaseTestCase
 						"usage_type": "licensed"
 					  },
 					  "price": {
-						"id": "price_1HuOEsLJoFktZSCLnWRHetER",
+						"id": "'.$product_id.'",
 						"object": "price",
 						"active": true,
 						"billing_scheme": "per_unit",

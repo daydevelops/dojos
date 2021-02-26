@@ -324,7 +324,7 @@ class SubscriptionsTest extends TestCase
         // mock the request to the webhook
         $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
         $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->product_id,$subscription->stripe_id);
-        $this->post('/api/payments/success',[
+        $this->post('/api/payments/webhook',[
             'is_testing'=>1,
             'mock' => $mock_response
         ]);
