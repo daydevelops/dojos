@@ -1,34 +1,6 @@
 <template>
   <div class="container">
-    <form
-      action="/api/subscriptions"
-      method="post"
-      id="payment-form"
-      @submit.prevent="submitPayment"
-    >
-      <div class="form-group">
-        <label for="card-holder-name">Card Holder Name</label>
-        <input
-          type="text"
-          class="form-control"
-          name="card-holder-name"
-          id="card-holder-name"
-          aria-describedby="helpId"
-          placeholder
-        />
-      </div>
-
-      <label for="card-element">Credit or debit card</label>
-      <div id="card-element">
-        <!-- A Stripe Element will be inserted here. -->
-      </div>
-
-      <!-- Used to display form errors. -->
-      <div id="card-errors" class="text-danger" role="alert"></div>
-      <input type="hidden" name="plan" v-model="plan_id" />
-      <button>Submit Payment</button>
-    </form>
-
+    <h3 class="text-center">Subscription</h3>
     <div class="row">
       <div class="col-md-4">
         <h5 class="m-0">No Plan:</h5>
@@ -86,11 +58,35 @@
         </div>
       </div>
     </div>
-    <div class="row mt-4">
-      <div class="col col-md-4 offset-md-4">
-        <button class="btn btn-primary d-block m-auto">Update Plan</button>
+    <form
+      action="/api/subscriptions"
+      method="post"
+      id="payment-form"
+      class="mt-4"
+      @submit.prevent="submitPayment"
+    >
+      <div class="form-group">
+        <label for="card-holder-name">Card Holder Name</label>
+        <input
+          type="text"
+          class="form-control"
+          name="card-holder-name"
+          id="card-holder-name"
+          aria-describedby="helpId"
+          placeholder
+        />
       </div>
-    </div>
+
+      <label for="card-element">Credit or debit card</label>
+      <div id="card-element" class="mb-4">
+        <!-- A Stripe Element will be inserted here. -->
+      </div>
+
+      <!-- Used to display form errors. -->
+      <div id="card-errors" class="text-danger" role="alert"></div>
+      <input type="hidden" name="plan" v-model="plan_id" />
+      <button class="btn btn-primary m-auto d-block">Update Subscription</button>
+    </form>
     <AreYouSureModal
       id="free-plan-selected-modal"
       action="downgrade (your dojo will not be advertised)"
@@ -153,11 +149,15 @@ export default {
     // user has selected free plan, show are you sure modal
     getFreePlan() {
       this.plan_id = 1;
-      $('#free-plan-selected-modal').modal('show');
+      $("#free-plan-selected-modal").modal("show");
     },
     // user has confirmed to downgrade to free plan
     downgradeToFreePlan() {
-      window.location = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=NA&dojo_id=" + this.dojo_id;
+      window.location =
+        "/api/subscribe?plan=" +
+        this.plans[this.plan_id - 1].product_id +
+        "&payment_method=NA&dojo_id=" +
+        this.dojo_id;
     },
     setUpStripe() {
       // Create a Stripe client.
@@ -215,6 +215,12 @@ export default {
  * The CSS shown here will not be introduced in the Quickstart guide, but shows
  * how you can use CSS to style your Element's container.
  */
+
+ #payment-form {
+   max-width:500px;
+   margin: auto;
+ }
+
 .StripeElement {
   box-sizing: border-box;
 
