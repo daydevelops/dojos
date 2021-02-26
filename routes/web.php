@@ -17,3 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 Auth::routes();
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/billing',function (Request $request) {
+    return $request->user()->redirectToBillingPortal();
+});
