@@ -19,5 +19,7 @@ Auth::routes();
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/billing',function (Request $request) {
-    return $request->user()->redirectToBillingPortal();
+    $user = $request->user();
+    $user->createOrGetStripeCustomer();
+    return $user->redirectToBillingPortal();
 });
