@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <h3 class='text-center mt-4'>Payment Options<a href="/billing"><i class="fas fa-edit m-2 text-success"></i></a></h3>
+    <h3 class='text-center mt-4'>Payment Options<a href="/billing" target="_blank"><i class="fas fa-edit m-2 text-success"></i></a></h3>
     <!-- Payment Methods -->
     <div class="row mb-2" v-for="pm in payment_methods" :key="pm.id">
       <div class="col col-sm-4 offset-sm-4">
