@@ -341,4 +341,24 @@ class SubscriptionsTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function a_users_payment_method_is_saved_when_creating_a_subscription() {
+        
+    }
+
+    /** @test */
+    public function a_users_payment_method_is_saved_when_updating_a_subscription() {
+        
+    }
+
+    /** @test */
+    public function a_user_can_have_only_one_payment_method() {
+        
+    }
+
+    /** @test */
+    public function a_user_can_delete_their_payment_method_if_they_have_no_subscriptions() {
+        
+    }
+
 }
