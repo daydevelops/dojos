@@ -29,8 +29,8 @@ abstract class TestCase extends BaseTestCase
 		Auth::logout();
 	}
 
-    protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo) {
-        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->product_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id;
+    protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo,$new_card="0") {
+        return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->product_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id."&new_card=".$new_card;
     }
 
 	protected function triggerSubscriptionWebhook() {

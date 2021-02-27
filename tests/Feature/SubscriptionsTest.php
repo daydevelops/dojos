@@ -343,22 +343,31 @@ class SubscriptionsTest extends TestCase
 
     /** @test */
     public function a_users_payment_method_is_saved_when_creating_a_subscription() {
-        
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $user = User::first();
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo,"1");
+        $this->assertCount(0,$user->paymentMethods());
+        $this->get($route);
+        $this->assertCount(1,$user->paymentMethods());
+
     }
 
     /** @test */
     public function a_users_payment_method_is_saved_when_updating_a_subscription() {
-        
-    }
-
-    /** @test */
-    public function a_user_can_have_only_one_payment_method() {
-        
-    }
-
-    /** @test */
-    public function a_user_can_delete_their_payment_method_if_they_have_no_subscriptions() {
-        
+        // given a user has a standard plan
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $user = User::first();
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo,"1");
+        $this->get($route);
+        $this->assertCount(1,$user->paymentMethods());
+        // when the user switched to a new plan
+        $route = $this->getSubscribeRoute(4,"pm_card_mastercard",$dojo,"1");
+        $this->get($route);
+        $this->assertCount(2,$user->paymentMethods());
     }
 
 }
