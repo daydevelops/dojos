@@ -70,6 +70,9 @@
                             <router-link class="nav-link" to="/dojos/new">New Dojo</router-link>
                         </li>
                         <li class="nav-item">
+                            <router-link class="nav-link" to="/account">Settings</router-link>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="/logout" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                 Logout
