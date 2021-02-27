@@ -58,12 +58,36 @@
         </div>
       </div>
     </div>
+
+    <h3 class='text-center mt-4'>Payment Options<a href="/billing"><i class="fas fa-edit m-2 text-success"></i></a></h3>
+    <!-- Payment Methods -->
+    <div class="row mb-2" v-for="pm in payment_methods" :key="pm.id">
+      <div class="col col-sm-4 offset-sm-4">
+        <div class="card">
+          <div class="card-body p-2 px-4 text-center" :class="{'highlighted-card':selected_payment_method==pm.id}" @click="updatePaymentMethod(pm.id)">
+            <h5 class="card-text d-inline mr-4" v-text="pm.brand"></h5><p class='d-inline'><i v-text="'**** **** **** ' + pm.last4"></i></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <div class="col col-sm-4 offset-sm-4">
+        <div class="card">
+          <div class="card-body p-2 px-4 text-center" :class="{'highlighted-card':selected_payment_method=='new'}" @click="updatePaymentMethod('new')">
+            <h5 class="card-text d-inline mr-4">Add New Payment Card</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button v-if="!showing_card_form" class="btn btn-primary m-auto d-block" id="card-button" @click="submitPayment()">Update Subscription</button>
+
     <form
       action="/api/subscriptions"
       method="post"
       id="payment-form"
       class="mt-4"
-      @submit.prevent="submitPayment"
+      :class="{'d-none':!showing_card_form}"
+      @submit.prevent="submitStripe"
     >
       <div class="form-group">
         <label for="card-holder-name">Card Holder Name</label>
@@ -85,7 +109,7 @@
       <!-- Used to display form errors. -->
       <div id="card-errors" class="text-danger" role="alert"></div>
       <input type="hidden" name="plan" v-model="plan_id" />
-      <button class="btn btn-primary m-auto d-block">Update Subscription</button>
+      <button class="btn btn-primary m-auto d-block" id="card-button" :data-secret="this.setup_intents.client_secret">Update Subscription</button>
     </form>
     <AreYouSureModal
       id="free-plan-selected-modal"
@@ -108,6 +132,11 @@ export default {
       elements: "",
       card: "",
       setup_intents: {},
+      payment_methods: {},
+      selected_payment_method: null,
+      showing_card_form: false,
+      stripe_initialized: false,
+      adding_new_card: false,
       plan_id: null,
       plans: [
         { description: "No Plan" },
@@ -115,7 +144,7 @@ export default {
         { description: "50 CAD/year" },
         { description: "10 CAD/month" },
         { description: "100 CAD/year" }
-      ]
+      ],
     };
   },
   watch: {
@@ -130,8 +159,7 @@ export default {
   },
   mounted() {
     this.getStripePlans();
-    this.getPaymentsIntent();
-    this.setUpStripe();
+    this.getPaymentMethods();
   },
   methods: {
     // et the details for the available plans
@@ -144,7 +172,35 @@ export default {
     getPaymentsIntent() {
       axios.get("/api/payments/getIntents").then(response => {
         this.setup_intents = response.data;
+        this.setUpStripe();
       });
+    },
+    // get the users payment methods
+    getPaymentMethods() {
+      axios.get("/api/payments/getMethods").then(response => {
+        this.payment_methods = response.data;
+        if (this.payment_methods.length > 0) {
+          this.selected_payment_method = this.payment_methods[0].id;
+        }
+      });
+    },
+    updatePaymentMethod(pm_id) {
+      if (pm_id == 'new') {
+        // show the card form if not already shown
+        if (!this.showing_card_form) {
+          this.showing_card_form = true;
+          if (!this.stripe_initialized) {
+            this.getPaymentsIntent();
+          }
+        }
+        this.selected_payment_method = 'new';
+      } else {
+        this.selected_payment_method = pm_id;
+          this.showing_card_form = false;
+      }
+
+
+
     },
     // user has selected free plan, show are you sure modal
     getFreePlan() {
@@ -180,8 +236,10 @@ export default {
           displayError.textContent = "";
         }
       });
+
+      this.stripe_initialized = true;
     },
-    submitPayment() {
+    submitStripe() {
       const cardHolderName = document.getElementById("card-holder-name");
       const clientSecret = this.setup_intents.client_secret;
       this.stripe
@@ -197,14 +255,20 @@ export default {
             errorElement.textContent += response.error.message;
           } else {
             // Send the payment to the server
-            var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=" + response.setupIntent.payment_method + "&dojo_id=" + this.dojo_id;
-            window.location = url;
+            this.selected_payment_method = response.setupIntent.payment_method;
+            this.adding_new_card = true;
+            this.submitPayment();
           }
         })
         .catch(error => {
           var errorElement = document.getElementById("card-errors");
           errorElement.textContent = error.message;
         });
+    },
+    submitPayment() {
+      var new_card = this.adding_new_card ? "1" : "0";
+      var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=" + this.selected_payment_method + "&dojo_id=" + this.dojo_id + "&new_card=" + new_card;
+      window.location = url;
     }
   }
 };
@@ -219,6 +283,10 @@ export default {
  #payment-form {
    max-width:500px;
    margin: auto;
+ }
+
+ .card {
+   cursor: pointer;
  }
 
 .StripeElement {

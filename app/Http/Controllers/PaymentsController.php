@@ -42,7 +42,7 @@ class PaymentsController extends Controller
                 $incomplete_subscriptions[0]->cancelNow();
             }
 
-            //load the currently subscribed plan, if there is one
+            // load the currently subscribed plan, if there is one
             $current_subscription = $dojo->subscription;
 
             // my attempt at being verbose
@@ -60,13 +60,18 @@ class PaymentsController extends Controller
             } else if ($is_on_paid_plan && $wants_different_paid_plan) {
                 // user wants to switch to a new paid plan
                 $current_subscription->swap($plan->product_id);
-
+                if (request('new_card') == '1') {
+                    $user->addPaymentMethod(request('payment_method'));
+                }
             } else if ($wants_paid_plan && $is_on_free_plan) {
                 // user is moving from free plan to a paid plan
                 $subscription = $dojo->user
                     ->newSubscription("dojo-" . $dojo->id, $plan->product_id)
                     ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $dojo->id]]);
                 $dojo->update(['subscription_id' => $subscription->id]);
+                if (request('new_card') == '1') {
+                    $user->addNewCard(request('payment_method'));
+                }
 
             } else {
                 // the user is trying to subscribe to a plan they already have.
@@ -133,7 +138,7 @@ class PaymentsController extends Controller
         }
     }
 
-    public function subscriptionUpdated($event,$dojo,$plan_id) {
+    private function subscriptionUpdated($event,$dojo,$plan_id) {
         // update dojo information
         $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
         $dojo->update(['subscription_id' => $subscription_id]);
@@ -148,7 +153,7 @@ class PaymentsController extends Controller
     }
 
 
-    public function subscriptionCreated($event,$dojo,$plan_id) {
+    private function subscriptionCreated($event,$dojo,$plan_id) {
         $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
         $dojo->update(['subscription_id' => $subscription_id]);
         $subscription = $dojo->subscription;
@@ -161,7 +166,7 @@ class PaymentsController extends Controller
         http_response_code(200);
     }
 
-    public function subscriptionDeleted($dojo) {
+    private function subscriptionDeleted($dojo) {
         // user has cancelled their plan
 
         // if the user cancelled their plan through the billing portal, we need to set the plan to cancelled
@@ -179,13 +184,24 @@ class PaymentsController extends Controller
         http_response_code(200);
     }
 
-    public function getIntents()
-    {
+    public function getIntents() {
         return auth()->user()->createSetupIntent();
     }
 
-    public function plans()
-    {
+    public function getPaymentMethods() {
+        $pms = auth()->user()->paymentMethods()->all();
+        $results = array();
+        foreach ($pms as $pm) {
+            $card = $pm->card;
+            $brand = $card->brand;
+            $last4 = $card->last4;
+            $id = $pm->id;
+            array_push($results,compact('id','brand','last4'));
+        }
+        return $results;
+    }
+
+    public function plans() {
         return StripeProduct::all();
     }
 }
