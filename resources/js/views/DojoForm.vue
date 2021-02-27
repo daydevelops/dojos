@@ -98,6 +98,71 @@
             </div>
           </div>
 
+          <!-- Website -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Website:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="website" v-model="form.website" placeholder="https://" />
+              <span
+                class="help"
+                v-if="form.errors.has('website')"
+                v-text="form.errors.get('website')"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Facebook -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Facebook url:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="facebook" v-model="form.facebook" placeholder="https://" />
+              <span
+                class="help"
+                v-if="form.errors.has('facebook')"
+                v-text="form.errors.get('facebook')"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Youtube -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Youtube url:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="youtube" v-model="form.youtube" placeholder="https://" />
+              <span
+                class="help"
+                v-if="form.errors.has('youtube')"
+                v-text="form.errors.get('youtube')"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Twitter -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Twitter url:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="twitter" v-model="form.twitter" placeholder="https://" />
+              <span
+                class="help"
+                v-if="form.errors.has('twitter')"
+                v-text="form.errors.get('twitter')"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Instagram -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Instagram url:</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="instagram" v-model="form.instagram" placeholder="https://" />
+              <span
+                class="help"
+                v-if="form.errors.has('instagram')"
+                v-text="form.errors.get('instagram')"
+              ></span>
+            </div>
+          </div>
+
           <!-- Buttons -->
           <div class="form-group row mt-3">
             <div class="col-6">
@@ -169,6 +234,11 @@ export default {
           price: response.data.price,
           contact: response.data.contact,
           classes: response.data.classes,
+          website: response.data.website,
+          facebook: response.data.facebook,
+          twitter: response.data.twitter,
+          youtube: response.data.youtube,
+          instagram: response.data.instagram,
           category_id: response.data.category_id,
           image: response.data.image
         });

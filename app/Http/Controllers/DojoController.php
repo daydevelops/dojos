@@ -61,6 +61,12 @@ class DojoController extends Controller
             ]
         ]);
 
+        $data['website'] = request('website');
+        $data['facebook'] = request('facebook');
+        $data['twitter'] = request('twitter');
+        $data['youtube'] = request('youtube');
+        $data['instagram'] = request('instagram');
+
         $data['user_id'] = auth()->id();
         Dojo::create($data)->save();
         return Dojo::where(['name'=>$data['name']])->get();
@@ -121,6 +127,12 @@ class DojoController extends Controller
                 }),
             ]
         ]);
+
+        $data['website'] = request('website');
+        $data['facebook'] = request('facebook');
+        $data['twitter'] = request('twitter');
+        $data['youtube'] = request('youtube');
+        $data['instagram'] = request('instagram');
 
         if (auth()->user()->can('update', $dojo)) {
             $dojo->update($data);

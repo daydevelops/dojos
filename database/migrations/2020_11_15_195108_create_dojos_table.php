@@ -24,6 +24,11 @@ class CreateDojosTable extends Migration
             $table->string('contact');
             $table->text('description');
             $table->string('classes');
+            $table->string('website')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('twitter')->nullable();
+            $table->string('youtube')->nullable();
+            $table->string('instagram')->nullable();
             $table->string('image')->default('storage/images/default.png');
             $table->timestamps();
         });

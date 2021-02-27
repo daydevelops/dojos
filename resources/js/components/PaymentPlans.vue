@@ -285,10 +285,6 @@ export default {
    margin: auto;
  }
 
- .card {
-   cursor: pointer;
- }
-
 .StripeElement {
   box-sizing: border-box;
 

@@ -3,7 +3,18 @@
     <div class="card mb-4 p-3">
       <div class="row">
         <div class="col-lg-3">
-          <img class="dojo-img mb-2" v-bind:src="dojo.image" />
+          <div>
+            <img class="dojo-img mb-2" v-bind:src="dojo.image" />
+          </div>
+          <div class="social-media-icons text-center">
+            <small>
+            <a v-if="dojo.website"   :href="dojo.website" target="_blank"><i class="social-media-icon fas fa-2x fa-globe"></i></a>
+            <a v-if="dojo.facebook"  :href="dojo.facebook" target="_blank"><i class="social-media-icon fab fa-2x fa-facebook"></i></a>
+            <a v-if="dojo.twitter"   :href="dojo.twitter" target="_blank"><i class="social-media-icon fab fa-2x fa-twitter"></i></a>
+            <a v-if="dojo.instagram" :href="dojo.instagram" target="_blank"><i class="social-media-icon fab fa-2x fa-instagram"></i></a>
+            <a v-if="dojo.youtube"   :href="dojo.youtube" target="_blank"><i class="social-media-icon fab fa-2x fa-youtube"></i></a>
+            </small>
+          </div>
         </div>
         <div class="col-lg-9">
           <div class="row">
