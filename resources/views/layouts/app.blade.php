@@ -25,7 +25,8 @@
     <script>
 	    window.App = {!! json_encode([
 		    'signedIn' => Auth::check(),
-		    'user' => Auth::user()
+            'user' => Auth::user(),
+            'google_api_key' => env('GOOGLE_API_KEY')
 		]) !!};
 	</script>
 </head>
