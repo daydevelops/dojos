@@ -185,7 +185,7 @@
         </div>
       </form>
     </div>
-    <paymentplans :dojo_id="dojo_id"></paymentplans>
+    <paymentplans v-if="is_editing" :dojo_id="dojo_id"></paymentplans>
     <AreYouSureModal
       :id="'aysm'"
       action="delete this dojo"
