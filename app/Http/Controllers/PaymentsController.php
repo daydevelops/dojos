@@ -60,21 +60,12 @@ class PaymentsController extends Controller
             } else if ($is_on_paid_plan && $wants_different_paid_plan) {
                 // user wants to switch to a new paid plan
                 $current_subscription->swap($plan->product_id);
-                if (request('new_card') == '1') {
-                    auth()->user()->createOrGetStripeCustomer();
-                    auth()->user()->addPaymentMethod(request('payment_method'));
-                }
             } else if ($wants_paid_plan && $is_on_free_plan) {
                 // user is moving from free plan to a paid plan
                 $subscription = $dojo->user
                     ->newSubscription("dojo-" . $dojo->id, $plan->product_id)
                     ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $dojo->id]]);
                 $dojo->update(['subscription_id' => $subscription->id]);
-                if (request('new_card') == '1') {
-                    auth()->user()->createOrGetStripeCustomer();
-                    auth()->user()->addPaymentMethod(request('payment_method'));
-                }
-
             } else {
                 // the user is trying to subscribe to a plan they already have.
                 return array(
