@@ -8,7 +8,7 @@
       <br />
     </div>
     <br />
-    <gmap-map :center="center" :zoom="12" style="width:100%;  height: 400px;">
+    <gmap-map :center="center" :zoom="11" style="width:100%;  height: 400px;">
       <gmap-marker :position="marker" @click="center=marker"></gmap-marker>
     </gmap-map>
   </div>
@@ -22,8 +22,8 @@ export default {
     return {
       // default to Montreal to keep it simple
       // change this to whatever makes sense
-      center: { lat: 45.508, lng: -73.587 },
-      marker: { lat: 45.508, lng: -73.587 },
+      center: { lat: 47.5775, lng: -52.7481 },
+      marker: { lat: 47.5775, lng: -52.7481 },
       places: [],
       currentPlace: null
     };
