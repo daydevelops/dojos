@@ -50,19 +50,6 @@
             </div>
           </div>
 
-          <!-- Location -->
-          <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Location:</label>
-            <div class="col-sm-9">
-              <input type="text" class="form-control" name="location" v-model="form.location" />
-              <span
-                class="help"
-                v-if="form.errors.has('location')"
-                v-text="form.errors.get('location')"
-              ></span>
-            </div>
-          </div>
-
           <!-- Contact -->
           <div class="m-1 p-0 form-group row">
             <label class="col-sm-3 col-form-label">Contact Information:</label>
@@ -163,20 +150,33 @@
             </div>
           </div>
 
+          <!-- Location -->
+          <div class="m-1 p-0 form-group row">
+            <label class="col-sm-3 col-form-label">Location:</label>
+            <div class="col-sm-9">              
+              <span
+                class="help"
+                v-if="form.errors.has('location')"
+                v-text="form.errors.get('location')"
+              ></span>
+              <googlemap v-bind:start="form.location" @updateLocation="updateLocation"></googlemap>
+            </div>
+          </div>
+
+
           <!-- Buttons -->
-          <div class="form-group row mt-3">
-            <div class="col-6">
+          <div class="form-group row mt-4">
+            <div class="col-12 text-right">
               <button
                 id="updatedojo"
                 type="submit"
-                class="btn btn-primary d-block m-auto"
+                class="btn btn-primary m-auto btn-lg"
                 v-bind:disabled="form.errors.any()"
               >Save</button>
-            </div>
-            <div v-if="is_editing" class="col-6">
               <button
+                v-if="is_editing"
                 type="button"
-                class="btn btn-danger d-block m-auto"
+                class="btn btn-danger m-auto btn-sm"
                 data-toggle="modal"
                 data-target="#aysm"
               >Delete</button>
@@ -227,22 +227,23 @@ export default {
       // get the data for that dojo
       axios.get("/api/dojos/" + this.dojo_id)
         .then(response => {
-        this.form = new Form({
-          name: response.data.name,
-          description: response.data.description,
-          location: response.data.location,
-          price: response.data.price,
-          contact: response.data.contact,
-          classes: response.data.classes,
-          website: response.data.website,
-          facebook: response.data.facebook,
-          twitter: response.data.twitter,
-          youtube: response.data.youtube,
-          instagram: response.data.instagram,
-          category_id: response.data.category_id,
-          image: response.data.image
+          this.form = new Form({
+            name: response.data.name,
+            description: response.data.description,
+            location: JSON.parse(response.data.location),
+            price: response.data.price,
+            contact: response.data.contact,
+            classes: response.data.classes,
+            website: response.data.website,
+            facebook: response.data.facebook,
+            twitter: response.data.twitter,
+            youtube: response.data.youtube,
+            instagram: response.data.instagram,
+            category_id: response.data.category_id,
+            image: response.data.image
         });
         this.dojo_id = response.data.id;
+        $('input.pac-target-input').val(this.form.location.formatted_address);
       })
       .catch(error => {
         if (error.response.status == 403) {
@@ -257,6 +258,9 @@ export default {
     }
   },
   methods: {
+    updateLocation(loc) {
+      this.form.location = loc;
+    },
     onSubmit() {
       let action, path;
       if (this.is_editing) {

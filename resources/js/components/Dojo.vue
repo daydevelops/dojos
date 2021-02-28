@@ -36,7 +36,7 @@
           <p class="m-0 p-0">{{dojo.description}}</p>
           <p class="m-0 p-0">
             <u class="mr-3">Location:</u>
-            {{dojo.location}}
+            {{JSON.parse(dojo.location).formatted_address}}
           </p>
           <p class="m-0 p-0">
             <u class="mr-3">Contact Information:</u>

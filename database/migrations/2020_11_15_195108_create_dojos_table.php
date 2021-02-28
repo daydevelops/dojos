@@ -19,7 +19,7 @@ class CreateDojosTable extends Migration
             $table->foreignId('category_id');
             $table->foreignId('subscription_id')->nullable();
             $table->string('name')->unique();
-            $table->string('location');
+            $table->json('location')->nullable();
             $table->string('price');
             $table->string('contact');
             $table->text('description');

@@ -5,6 +5,15 @@ import VueRouter from 'vue-router';
 window.Vue = Vue;
 Vue.use(VueRouter);
 
+import * as VueGoogleMaps from "vue2-google-maps";
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: "AIzaSyCDkXqeA8Xoul3nRtBkyCwSdM2AkfYYoC8",
+    libraries: "places" // necessary for places input
+  }
+});
+
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
  * for JavaScript based Bootstrap features such as modals and tabs. This

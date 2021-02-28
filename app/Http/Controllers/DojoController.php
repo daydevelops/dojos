@@ -48,7 +48,6 @@ class DojoController extends Controller
         $data = request()->validate([
             'name' => 'required|string|max:200|unique:dojos,name',
             'description' => 'required|max:600',
-            'location' => 'required|max:200',
             'classes' => 'required|max:200',
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
@@ -61,6 +60,9 @@ class DojoController extends Controller
             ]
         ]);
 
+        if (request('location')) {
+            $data['location'] = json_encode(request('location'));
+        }
         $data['website'] = request('website');
         $data['facebook'] = request('facebook');
         $data['twitter'] = request('twitter');
@@ -115,7 +117,6 @@ class DojoController extends Controller
                 Rule::unique('dojos')->ignore($dojo->id),
             ],
             'description' => 'required|max:600',
-            'location' => 'required|max:200',
             'classes' => 'required|max:200',
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
@@ -128,6 +129,9 @@ class DojoController extends Controller
             ]
         ]);
 
+        if (request('location')) {
+            $data['location'] = json_encode(request('location'));
+        }
         $data['website'] = request('website');
         $data['facebook'] = request('facebook');
         $data['twitter'] = request('twitter');

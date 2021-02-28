@@ -13,6 +13,7 @@ Vue.component('AreYouSureModal', require('./components/AreYouSureModal.vue').def
 Vue.component('AvatarForm', require('./components/AvatarForm.vue').default);
 Vue.component('flash', require('./components/Flash.vue').default);
 Vue.component('paymentplans', require('./components/PaymentPlans.vue').default);
+Vue.component('googlemap', require('./components/GoogleMap.vue').default);
 
 const app = new Vue({
     el: '#app',
