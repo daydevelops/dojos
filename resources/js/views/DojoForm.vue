@@ -14,7 +14,7 @@
       </div>
       <div class="col col-sm-3 text-center">
         <router-link to="/categories/new">
-          <button class="btn btn-primary">Add New</button>
+          <button class="btn btn-primary">Add New Category</button>
         </router-link>
       </div>
     </div>
