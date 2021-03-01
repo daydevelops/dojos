@@ -51,6 +51,7 @@ class DojoController extends Controller
             'classes' => 'required|max:200',
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
+            'location' => 'required',
             'category_id' => [
                 'required',
                 'integer',
@@ -60,9 +61,7 @@ class DojoController extends Controller
             ]
         ]);
 
-        if (request('location')) {
-            $data['location'] = json_encode(request('location'));
-        }
+        $data['location'] = json_encode($data['location']);
         $data['website'] = request('website');
         $data['facebook'] = request('facebook');
         $data['twitter'] = request('twitter');
@@ -120,6 +119,7 @@ class DojoController extends Controller
             'classes' => 'required|max:200',
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
+            'location' => 'required',
             'category_id' => [
                 'required',
                 'integer',
@@ -129,9 +129,7 @@ class DojoController extends Controller
             ]
         ]);
 
-        if (request('location')) {
-            $data['location'] = json_encode(request('location'));
-        }
+        $data['location'] = json_encode($data['location']);
         $data['website'] = request('website');
         $data['facebook'] = request('facebook');
         $data['twitter'] = request('twitter');

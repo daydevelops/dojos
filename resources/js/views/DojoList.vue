@@ -25,6 +25,9 @@
         </div>
       </div>
     </div>
+
+    <button class="btn btn-lg btn-primary" @click="showMap(false)">Show Map</button>
+
     <div v-if="filtered_dojos.length > 0" class="row">
       <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="dojo.id">
         <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)" @showMap="showMap"></dojo>
@@ -38,15 +41,15 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" v-text="selected_dojo.name"></h5>
+            <h5 class="modal-title" v-text="this.map.title"></h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <div v-if="this.selected_dojo.location" class="container-fluid">
-              <gmap-map :center="selected_dojo.map_center" :zoom="11" style="width:100%;  height: 400px;">
-                <gmap-marker :position="selected_dojo.map_center"></gmap-marker>
+            <div v-if="this.map.center" class="container-fluid">
+              <gmap-map :center="this.map.center" :zoom="11" style="width:100%;  height: 400px;">
+                <gmap-marker v-for="mark in this.map.markers" :key="mark.id" :position="mark"></gmap-marker>
               </gmap-map>
             </div>
           </div>
@@ -67,7 +70,11 @@ export default {
       dojos: {},
       filtered_dojos: {},
       signedIn: window.App.signedIn,
-      selected_dojo: {}
+      map: {
+        center: { lat: 47.5775, lng: -52.7481 },
+        title: "Dojos",
+        markers: []
+      }
     };
   },
   mounted() {
@@ -117,9 +124,27 @@ export default {
       this.filterByUser();
     },
     showMap(dojo) {
-      this.selected_dojo = dojo;
-      var loc = JSON.parse(this.selected_dojo.location);
-      this.selected_dojo.map_center = loc.geometry.location;
+      if (dojo) {
+        // show 1 dojo
+        this.selected_dojo = dojo;
+        var loc = JSON.parse(this.selected_dojo.location);
+        this.map.center = loc.geometry.location;
+        this.map.markers = [loc.geometry.location];
+        this.map.title = dojo.name;
+      } else {
+        // show all dojos
+        this.map.center = { lat: 47.5775, lng: -52.7481 }
+        this.map.markers = [];
+        var loc;
+        for(var i=0;i<this.dojos.length;i++) {
+          if (this.dojos[i].location) {
+            loc = JSON.parse(this.dojos[i].location).geometry.location;
+            loc.id = i;
+            this.map.markers.push(loc);
+            }
+        }
+        this.map.title = "";
+      }
       $('#map-modal').modal('show');
     }
   }

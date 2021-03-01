@@ -14,13 +14,14 @@ class DojoCRUDTest extends TestCase
 
     use DatabaseMigrations;
 
-    public function sampleDojo($cat_id=1) {
+    public function sampleDojo($cat_id=1,$encode_location=false) {
         return [
             'name' => 'foobar',
             'category_id' => $cat_id,
             'price' => '99$/month',
             'classes' => 'Monday-Friday at 730pm-9pm',
             'contact' => 'Call me at my 1111111111',
+            'location' => $encode_location ? json_encode(['test'=>123]) : ['test'=>123],
             'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
                 sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
@@ -87,34 +88,34 @@ class DojoCRUDTest extends TestCase
     public function a_user_can_edit_a_dojo() {
         $this->signIn();
         Dojo::factory()->create(['user_id'=>User::first()->id]);
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo());
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
         $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseHas('dojos',$this->sampleDojo());
+        $this->assertDatabaseHas('dojos',$this->sampleDojo(1,true));
     }
 
     /** @test */
     public function an_admin_can_edit_a_dojo() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
         Dojo::factory()->create();
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo());
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
         $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseHas('dojos',$this->sampleDojo());
+        $this->assertDatabaseHas('dojos',$this->sampleDojo(1,true));
     }
 
     /** @test */
     public function a_guest_cannot_edit_a_dojo() {
         Dojo::factory()->create();
         $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo());
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
     }
 
     /** @test */
     public function a_user_can_only_edit_a_dojo_they_own() {
         $this->signIn(User::factory()->create());
         Dojo::factory()->create();
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo());
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
         $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo());
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
     }
 
     // DELETING

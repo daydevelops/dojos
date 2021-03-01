@@ -45,7 +45,7 @@
             </div>
             <div class="col-12 col-md-10">
               <p class="mb-1">
-                <span v-if="dojo.location">
+                <span v-if="JSON.parse(dojo.location).geometry">
                 {{JSON.parse(dojo.location).formatted_address}} <button class="btn btn-sm btn-primary p-0 px-1" @click="showMap">map</button>
                 </span>
               </p>

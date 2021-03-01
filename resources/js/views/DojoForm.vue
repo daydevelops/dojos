@@ -212,7 +212,8 @@ export default {
       }),
       is_editing: false, // are we editing an existing dojo. or creating a new one?
       dojo_id: 0,
-      categories: {}
+      categories: {},
+      location_selected: false
     };
   },
   mounted() {
@@ -259,9 +260,15 @@ export default {
   },
   methods: {
     updateLocation(loc) {
+      this.location_selected = true;
       this.form.location = loc;
     },
     onSubmit() {
+      if (!this.location_selected) {
+        alert('please select a valid location for the map');
+        return false;
+      }
+
       let action, path;
       if (this.is_editing) {
         action = "patch";
