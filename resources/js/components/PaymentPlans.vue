@@ -270,6 +270,10 @@ export default {
         });
     },
     submitPayment() {
+      if (this.selected_payment_method == null) {
+        alert('You must select a payment option');
+        return false;
+      }
       var new_card = this.adding_new_card ? "1" : "0";
       var url = "/api/subscribe?plan=" + this.plans[this.plan_id-1].product_id + "&payment_method=" + this.selected_payment_method + "&dojo_id=" + this.dojo_id + "&new_card=" + new_card;
       window.location = url;
