@@ -46,7 +46,7 @@
             <div class="col-12 col-md-10">
               <p class="mb-1">
                 <span v-if="JSON.parse(dojo.location).geometry">
-                {{JSON.parse(dojo.location).formatted_address}} <button class="btn btn-sm btn-primary p-0 px-1" @click="showMap">map</button>
+                {{JSON.parse(dojo.location).formatted_address}}
                 </span>
               </p>
             </div>
@@ -78,6 +78,13 @@
               <p class="mb-1">{{dojo.classes}}</p>
             </div>
           </div>
+        </div>
+      </div>
+      <div v-if="JSON.parse(this.dojo.location).geometry" class="row">
+        <div class="col-12">
+          <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
+            <gmap-marker :position="JSON.parse(this.dojo.location).geometry.location"></gmap-marker>
+          </gmap-map>
         </div>
       </div>
     </div>
@@ -116,9 +123,6 @@ export default {
           );
       })
     },
-    showMap() {
-      this.$emit('showMap',this.dojo);
-    }
   }
 };
 </script>
