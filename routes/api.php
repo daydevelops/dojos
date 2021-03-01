@@ -44,3 +44,5 @@ Route::get('/subscribe/plans',[PaymentsController::class,'plans']);
 Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');
 Route::get('/payments/getMethods',[PaymentsController::class,'getPaymentMethods'])->middleware('auth:sanctum');
 Route::post('/payments/webhook',[PaymentsController::class,'handleStripeWebhook']);// custom stripe webhook endpoint
+Route::get('/payments/invoice',[PaymentsController::class,'invoice'])->middleware('auth:sanctum');
+Route::get('/payments/invoice/{id}',[PaymentsController::class,'downloadInvoice'])->middleware('auth:sanctum');

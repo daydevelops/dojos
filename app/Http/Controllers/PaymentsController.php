@@ -197,4 +197,24 @@ class PaymentsController extends Controller
     public function plans() {
         return StripeProduct::all();
     }
+
+    public function invoice() {
+        $invoices = auth()->user()->invoices();
+        $result = array();
+        forEach($invoices as $inv) {
+            array_push($result,[
+                'id' => $inv->id,
+                'date' => $inv->date()->toFormattedDateString(),
+                'total' => $inv->total()
+            ]);
+        }
+        return $result;
+    }
+
+    public function downloadInvoice(Request $request, $id) {
+        return auth()->user()->downloadInvoice($id, [
+            'vendor' => 'Your Company',
+            'product' => 'Your Product',
+        ]);
+    }
 }

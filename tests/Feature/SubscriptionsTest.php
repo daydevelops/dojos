@@ -370,4 +370,22 @@ class SubscriptionsTest extends TestCase
     //     $this->assertCount(2,$user->paymentMethods());
     // }
 
+    /** @test */
+    public function a_guest_cannot_see_invoices() {
+        $this->get('/api/payments/invoice')->assertStatus(302);
+    }
+    
+    // /** @test */
+    // public function a_user_can_see_a_list_of_invoices() {
+    //     $data = $this->createSubscribedDojo();
+    //     $invoices = $this->json('get','/api/payments/invoice')->original;
+    //     $this->assertCount(1,$invoices);
+    //     // $this->assertEquals()
+    // }
+
+    // /** @test */
+    // public function a_user_can_download_an_invoice() {
+        
+    // }
+
 }
