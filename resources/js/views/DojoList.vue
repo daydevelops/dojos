@@ -27,11 +27,31 @@
     </div>
     <div v-if="filtered_dojos.length > 0" class="row">
       <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="dojo.id">
-        <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+        <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)" @showMap="showMap"></dojo>
       </div>
     </div>
     <div v-else class="row">
       <div class="col-12"><h4 class="text-center">There are no dojos here yet</h4></div>
+    </div>
+
+    <div class="modal fade" id="map-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" v-text="selected_dojo.name"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div v-if="this.selected_dojo.location" class="container-fluid">
+              <gmap-map :center="selected_dojo.map_center" :zoom="11" style="width:100%;  height: 400px;">
+                <gmap-marker :position="selected_dojo.map_center"></gmap-marker>
+              </gmap-map>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -46,7 +66,8 @@ export default {
       user_id_filter: window.App.signedIn ? window.App.user.id : null,
       dojos: {},
       filtered_dojos: {},
-      signedIn: window.App.signedIn
+      signedIn: window.App.signedIn,
+      selected_dojo: {}
     };
   },
   mounted() {
@@ -94,6 +115,12 @@ export default {
       this.filtered_dojos = this.dojos;
       this.filterByCategory();
       this.filterByUser();
+    },
+    showMap(dojo) {
+      this.selected_dojo = dojo;
+      var loc = JSON.parse(this.selected_dojo.location);
+      this.selected_dojo.map_center = loc.geometry.location;
+      $('#map-modal').modal('show');
     }
   }
 };

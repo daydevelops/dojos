@@ -33,23 +33,51 @@
               </router-link>
             </div>
           </div>
-          <p class="m-0 p-0">{{dojo.description}}</p>
-          <p class="m-0 p-0">
-            <u class="mr-3">Location:</u>
-            {{JSON.parse(dojo.location).formatted_address}}
-          </p>
-          <p class="m-0 p-0">
-            <u class="mr-3">Contact Information:</u>
-            {{dojo.contact}}
-          </p>
-          <p class="m-0 p-0">
-            <u class="mr-3">Price:</u>
-            {{dojo.price}}
-          </p>
-          <p class="m-0 p-0">
-            <u class="mr-3">Class Times:</u>
-            {{dojo.classes}}
-          </p>
+          <div class="row">
+            <div class="col col-12">
+              <p>{{dojo.description}}</p>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-12 col-md-2">
+              <p class="mb-0"><strong>Location:</strong></p>
+            </div>
+            <div class="col-12 col-md-10">
+              <p class="mb-1">
+                <span v-if="dojo.location">
+                {{JSON.parse(dojo.location).formatted_address}} <button class="btn btn-sm btn-primary p-0 px-1" @click="showMap">map</button>
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 col-md-2">
+              <p class="mb-0"><strong>Contact:</strong></p>
+            </div>
+            <div class="col-12 col-md-10">
+              <p class="mb-1">{{dojo.contact}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 col-md-2">
+              <p class="mb-0"><strong>Price:</strong></p>
+            </div>
+            <div class="col-12 col-md-10">
+              <p class="mb-1">{{dojo.price}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 col-md-2">
+              <p class="mb-0"><strong>Schedule:</strong></p>
+            </div>
+            <div class="col-12 col-md-10">
+              <p class="mb-1">{{dojo.classes}}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -87,6 +115,9 @@ export default {
             "success"
           );
       })
+    },
+    showMap() {
+      this.$emit('showMap',this.dojo);
     }
   }
 };
