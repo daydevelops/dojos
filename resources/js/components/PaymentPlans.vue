@@ -150,18 +150,22 @@ export default {
   watch: {
     // fetch current plan id for this dojo once the dojo id is given to us
     dojo_id: function(val) {
-      if (this.plan_id == null) {
-        axios.get("/api/dojos/" + this.dojo_id + "/plan").then(response => {
-          this.plan_id = response.data;
-        });
-      }
+      this.getCurrentPlan();
     }
   },
   mounted() {
     this.getStripePlans();
     this.getPaymentMethods();
+    this.getCurrentPlan();
   },
   methods: {
+    getCurrentPlan() {
+      if (this.plan_id == null) {
+        axios.get("/api/dojos/" + this.dojo_id + "/plan").then(response => {
+          this.plan_id = response.data;
+        });
+      }
+    },
     // et the details for the available plans
     getStripePlans() {
       axios.get("/api/subscribe/plans").then(response => {
