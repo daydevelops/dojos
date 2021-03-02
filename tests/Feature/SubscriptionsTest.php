@@ -22,23 +22,8 @@ class SubscriptionsTest extends TestCase
         (new DatabaseSeeder())->call(StripeProductSeeder::class);
     }
 
-    // assert a user can subscribe using a specified card
-    protected function testSubscribedDojo($payment_method) {
-        $this->assertDatabaseCount('dojos', 0);
-        $this->assertDatabaseCount('subscriptions', 0);
-        $this->assertDatabaseCount('subscription_items', 0);
-        $data = $this->createSubscribedDojo($payment_method);
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
-        $this->assertDatabaseHas('subscriptions', [
-            'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->product_id,
-            'name' => "dojo-" . $data['dojo']['id']
-        ]);
-    }
+
+    //// PAYMENT AND DOJO INFORMATION /////
 
     /** @test */
     public function a_user_can_get_their_payments_intent()
@@ -47,32 +32,6 @@ class SubscriptionsTest extends TestCase
         $this->signIn($user);
         $res = $this->get('/api/payments/getIntents');
         $this->assertInstanceOf('Stripe\SetupIntent', $res->original);
-    }
-
-    /** @test */
-    public function a_user_cannot_subscribe_to_a_plan_if_they_are_not_activated()
-    {
-        // EXCEPT for selecting the free plan as in the test below
-        $this->addProducts();
-        $this->signIn(User::factory()->create(['is_active' => 0]));
-        $dojo = Dojo::factory()->create();
-        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
-        $this->get($route)->assertStatus(403);
-    }
-
-    /** @test */
-    public function a_user_can_select_the_free_plan_if_they_are_not_activated()
-    {
-        $data = $this->createSubscribedDojo();
-        auth()->user()->update(['is_active' => 0]);
-        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
-        $this->get($route);
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
     }
 
     /** @test */
@@ -94,7 +53,7 @@ class SubscriptionsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_cannot_see_the_payment_plan_for_a_dojo_they_do_not_own()
+    public function a_user_cannot_see_the_subscription_for_a_dojo_they_do_not_own()
     {
         Dojo::factory()->create(['subscription_id' => 1]);
 
@@ -117,6 +76,188 @@ class SubscriptionsTest extends TestCase
             $this->assertInstanceOf(StripeProduct::class, $p);
         }
     }
+    /** @test */
+    public function a_guest_cannot_see_invoices() {
+        $this->get('/api/payments/invoice')->assertStatus(302);
+    }
+    
+    // /** @test */
+    // public function a_user_can_see_a_list_of_invoices() {
+    //     $data = $this->createSubscribedDojo();
+    //     $invoices = $this->json('get','/api/payments/invoice')->original;
+    //     $this->assertCount(1,$invoices);
+    //     // $this->assertEquals()
+    // }
+
+    // /** @test */
+    // public function a_user_can_download_an_invoice() {
+        
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ///// DELETING SUBSCRIPTIONS /////
+
+    /** @test */
+    public function a_user_can_cancel_a_dojos_subscription()
+    {
+        // given a user has a standard plan
+        $data = $this->createSubscribedDojo();
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
+
+    /** @test */
+    public function a_user_unsubscribing_does_not_effect_other_users_subscription() {
+        $data = $this->createSubscribedDojo();
+        $data = $this->createSubscribedDojo();
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('users', 2);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('users', 2);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 1,
+            'subscription_id' => 1
+        ]);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 2,
+            'subscription_id' => null
+            ]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
+    }
+
+    /** @test */
+    public function unsubscribing_the_last_dojo_on_a_subscription_cancels_it() {        
+        $data = $this->createSubscribedDojo();
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 1
+        ]);
+        // create a 2nd dojo on the same plan
+        $user = User::first();
+        $dojo = Dojo::factory()->create(['user_id'=>$user->id]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 2
+        ]);
+        // remove first dojo, should decrease quantity
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 1
+        ]);
+        // remove second dojo, should cancel plan
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "canceled",
+            'quantity' => 1
+        ]);
+    }
+
+    /** @test */
+    public function subscription_is_updated_when_a_dojo_is_deleted()
+    {
+        $data = $this->createSubscribedDojo();
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 1
+        ]);
+        // create a 2nd dojo on the same plan
+        $user = User::first();
+        $dojo = Dojo::factory()->create(['user_id'=>$user->id]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 2
+        ]);
+        // delete  and unsubscribe the first dojo
+        $this->json('delete', '/api/dojos/' . $data['dojo']['id']);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 1
+        ]);
+    }
+
+    /** @test */
+    public function a_users_subscriptions_are_deleted_if_they_delete_their_account()
+    {
+        $data = $this->createSubscribedDojo();
+        $this->json('delete', '/api/users/' . $data['user']['id']);
+        $this->assertDatabaseCount('users', 0);
+        $this->assertDatabaseCount('dojos', 0);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
+
+    /** @test */
+    public function a_user_can_select_the_free_plan_if_they_are_not_activated()
+    {
+        $data = $this->createSubscribedDojo();
+        auth()->user()->update(['is_active' => 0]);
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ///// CREATING SUBSCRIPTIONS /////
 
     /** @test */
     public function a_user_can_subscribe_a_dojo_they_own()
@@ -134,6 +275,36 @@ class SubscriptionsTest extends TestCase
             $this->runDatabaseMigrations();
             $this->testSubscribedDojo($pm);
         }
+    }
+
+    // assert a user can subscribe using a specified card
+    protected function testSubscribedDojo($payment_method) {
+        $this->assertDatabaseCount('dojos', 0);
+        $this->assertDatabaseCount('subscriptions', 0);
+        $this->assertDatabaseCount('subscription_items', 0);
+        $data = $this->createSubscribedDojo($payment_method);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $sp = StripeProduct::find(2);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description
+        ]);
+    }
+
+    /** @test */
+    public function a_user_cannot_subscribe_to_a_plan_if_they_are_not_activated()
+    {
+        // EXCEPT for selecting the free plan as in the test below
+        $this->addProducts();
+        $this->signIn(User::factory()->create(['is_active' => 0]));
+        $dojo = Dojo::factory()->create();
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
+        $this->get($route)->assertStatus(403);
     }
 
     /** @test */
@@ -170,44 +341,8 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => 1,
             'stripe_plan' => $new_plan->product_id,
-            'name' => "dojo-" . $dojo->id
+            'name' => $new_plan->description
         ]);
-    }
-
-    /** @test */
-    public function a_user_can_change_a_dojos_subscription()
-    {
-        // given a user has a standard plan
-        $data = $this->createSubscribedDojo();
-        // when the user switched to a premium plan
-        $new_plan = StripeProduct::find(4);
-        $route = $this->getSubscribeRoute(4,'pm_card_visa',$data['dojo']);
-        $this->get($route);
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
-        $this->assertDatabaseHas('subscriptions', [
-            'user_id' => 1,
-            'stripe_plan' => $new_plan->product_id,
-            'name' => "dojo-" . $data['dojo']['id']
-        ]);
-    }
-
-    /** @test */
-    public function a_user_can_cancel_a_dojos_subscription()
-    {
-        // given a user has a standard plan
-        $data = $this->createSubscribedDojo();
-        $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
-        $this->get($route);
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
     }
 
     /** @test */
@@ -252,6 +387,21 @@ class SubscriptionsTest extends TestCase
     }
 
     /** @test */
+    public function a_user_cannot_subscribe_to_a_plan_they_are_already_on() {
+        $data = $this->createSubscribedDojo();
+        $route = $this->getSubscribeRoute(2,'pm_card_visa',$data['dojo']);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
+    }
+
+
+    ///// SWAPPING SUBSCRIPTIONS /////
+
+    /** @test */
     public function a_user_can_swap_from_an_incomplete_payment_plan_to_another_plan() {
         $data = $this->createSubscribedDojo('pm_card_chargeCustomerFail');
         $this->assertDatabaseCount('dojos', 1);
@@ -270,39 +420,47 @@ class SubscriptionsTest extends TestCase
     }
 
     /** @test */
-    public function a_user_cannot_subscribe_to_a_plan_they_are_already_on() {
+    public function a_user_can_change_a_dojos_subscription()
+    {
+        // given a user has a standard plan
         $data = $this->createSubscribedDojo();
-        $route = $this->getSubscribeRoute(2,'pm_card_visa',$data['dojo']);
+        $old_plan = StripeProduct::find(2);
+        // when the user switched to a premium plan
+        $new_plan = StripeProduct::find(4);
+        $route = $this->getSubscribeRoute(4,'pm_card_visa',$data['dojo']);
         $this->get($route);
         $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseCount('subscription_items', 2);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 2]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->product_id,
+            'name' => $new_plan->description,
+            'stripe_status' => 'active',
+            'quantity' => 1
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $old_plan->product_id,
+            'name' => $old_plan->description,
+            'stripe_status' => 'canceled',
+            'quantity' => 1
+        ]);
     }
 
-    /** @test */
-    public function subscription_is_cancelled_when_a_dojo_is_deleted()
-    {
-        $data = $this->createSubscribedDojo();
-        $this->json('delete', '/api/dojos/' . $data['dojo']['id']);
-        $this->assertDatabaseCount('dojos', 0);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
-    }
 
-    /** @test */
-    public function a_users_subscriptions_are_deleted_if_they_delete_their_account()
-    {
-        $data = $this->createSubscribedDojo();
-        $this->json('delete', '/api/users/' . $data['user']['id']);
-        $this->assertDatabaseCount('users', 0);
-        $this->assertDatabaseCount('dojos', 0);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
-    }
+
+
+
+
+
+
+
+
+
+    ///// WEBHOOK AND INCOMPLETE PAYMENTS /////
 
     /** @test */
     public function a_user_sees_payment_confirm_page_if_incomplete_payment() {
@@ -370,22 +528,5 @@ class SubscriptionsTest extends TestCase
     //     $this->assertCount(2,$user->paymentMethods());
     // }
 
-    /** @test */
-    public function a_guest_cannot_see_invoices() {
-        $this->get('/api/payments/invoice')->assertStatus(302);
-    }
-    
-    // /** @test */
-    // public function a_user_can_see_a_list_of_invoices() {
-    //     $data = $this->createSubscribedDojo();
-    //     $invoices = $this->json('get','/api/payments/invoice')->original;
-    //     $this->assertCount(1,$invoices);
-    //     // $this->assertEquals()
-    // }
-
-    // /** @test */
-    // public function a_user_can_download_an_invoice() {
-        
-    // }
 
 }

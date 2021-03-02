@@ -36,11 +36,11 @@ class PaymentsController extends Controller
 
         try {
             // if the user has an incomplete subscription and is trying to create a new one, delete old one first
-            $incomplete_subscriptions = $dojo->getIncompleteSubscriptions();
-            if (count($incomplete_subscriptions) > 0) {
-                // cancel it
-                $incomplete_subscriptions[0]->cancelNow();
-            }
+            // $incomplete_subscriptions = $dojo->getIncompleteSubscriptions();
+            // if (count($incomplete_subscriptions) > 0) {
+            //     // cancel it
+            //     $incomplete_subscriptions[0]->cancelNow();
+            // }
 
             // load the currently subscribed plan, if there is one
             $current_subscription = $dojo->subscription;
@@ -51,21 +51,22 @@ class PaymentsController extends Controller
             $wants_free_plan = $plan->product_id == "free_plan";
             $wants_paid_plan = $plan->product_id != "free_plan";
             $wants_different_paid_plan = ($current_subscription ? $current_subscription->stripe_plan : "free_plan") != $plan->product_id;
-
+            
             if ($is_on_paid_plan && $wants_free_plan) {
                 // user is switching to free plan, cancel their subscription
-                $current_subscription->cancelNow();
-                $dojo->update(['subscription_id' => null]);
+                // if the user is subscribed to the dojos current plan, which they should be
+                $dojo->unsubscribe();
+                // What happens when the quantity reaches zero?
                 
             } else if ($is_on_paid_plan && $wants_different_paid_plan) {
                 // user wants to switch to a new paid plan
-                $current_subscription->swap($plan->product_id);
-            } else if ($wants_paid_plan && $is_on_free_plan) {
+                // if the user is subscribed to the dojos current plan, which they should be
+                $dojo->unsubscribe();
+                $dojo->subscribe($plan);
+
+            } else if ($is_on_free_plan && $wants_paid_plan) {
                 // user is moving from free plan to a paid plan
-                $subscription = $dojo->user
-                    ->newSubscription("dojo-" . $dojo->id, $plan->product_id)
-                    ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $dojo->id]]);
-                $dojo->update(['subscription_id' => $subscription->id]);
+                $dojo->subscribe($plan);
             } else {
                 // the user is trying to subscribe to a plan they already have.
                 return array(
@@ -92,89 +93,6 @@ class PaymentsController extends Controller
             );
         }
         return redirect("/#/dojos/".$dojo->id);
-    }
-
-    /**
-     * Stripe Webhook Endpoint
-     * 
-     * Stripe will hit this method when a subscription is successfully created or updated
-     * This method will update the dojos information to reflect the new plan and notify the owner
-     */
-    public function handleStripeWebhook(Request $request) {
-        if ($request['is_testing']) {
-            $event = json_decode($request['mock']);
-            $dojo_id = $event->data->object->metadata->dojo_id;
-            $plan_id = $event->data->object->plan->id;
-        } else {
-            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-            // Retrieve the request's body and parse it as JSON
-            $input = @file_get_contents("php://input");
-            $event_json = json_decode($input);
-            $event = \Stripe\Event::retrieve($event_json->id);
-            if(!isset($event)) {
-                // error
-                return false;
-            }
-            $dojo_id = $event->data->object->metadata['dojo_id'];
-            $plan_id = $event->data->object->plan['id'];
-        }
-        $dojo = Dojo::find($dojo_id);
-        
-        if ($event->type == 'customer.subscription.deleted') {
-            return $this->subscriptionDeleted($dojo);
-        } else if ($event->type == 'customer.subscription.created') {
-            return $this->subscriptionCreated($event,$dojo,$plan_id);
-        } else if ($event->type == 'customer.subscription.updated') {
-            return $this->subscriptionUpdated($event,$dojo,$plan_id);
-        } else {
-
-        }
-    }
-
-    private function subscriptionUpdated($event,$dojo,$plan_id) {
-        // update dojo information
-        $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
-        $dojo->update(['subscription_id' => $subscription_id]);
-        $subscription = $dojo->subscription;
-        $subscription->update(['stripe_status' => $event->data->object->status]);
-        $user = $dojo->user;
-        $user->notify(new DojoSubscriptionUpdated(
-            $dojo, 
-            StripeProduct::where(['product_id' => $plan_id])->first()
-        ));
-        http_response_code(200);
-    }
-
-
-    private function subscriptionCreated($event,$dojo,$plan_id) {
-        $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
-        $dojo->update(['subscription_id' => $subscription_id]);
-        $subscription = $dojo->subscription;
-        $subscription->update(['stripe_status' => $event->data->object->status]);
-        $user = $dojo->user;
-        $user->notify(new DojoSubscriptionUpdated(
-            $dojo,
-            StripeProduct::where(['product_id' => $plan_id])->first()
-        ));
-        http_response_code(200);
-    }
-
-    private function subscriptionDeleted($dojo) {
-        // user has cancelled their plan
-
-        // if the user cancelled their plan through the billing portal, we need to set the plan to cancelled
-        // if the user cancelled on the dojo page, the subscription id was already set to null and the subscription cancelled
-        if ($dojo->subscription_id) {
-            $dojo->subscription->update(['stripe_status'=>'cancelled']);
-            $dojo->update(['subscription_id' => null]);
-        }
-
-        $user = $dojo->user;
-        $user->notify(new DojoSubscriptionUpdated(
-            $dojo, 
-            StripeProduct::where(['product_id' => "free_plan"])->first()
-        ));
-        http_response_code(200);
     }
 
     public function getIntents() {
