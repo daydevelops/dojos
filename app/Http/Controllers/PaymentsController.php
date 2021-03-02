@@ -35,12 +35,6 @@ class PaymentsController extends Controller
         }
 
         try {
-            // if the user has an incomplete subscription and is trying to create a new one, delete old one first
-            // $incomplete_subscriptions = $dojo->getIncompleteSubscriptions();
-            // if (count($incomplete_subscriptions) > 0) {
-            //     // cancel it
-            //     $incomplete_subscriptions[0]->cancelNow();
-            // }
 
             // load the currently subscribed plan, if there is one
             $current_subscription = $dojo->subscription;
