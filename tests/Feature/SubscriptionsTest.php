@@ -414,8 +414,8 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseCount('dojos', 1);
         $this->assertDatabaseCount('subscriptions', 2);
         $this->assertDatabaseCount('subscription_items', 2);
-        $this->assertDatabaseMissing('dojos', ['subscription_id' => null]);
-        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "canceled"]);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 2]);
+        $this->assertDatabaseHas('subscriptions', ['stripe_status' => "incomplete"]);
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
     }
 
