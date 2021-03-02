@@ -48,7 +48,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->addProducts();
         $dojo = Dojo::factory()->create();
-        $user = User::first();
+        $user = $dojo->user;
         $this->signIn($user);
         $route = $this->getSubscribeRoute($product_id,$payment_method,$dojo);
         return [
