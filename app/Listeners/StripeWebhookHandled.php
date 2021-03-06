@@ -43,17 +43,29 @@ class StripeWebhookHandled
 
         $dojo_id = $event->data->object->metadata['dojo_id'];
         $plan_id = $event->data->object->plan['id'];
+        $plan = StripeProduct::where(['product_id' => $plan_id])->first();
         $dojo = Dojo::find($dojo_id);
+        $user = $dojo->user;
         if ($event->type == 'customer.subscription.deleted') {
             $subscription_id = null;
+            $cost = null;
+            $cycle = null;
         } else {
             $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$event->data->object->id])->get()[0]->id;
+            // calculate the cost the user is paying, taking into account the users coupons
+            $cost = $user->getCostFor($plan);
+            $cycle = $plan->cycle;
         }
-        $dojo->update(['subscription_id' => $subscription_id]);
-        $user = $dojo->user;
-        $user->notify(new DojoSubscriptionUpdated(
-            $dojo, 
-            StripeProduct::where(['product_id' => $plan_id])->first()
-        ));
+
+        $dojo->update([
+            'subscription_id' => $subscription_id,
+            'cost' => $cost,
+            'cycle' => $cycle
+        ]);
+        // $user->notify(new DojoSubscriptionUpdated(
+        //     $dojo, 
+        //     $plan,
+        //     $cost
+        // ));
     }
 }

@@ -169,7 +169,9 @@ class DojoController extends Controller
                 // dojo does not have a plan yet, return id for free plan
                 $plan_id = 1;
             }
-            return $plan_id;
+            $cost = $dojo->cost;
+            $cycle = $dojo->cycle;
+            return compact('plan_id','cost','cycle');
         } else {
             return response("You Cannot See This Dojo's Subscription", 403);
         }

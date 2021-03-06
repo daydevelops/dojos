@@ -162,7 +162,14 @@ export default {
     getCurrentPlan() {
       if (this.plan_id == null) {
         axios.get("/api/dojos/" + this.dojo_id + "/plan").then(response => {
-          this.plan_id = response.data;
+          this.plan_id = response.data.plan_id;
+          // using the cost and cycle of the plan at the purchase time, update the current plan to show what the user is paying. Prices may have changed
+          for (let i=0;i<this.plans.length;i++) {
+            if (this.plans[i].id == this.plan_id) {
+              this.plans[i].price = response.data.cost.toFixed(2);
+              this.plans[i].cycle = response.data.cycle;
+            }
+          }
         });
       }
     },

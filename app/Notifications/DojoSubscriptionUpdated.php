@@ -19,10 +19,11 @@ class DojoSubscriptionUpdated extends Notification
      *
      * @return void
      */
-    public function __construct($dojo,$plan)
+    public function __construct($dojo,$plan,$cost)
     {
         $this->dojo = $dojo;
         $this->plan = $plan;
+        $this->cost = $cost;
     }
 
     /**
@@ -47,7 +48,7 @@ class DojoSubscriptionUpdated extends Notification
         if ($this->plan->stripe_id == "free_plan") {
             $description = "free";
         } else {
-            $description = $this->plan->description;
+            $description = $this->cost." cad / ".$this->plan->cycle;
         }
         
         return (new MailMessage)

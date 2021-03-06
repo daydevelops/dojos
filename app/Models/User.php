@@ -60,4 +60,9 @@ class User extends Authenticatable
     public function coupon() {
         return $this->belongsTo(Coupon::class);
     }
+
+    // given a stripe plan, and any coupon the user has, return the cost of the plan
+    public function getCostFor(StripeProduct $plan) {
+        return $this->coupon ? $plan->price * ( 1 - 0.01 * $this->coupon->discount) : $plan->price;
+    }
 }

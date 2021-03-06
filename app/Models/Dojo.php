@@ -67,7 +67,11 @@ class Dojo extends Model
                 $current_subscription->decrementQuantity();
             }
         }
-        $this->update(['subscription_id' => null]);
+        $this->update([
+            'subscription_id' => null,
+            'cost' => null,
+            'cycle' => null
+        ]);
     }
 
     public function subscribe($plan) {
@@ -82,6 +86,7 @@ class Dojo extends Model
         if ($user->subscribed($subscription_name)) {
             $subscription = $user->subscription($subscription_name);
             $subscription->incrementQuantity();
+            
         } else {
             // else create a new subscription
             $coupon = $user->coupon;
@@ -96,7 +101,12 @@ class Dojo extends Model
                     ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $this->id]]);
             }
         }
-        $this->update(['subscription_id' => $subscription->id]);
+        $cost = $user->getCostFor($plan);
+        $this->update([
+            'subscription_id' => $subscription->id,
+            'cost' => $cost,
+            'cycle' => $plan->cycle
+        ]);
     }
 
     // get any incomplete subscriptions in our database for this dojo

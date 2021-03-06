@@ -49,7 +49,7 @@ class SubscriptionsTest extends TestCase
         $data = $this->createSubscribedDojo();
         $this->signIn($data['user']);
         $res = $this->json('get', '/api/dojos/' . $data['dojo']->id . '/plan');
-        $this->assertEquals($res->original, 2);
+        $this->assertEquals($res->original['plan_id'], 2);
     }
 
     /** @test */

@@ -30,6 +30,8 @@ class CreateDojosTable extends Migration
             $table->string('youtube')->nullable();
             $table->string('instagram')->nullable();
             $table->string('image')->default('storage/images/default.png');
+            $table->double('cost')->nullable();
+            $table->string('cycle')->nullable();
             $table->timestamps();
         });
     }
