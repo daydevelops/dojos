@@ -13,7 +13,7 @@ class Dojo extends Model
 
     protected $guarded = [];
 
-    protected $hidden = ["user", "subscription_id"];
+    protected $hidden = ["user", "subscription_id", "cost", "cycle"];
 
     protected $appends = ['is_active'];
 
