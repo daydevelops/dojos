@@ -22,7 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
-        'discount'
+        'coupon_id'
     ];
 
     /**
@@ -55,5 +55,9 @@ class User extends Authenticatable
 
     public function dojos() {
         return $this->hasMany(Dojo::class);
+    }
+
+    public function coupon() {
+        return $this->belongsTo(Coupon::class);
     }
 }

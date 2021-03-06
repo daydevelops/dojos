@@ -50,9 +50,14 @@ class UserController extends Controller
         }
     }
 
-    public function discount(Request $request, User $user) {
-        $data = request()->validate(['discount' => 'required|integer|max:100|min:0']);
+    public function coupon(Request $request, User $user) {
+        $data = request()->validate(['coupon_id' => 'required|integer']);
+        if ($data['coupon_id'] == 0) {
+            $data['coupon_id'] = null;
+        } else {
+            request()->validate(['coupon_id' => 'exists:coupons,id']);
+        }
         $user->update($data);
-        return $user->fresh()->discount;
+        return $user->fresh()->coupon_id;
     }
 }

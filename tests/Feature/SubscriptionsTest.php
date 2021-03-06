@@ -456,6 +456,184 @@ class SubscriptionsTest extends TestCase
 
 
 
+    ///// COUPONS /////
+    
+    /** @test */
+    public function a_user_can_subscribe_with_a_coupon() {
+        $this->addProducts();
+        $user = User::factory()->create(['coupon_id'=>1]);
+        $dojo = Dojo::factory()->create(['user_id'=>1]);
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $sp = StripeProduct::find(2);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description . ": " . $user->coupon->description
+        ]);
+        $subscription = $user->fresh()->subscription($sp->description . ": " . $user->coupon->description);
+        $this->assertEquals("CA$2.50",$subscription->latestPayment()->amount());
+    }
+
+    /** @test */
+    public function subscribing_to_the_same_plan_but_with_a_coupon_creates_separate_subscriptions() {
+        // given we have a subscribed dojo on plan 2
+        // if we subscribe another dojo on plan 2 with a coupon
+        // we should see 2 subscriptions
+
+        $data = $this->createSubscribedDojo();
+        $user = $data['user'];
+        $user->update(['coupon_id'=>1]);
+        $dojo = Dojo::factory()->create(['user_id'=>1]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseCount('subscription_items', 2);
+        $this->assertDatabaseHas('dojos', ['id'=>1, 'subscription_id' => 1]);
+        $this->assertDatabaseHas('dojos', ['id'=>2, 'subscription_id' => 2]);
+        $sp = StripeProduct::find(2);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description . ": " . $user->coupon->description
+        ]);
+    }
+
+    /** @test */
+    public function cancelling_a_sub_on_a_coupon_plan_does_not_effect_the_non_coupon_sub() {
+        // subscribe a dojo at full price
+        $data = $this->createSubscribedDojo();
+
+        // subsccribe a dojo with a coupon
+        $user = $data['user'];
+        $user->update(['coupon_id'=>1]);
+        $dojo = Dojo::factory()->create(['user_id'=>1]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+
+        // unsubscribe a dojo
+        $route = $this->getSubscribeRoute(1,'pm_card_visa',$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 1,
+            'subscription_id' => 1
+        ]);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 2,
+            'subscription_id' => null
+        ]);
+        $sp = StripeProduct::find(2);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description,
+            'stripe_status' => "active"
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description . ": " . $user->coupon->description,
+            'stripe_status' => "canceled"
+        ]);
+
+    }
+
+    /** @test */
+    public function a_user_can_have_multiple_subs_on_the_same_plan_coupon_combo() {
+        $this->addProducts();
+        $user = User::factory()->create(['coupon_id' => 1]);
+        $this->signIn($user);
+        $dojo = Dojo::factory()->create(['user_id'=>1]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 1
+        ]);
+        // create a 2nd dojo on the same plan
+        $user = User::first();
+        $dojo = Dojo::factory()->create(['user_id'=>$user->id]);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('dojos', 2);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('subscriptions', [
+            'stripe_status' => "active",
+            'quantity' => 2
+        ]);
+    }
+
+    /** @test */
+    public function a_user_can_cancel_a_subscription_and_resubscribe_with_a_coupon() {
+        // subscribe a dojo at full price
+        $data = $this->createSubscribedDojo();
+
+        // give user a coupon
+        $user = $data['user'];
+        $user->update(['coupon_id'=>1]);
+
+        // unsubscribe
+        $dojo = $data['dojo'];
+        $route = $this->getSubscribeRoute(1,"pm_card_visa",$dojo);
+        $this->get($route);
+
+        // make sure it was cancelled
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 1,
+            'subscription_id' => null
+        ]);
+        $sp = StripeProduct::find(2);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description,
+            'stripe_status' => "canceled"
+        ]);
+        
+        // re subscribe with coupon
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo);
+        $this->get($route);
+        $this->assertDatabaseCount('subscriptions', 2);
+        $this->assertDatabaseHas('dojos', [
+            'id' => 1,
+            'subscription_id' => 2
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $sp->product_id,
+            'name' => $sp->description . ": " . $user->coupon->description,
+            'stripe_status' => "active"
+        ]);
+    }
+
+
+
+
+
+
+
 
 
 

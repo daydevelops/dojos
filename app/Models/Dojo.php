@@ -72,15 +72,29 @@ class Dojo extends Model
 
     public function subscribe($plan) {
         $user = $this->user;
-        // if owner has a dojo on the new subscription already, increase quantity
-        if ($user->subscribed($plan->description)) {
-            $subscription = $user->subscription($plan->description);
+        if ($user->coupon_id) {
+            $subscription_name = $plan->description . ": " . $user->coupon->description;
+        } else {
+            $subscription_name = $plan->description;
+        }
+
+        // if owner has a dojo on this subscription already which also uses the same coupon, increase quantity
+        if ($user->subscribed($subscription_name)) {
+            $subscription = $user->subscription($subscription_name);
             $subscription->incrementQuantity();
         } else {
             // else create a new subscription
-            $subscription = $user
-                ->newSubscription($plan->description, $plan->product_id)
-                ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $this->id]]);
+            $coupon = $user->coupon;
+            if ($coupon) {
+                $subscription = $user
+                    ->newSubscription($subscription_name, $plan->product_id)
+                    ->withCoupon($coupon->code)
+                    ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $this->id]]);
+            } else {
+                $subscription = $user
+                    ->newSubscription($subscription_name, $plan->product_id)
+                    ->create(request('payment_method'),[],['metadata' => ['dojo_id' => $this->id]]);
+            }
         }
         $this->update(['subscription_id' => $subscription->id]);
     }

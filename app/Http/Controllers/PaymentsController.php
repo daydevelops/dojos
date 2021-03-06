@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
 use App\Notifications\DojoSubscriptionUpdated;
@@ -108,12 +109,18 @@ class PaymentsController extends Controller
 
     public function plans() {
         $plans = StripeProduct::all();
-        if (auth()->check()) {
+        if (auth()->check() && auth()->user()->coupon_id) {
+            $coupon = auth()->user()->coupon;
+            $discount = $coupon->discount;
             foreach($plans as $plan) {
-                $plan->price *= 1 - auth()->user()->discount * 0.01;
+                $plan->price *= 1 - $discount * 0.01;
             }
         }
         return $plans;
+    }
+
+    public function coupons() {
+        return Coupon::all();
     }
 
     public function invoice() {

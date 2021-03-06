@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\StripeProduct;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class StripeProductSeeder extends Seeder
 {
@@ -43,6 +44,18 @@ class StripeProductSeeder extends Seeder
             'description' => "100 CAD/year",
             'price' => 100,
             'cycle' => 'year'
+        ]);
+
+        // add coupons
+        DB::table('coupons')->insert([
+            'code' => env('HALF_OFF_COUPON_CODE'),
+            'description' => '50% off',
+            'discount' => 50
+        ]);
+        DB::table('coupons')->insert([
+            'code' => env('FULL_OFF_COUPON_CODE'),
+            'description' => '100% off',
+            'discount' => 100
         ]);
     }
 }

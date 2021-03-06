@@ -10,10 +10,19 @@
                 <div class="col-sm-9">
                   <p class="m-0 p-0">Email: {{user.email}}</p>
                   <p class="m-0 p-0">Date Registered: {{ago(user)}}</p>
-                  <div class="form-group mb-0">
-                    <label class="d-inline">Discount (% taken off)</label>
-                    <input type="number" min="0" max="100" v-model="user.discount" class="form-control w-25 py-0 ml-2 d-inline" />
-                  </div>
+                  <button
+                    class="btn btn-sm p-0 px-1 mx-1"
+                    :class="{'btn-primary': user.coupon_id==null,'btn-secondary': user.coupon_id!=null}"
+                    @click="updateCoupon(user.id,index,0)"
+                  >No Coupon</button>
+                  <button
+                    v-for="coupon in coupons"
+                    :key="coupon.id"
+                    class="btn btn-sm p-0 px-1 mx-1"
+                    :class="{'btn-primary': user.coupon_id==coupon.id,'btn-secondary': user.coupon_id!=coupon.id}"
+                    v-text="coupon.description"
+                    @click="updateCoupon(user.id,index,coupon.id)"
+                  ></button>
                   <p class="m-0 p-0">
                     <router-link :to="'/dojos/user/'+user.id">Dojos: {{user.dojos_count}}</router-link>
                   </p>
@@ -25,11 +34,6 @@
                     @click="toggleActive(user.id,index)"
                     v-text="user.is_active ? 'Deactivate' : 'Activate'"
                   ></button>
-                  <button
-                    class="btn btn-sm d-block btn-primary"
-                    @click="updateDiscount(user.id,index)"
-                  >Update</button>
-
                 </div>
               </div>
             </div>
@@ -45,7 +49,8 @@ import moment from "moment";
 export default {
   data() {
     return {
-      users: {}
+      users: {},
+      coupons: {}
     };
   },
   methods: {
@@ -60,15 +65,12 @@ export default {
           );
         });
     },
-    updateDiscount(id,index) {
+    updateCoupon(id, index, coupon_id) {
       axios
-        .patch("/api/users/" + id + "/discount", { discount: this.users[index].discount })
+        .patch("/api/users/" + id + "/coupon", { coupon_id: coupon_id })
         .then(response => {
-          this.users[index].discount = response.data;
-          window.flash(
-            "User's discount has been updated to " + response.data,
-            "success"
-          );
+          this.users[index].coupon_id = response.data == "" ? null : response.data;
+          window.flash("User's coupon has been updated", "success");
         });
     },
     ago(user) {
@@ -77,6 +79,9 @@ export default {
   },
   mounted() {
     axios.get("/api/users").then(response => (this.users = response.data));
+    axios
+      .get("/api/subscribe/coupons")
+      .then(response => (this.coupons = response.data));
   }
 };
 </script>
