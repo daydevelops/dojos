@@ -16,23 +16,33 @@ class StripeProductSeeder extends Seeder
     {
         StripeProduct::insert([
             'product_id' => "free_plan",
-            'description' => "No Plan"
+            'description' => "No Plan",
+            'price' => 0,
+            'cycle' => 'month'
         ]);
         StripeProduct::insert([
             'product_id' => env("STANDARD_MONTHLY_PLAN_ID"),
-            'description' => "5 CAD/month"
+            'description' => "5 CAD/month",
+            'price' => 5,
+            'cycle' => 'month'
         ]);
         StripeProduct::insert([
             'product_id' => env("STANDARD_YEARLY_PLAN_ID"),
-            'description' => "50 CAD/year"
+            'description' => "50 CAD/year",
+            'price' => 50,
+            'cycle' => 'year'
         ]);
         StripeProduct::insert([
             'product_id' => env("PREMIUM_MONTHLY_PLAN_ID"),
-            'description' => "10 CAD/month"
+            'description' => "10 CAD/month",
+            'price' => 10,
+            'cycle' => 'month'
         ]);
         StripeProduct::insert([
             'product_id' => env("PREMIUM_YEARLY_PLAN_ID"),
-            'description' => "100 CAD/year"
+            'description' => "100 CAD/year",
+            'price' => 100,
+            'cycle' => 'year'
         ]);
     }
 }

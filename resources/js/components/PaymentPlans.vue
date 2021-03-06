@@ -24,14 +24,14 @@
       <div class="col-md-4">
         <div class="card mb-2">
           <div class="card-body" :class="{'highlighted-card':plan_id==2}" @click="plan_id=2">
-            <h5 class="card-title" v-text="plans[1].description"></h5>
+            <h5 class="card-title" v-text="plans[1].price + ' CAD / ' + plans[1].cycle"></h5>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
           <div class="card-body" :class="{'highlighted-card':plan_id==3}" @click="plan_id=3">
-            <h5 class="card-title" v-text="plans[2].description"></h5>
+            <h5 class="card-title" v-text="plans[2].price + ' CAD / ' + plans[2].cycle"></h5>
           </div>
         </div>
       </div>
@@ -46,14 +46,14 @@
       <div class="col-md-4">
         <div class="card mb-2">
           <div class="card-body" :class="{'highlighted-card':plan_id==4}" @click="plan_id=4">
-            <h5 class="card-title" v-text="plans[3].description"></h5>
+            <h5 class="card-title" v-text="plans[3].price + ' CAD / ' + plans[3].cycle"></h5>
           </div>
         </div>
       </div>
       <div class="col-md-4">
         <div class="card mb-2">
           <div class="card-body" :class="{'highlighted-card':plan_id==5}" @click="plan_id=5">
-            <h5 class="card-title" v-text="plans[4].description"></h5>
+            <h5 class="card-title" v-text="plans[4].price + ' CAD / ' + plans[4].cycle"></h5>
           </div>
         </div>
       </div>
@@ -170,6 +170,9 @@ export default {
     getStripePlans() {
       axios.get("/api/subscribe/plans").then(response => {
         this.plans = response.data;
+        for(let i=0;i<5;i++) {
+          this.plans[i].price = this.plans[i].price.toFixed(2);
+        }
       });
     },
     // get the users stripe information ready

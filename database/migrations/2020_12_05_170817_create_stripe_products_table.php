@@ -17,6 +17,8 @@ class CreateStripeProductsTable extends Migration
             $table->id();
             $table->string('product_id')->nullable();
             $table->string('description');
+            $table->double('price');
+            $table->string('cycle'); // month or year
             $table->timestamps();
         });
     }

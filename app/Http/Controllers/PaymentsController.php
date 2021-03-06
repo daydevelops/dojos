@@ -107,7 +107,13 @@ class PaymentsController extends Controller
     }
 
     public function plans() {
-        return StripeProduct::all();
+        $plans = StripeProduct::all();
+        if (auth()->check()) {
+            foreach($plans as $plan) {
+                $plan->price *= 1 - auth()->user()->discount * 0.01;
+            }
+        }
+        return $plans;
     }
 
     public function invoice() {

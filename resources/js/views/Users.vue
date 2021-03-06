@@ -10,6 +10,10 @@
                 <div class="col-sm-9">
                   <p class="m-0 p-0">Email: {{user.email}}</p>
                   <p class="m-0 p-0">Date Registered: {{ago(user)}}</p>
+                  <div class="form-group mb-0">
+                    <label class="d-inline">Discount (% taken off)</label>
+                    <input type="number" min="0" max="100" v-model="user.discount" class="form-control w-25 py-0 ml-2 d-inline" />
+                  </div>
                   <p class="m-0 p-0">
                     <router-link :to="'/dojos/user/'+user.id">Dojos: {{user.dojos_count}}</router-link>
                   </p>
@@ -21,6 +25,11 @@
                     @click="toggleActive(user.id,index)"
                     v-text="user.is_active ? 'Deactivate' : 'Activate'"
                   ></button>
+                  <button
+                    class="btn btn-sm d-block btn-primary"
+                    @click="updateDiscount(user.id,index)"
+                  >Update</button>
+
                 </div>
               </div>
             </div>
@@ -30,7 +39,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import moment from "moment";
 
@@ -47,7 +55,18 @@ export default {
         .then(response => {
           this.users[index].is_active = response.data;
           window.flash(
-            "User has been "+(response.data ? "" : "de") + "activated",
+            "User has been " + (response.data ? "" : "de") + "activated",
+            "success"
+          );
+        });
+    },
+    updateDiscount(id,index) {
+      axios
+        .patch("/api/users/" + id + "/discount", { discount: this.users[index].discount })
+        .then(response => {
+          this.users[index].discount = response.data;
+          window.flash(
+            "User's discount has been updated to " + response.data,
             "success"
           );
         });
