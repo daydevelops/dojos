@@ -49,4 +49,10 @@ class UserController extends Controller
             return response('You Cannot Delete This User', 403);
         }
     }
+
+    public function discount(Request $request, User $user) {
+        $data = request()->validate(['discount' => 'required|integer|max:100|min:0']);
+        $user->update($data);
+        return $user->fresh()->discount;
+    }
 }

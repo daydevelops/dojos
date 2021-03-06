@@ -35,6 +35,7 @@ Route::patch('/categories/{category}/approve',[CategoryController::class,'approv
 Route::get('/users',[UserController::class,'index'])->middleware('admin');
 Route::get('/users/{user_id}',[UserController::class,'edit'])->middleware('auth:sanctum');
 Route::delete('/users/{user}',[UserController::class,'destroy'])->middleware('auth:sanctum');
+Route::patch('/users/{user}/discount/', [UserController::class,'discount'])->middleware('admin');
 Route::patch('/users/{user}', [UserController::class,'update'])->middleware('admin');
 
 Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
