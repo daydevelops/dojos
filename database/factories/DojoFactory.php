@@ -32,6 +32,11 @@ class DojoFactory extends Factory
             'contact' => $this->faker->sentence,
             'classes' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
+            'website' => $this->faker->url,
+            'facebook' => $this->faker->url,
+            'twitter' => $this->faker->url,
+            'youtube' => $this->faker->url,
+            'instagram' => $this->faker->url,
         ];
     }
 
