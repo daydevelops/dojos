@@ -163,6 +163,10 @@ export default {
       if (this.plan_id == null) {
         axios.get("/api/dojos/" + this.dojo_id + "/plan").then(response => {
           this.plan_id = response.data.plan_id;
+          if (this.plan_id == 1) {
+            // free plan, no cost provided
+            return false;
+          }
           // using the cost and cycle of the plan at the purchase time, update the current plan to show what the user is paying. Prices may have changed
           for (let i=0;i<this.plans.length;i++) {
             if (this.plans[i].id == this.plan_id) {
