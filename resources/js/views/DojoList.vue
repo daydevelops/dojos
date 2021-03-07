@@ -27,8 +27,17 @@
     </div>
 
     <div v-if="filtered_dojos.length > 0" class="row">
-      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="dojo.id">
-        <dojo v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      <!-- Show Premium dojos first -->
+      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'premium'+dojo.id">
+        <dojo v-if="dojo.subscription_level=='premium'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      </div>
+      <!-- Show standard dojos second -->
+      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'standard'+dojo.id">
+        <dojo v-if="dojo.subscription_level=='standard'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      </div>
+      <!-- show free dojos last -->
+      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'free'+dojo.id">
+        <dojo v-if="dojo.subscription_level=='free'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
       </div>
     </div>
     <div v-else class="row">

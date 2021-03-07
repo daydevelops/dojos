@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card mb-4 p-3">
+    <div class="card mb-4 p-3" :class="{'premium-dojo':dojo.subscription_level=='premium'}">
       <div class="row">
         <div class="col-lg-3">
           <div>
@@ -20,7 +20,9 @@
           <div class="row">
             <div class="col-sm-8">
               <i><small v-text="dojo.category.name"></small></i>
-              <h4 class="card-title">{{dojo.name}} <small class='text-danger' v-if="!dojo.is_active">[Hidden due to owner deactivation]</small></h4>
+              <p class='text-danger' v-if="!dojo.is_active">Hidden: Owner is deactivated</p>
+              <p class='text-danger' v-if="dojo.subscription_level=='free'">Hidden: subscribe this dojo to show it publicly</p>
+              <h4 class="card-title">{{dojo.name}}</h4>
             </div>
             <div v-if="canEdit" class="col-sm-4 text-sm-right">
               <i
@@ -82,9 +84,9 @@
       </div>
       <div v-if="JSON.parse(this.dojo.location).geometry" class="row">
         <div class="col-12">
-          <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
+          <!-- <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
             <gmap-marker :position="JSON.parse(this.dojo.location).geometry.location"></gmap-marker>
-          </gmap-map>
+          </gmap-map> -->
         </div>
       </div>
     </div>

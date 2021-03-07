@@ -15,7 +15,7 @@ class Dojo extends Model
 
     protected $hidden = ["user", "subscription_id", "cost", "cycle"];
 
-    protected $appends = ['is_active'];
+    protected $appends = ['is_active', 'subscription_level'];
 
     public static function boot()
     {
@@ -31,6 +31,23 @@ class Dojo extends Model
     public function getIsActiveAttribute()
     {
         return $this->user->is_active;
+    }
+
+    // returns either "free", "standard", or "premium" depending on what type of subscription this dojo has
+    public function getSubscriptionLevelAttribute() {
+        $standards = [env('STANDARD_MONTHLY_PLAN_ID'),env('STANDARD_YEARLY_PLAN_ID')];
+        $premiums = [env('PREMIUM_MONTHLY_PLAN_ID'),env('PREMIUM_YEARLY_PLAN_ID')];
+
+        if (!$this->isSubscribed()) {
+            return "free";
+        } else {
+            $sub = $this->subscription;
+            if (in_array($sub->stripe_plan,$standards)) {
+                return "standard";
+            } else if (in_array($sub->stripe_plan,$premiums)) {
+                return "premium";
+            }
+        }
     }
 
     public function user()

@@ -16,15 +16,21 @@ class DojoController extends Controller
      */
     public function index()
     {
-        if (auth()->check() && auth()->user()->is_admin) {
-            return Dojo::with('category')->get();
-        } else {
-            // show dojos that belong to the auth user, or activated users
-            $user_id = auth()->check() ? auth()->id() : null;
-            return Dojo::where(['user_id' => $user_id])->orWhereHas('user', function ($q) {
-                $q->where(['is_active' => 1]);
-            })->with('category')->get();
+        $dojos = Dojo::with('category')->get()->all();
+
+        // for guests or non admins, filter the dojos
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            // show dojos that belong to the auth user, or activated users with a subscription
+            $user = auth()->check() ? auth()->user() : null;
+            $result = array_values(array_filter($dojos, function($dojo) use ($user) {
+                $owned_by_auth_user = $user ? $dojo->user_id == $user->id : false;
+                $has_a_subscription = $dojo->isSubscribed();
+                $owner_is_activated = $dojo->user->is_active;
+                return $owned_by_auth_user || ($has_a_subscription && $owner_is_activated);
+            }));
         }
+
+        return $result;
     }
 
     /**
