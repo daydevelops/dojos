@@ -6,7 +6,7 @@
           <div>
             <img class="dojo-img mb-2" v-bind:src="dojo.image" />
           </div>
-          <div class="social-media-icons text-center">
+          <div v-if="showPremiumFeatures" class="social-media-icons text-center">
             <small>
             <a v-if="dojo.website"   :href="dojo.website" target="_blank"><i class="social-media-icon fas fa-2x fa-globe"></i></a>
             <a v-if="dojo.facebook"  :href="dojo.facebook" target="_blank"><i class="social-media-icon fab fa-2x fa-facebook"></i></a>
@@ -21,7 +21,7 @@
             <div class="col-sm-8">
               <i><small v-text="dojo.category.name"></small></i>
               <p class='text-danger' v-if="!dojo.is_active">Hidden: Owner is deactivated</p>
-              <p class='text-danger' v-if="dojo.subscription_level=='free'">Hidden: subscribe this dojo to show it publicly</p>
+              <p class='text-danger' v-if="dojo.subscription_level=='free' && canEdit">Hidden: subscribe this dojo to show it publicly</p>
               <h4 class="card-title">{{dojo.name}}</h4>
             </div>
             <div v-if="canEdit" class="col-sm-4 text-sm-right">
@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-      <div v-if="JSON.parse(this.dojo.location).geometry" class="row">
+      <div v-if="JSON.parse(this.dojo.location).geometry && showPremiumFeatures" class="row">
         <div class="col-12">
           <!-- <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
             <gmap-marker :position="JSON.parse(this.dojo.location).geometry.location"></gmap-marker>
@@ -112,6 +112,10 @@ export default {
       } else {
         return false;
       }
+    },
+    showPremiumFeatures() {
+      // show premium features if we are in the initial phase of the apps release, or the dojo has premium membership
+      return window.App.app_phase < 1 || this.dojo.subscription_level == 'premium';
     }
   },
   methods: {

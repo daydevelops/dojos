@@ -19,6 +19,7 @@
       </div>
     </div>
     <div class="card mb-4 p-3">
+      <h5 v-if="showPremiumWarning" class="premium-required text-center" v-text="premiumWarningMessage"></h5>
       <form name='dojo-form' class="row" @submit.prevent="onSubmit" @keydown="form.errors.clear($event.target.name)">
         <!-- Avater Form -->
         <div v-if="is_editing" class="col-lg-3">
@@ -87,7 +88,7 @@
 
           <!-- Website -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Website:</label>
+            <label class="col-sm-3 col-form-label">Website: <span v-if="showPremiumWarning" class="premium-required">*</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="website" v-model="form.website" placeholder="https://" />
               <span
@@ -100,7 +101,7 @@
 
           <!-- Facebook -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Facebook url:</label>
+            <label class="col-sm-3 col-form-label">Facebook url: <span v-if="showPremiumWarning" class="premium-required">*</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="facebook" v-model="form.facebook" placeholder="https://" />
               <span
@@ -113,7 +114,7 @@
 
           <!-- Youtube -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Youtube url:</label>
+            <label class="col-sm-3 col-form-label">Youtube url: <span v-if="showPremiumWarning" class="premium-required">*</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="youtube" v-model="form.youtube" placeholder="https://" />
               <span
@@ -126,7 +127,7 @@
 
           <!-- Twitter -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Twitter url:</label>
+            <label class="col-sm-3 col-form-label">Twitter url: <span v-if="showPremiumWarning" class="premium-required">*</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="twitter" v-model="form.twitter" placeholder="https://" />
               <span
@@ -139,7 +140,7 @@
 
           <!-- Instagram -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Instagram url:</label>
+            <label class="col-sm-3 col-form-label">Instagram url: <span v-if="showPremiumWarning" class="premium-required">*</span></label>
             <div class="col-sm-9">
               <input type="text" class="form-control" name="instagram" v-model="form.instagram" placeholder="https://" />
               <span
@@ -152,7 +153,9 @@
 
           <!-- Location -->
           <div class="m-1 p-0 form-group row">
-            <label class="col-sm-3 col-form-label">Location:</label>
+            <label class="col-sm-3 col-form-label">
+              Location: 
+              <small v-if="showPremiumWarning" class="premium-required d-block">The map will not be shown for standard memberships, but you should still confirm your location in the map</small></label>
             <div class="col-sm-9">              
               <span
                 class="help"
@@ -185,7 +188,7 @@
         </div>
       </form>
     </div>
-    <paymentplans v-if="is_editing" :dojo_id="dojo_id"></paymentplans>
+    <paymentplans v-if="showPaymentPlans" :dojo_id="dojo_id"></paymentplans>
     <AreYouSureModal
       :id="'aysm'"
       action="delete this dojo"
@@ -213,8 +216,26 @@ export default {
       is_editing: false, // are we editing an existing dojo. or creating a new one?
       dojo_id: 0,
       categories: {},
-      location_selected: false
+      location_selected: false,
+      subscription_level: "",
     };
+  },
+  computed: {
+    showPremiumWarning() {
+      // show premium features if we are in the initial phase of the apps release, or the dojo has premium membership
+      return window.App.app_phase > 0 && this.subscription_level !== 'premium';
+    },
+    premiumWarningMessage() {
+      let messages = [
+        '',
+        'Some features (*) will be unavailable soon without a premium membership', // phase 1
+        'Premium membership required for some features (*)' // phase 2
+      ];
+      return messages[window.App.app_phase];
+    },
+    showPaymentPlans() {
+      return window.App.app_phase > 0 && this.is_editing;
+    }
   },
   mounted() {
     axios.get("/api/categories").then(response => {
@@ -244,6 +265,7 @@ export default {
             image: response.data.image
         });
         this.dojo_id = response.data.id;
+        this.subscription_level = response.data.subscription_level;
         $('input.pac-target-input').val(this.form.location.formatted_address);
       })
       .catch(error => {

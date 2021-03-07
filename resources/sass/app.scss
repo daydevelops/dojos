@@ -28,7 +28,7 @@
   .highlighted-card {
     box-shadow: 0px 0px 18px 7px $primary;
   }
-  
+
   .card.premium-dojo {
     box-shadow: 0px 0px 18px 7px $primary;
   }
@@ -37,4 +37,7 @@
     color: $primary;
     cursor:pointer;
     margin:5px;
+  }
+  .premium-required {
+    color: $danger;
   }
