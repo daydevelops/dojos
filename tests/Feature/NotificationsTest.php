@@ -65,26 +65,26 @@ class NotificationsTest extends TestCase
         Notification::assertSentTo($user, UserReactivated::class);
     }
 
-    /** @test */
-    public function a_user_is_notified_when_they_update_a_dojos_subscription() {
-        Notification::fake();
-        // create a dojo subscribed to the 5 dollar plan
-        $data = $this->triggerSubscriptionWebhook();
-        Notification::assertSentTo(
-            $data['user'], 
-            function(DojoSubscriptionUpdated $notification) {
-                return $notification->plan->description == "5 CAD/month";
-            }
-        );
-        // subscribe the dojo to the free plan
-        // $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
-        // $this->get($route);
-        // Notification::assertSentTo(
-        //     $data['user'], 
-        //     function(DojoSubscriptionUpdated $notification) {
-        //         return $notification->plan->description == "No Plan";
-        //     }
-        // );
+    // /** @test */
+    // public function a_user_is_notified_when_they_update_a_dojos_subscription() {
+    //     Notification::fake();
+    //     // create a dojo subscribed to the 5 dollar plan
+    //     $data = $this->triggerSubscriptionWebhook();
+    //     Notification::assertSentTo(
+    //         $data['user'], 
+    //         function(DojoSubscriptionUpdated $notification) {
+    //             return $notification->plan->description == "5 CAD/month";
+    //         }
+    //     );
+    //     // subscribe the dojo to the free plan
+    //     $route = $this->getSubscribeRoute(1,'pm_card_visa',$data['dojo']);
+    //     $this->get($route);
+    //     Notification::assertSentTo(
+    //         $data['user'], 
+    //         function(DojoSubscriptionUpdated $notification) {
+    //             return $notification->plan->description == "No Plan";
+    //         }
+    //     );
         
-    }
+    // }
 }

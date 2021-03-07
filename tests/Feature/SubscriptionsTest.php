@@ -651,60 +651,15 @@ class SubscriptionsTest extends TestCase
     }
 
     /** @test */
-    public function confirmed_payment_webhook_updates_the_dojo_and_plan() {
-        $data = $this->createSubscribedDojo('pm_card_visa',1); // set up free plan
-        // try to subscribe with a bad card
-        $route = $this->getSubscribeRoute(2,'pm_card_chargeCustomerFail',$data['dojo']);
-        $this->get($route)->assertStatus(302);
-        // assume the user goes to the redirected page and completes the payment
-        // mock the request to the webhook
-        $subscription = DB::table('subscriptions')->where(['name'=>'dojo-1'])->get()[0];
-        $mock_response = $this->getStripeWebhookMock($data['dojo']['id'],StripeProduct::find(2)->product_id,$subscription->stripe_id);
-        $this->post('/api/payments/webhook',[
-            'is_testing'=>1,
-            'mock' => $mock_response
-        ]);
-        $this->assertDatabaseCount('dojos', 1);
-        $this->assertDatabaseCount('users', 1);
-        $this->assertDatabaseCount('subscriptions', 1);
-        $this->assertDatabaseCount('subscription_items', 1);
-        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
-        $this->assertDatabaseHas('subscriptions', [
-            'user_id' => 1,
-            'stripe_plan' => StripeProduct::find(2)->product_id,
-            'name' => "dojo-" . $data['dojo']['id'],
-            'stripe_status' => 'active'
-        ]);
+    public function a_users_payment_method_is_saved_when_creating_a_subscription() {
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $user = User::first();
+        $this->signIn($user);
+        $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo,"1");
+        $this->assertCount(0,$user->paymentMethods());
+        $this->get($route);
+        $this->assertCount(1,$user->fresh()->paymentMethods());
     }
-
-    // /** @test */
-    // public function a_users_payment_method_is_saved_when_creating_a_subscription() {
-    //     $this->addProducts();
-    //     $dojo = Dojo::factory()->create();
-    //     $user = User::first();
-    //     $this->signIn($user);
-    //     $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo,"1");
-    //     $this->assertCount(0,$user->paymentMethods());
-    //     $this->get($route);
-    //     $this->assertCount(1,$user->paymentMethods());
-
-    // }
-
-    // /** @test */
-    // public function a_users_payment_method_is_saved_when_updating_a_subscription() {
-    //     // given a user has a standard plan
-    //     $this->addProducts();
-    //     $dojo = Dojo::factory()->create();
-    //     $user = User::first();
-    //     $this->signIn($user);
-    //     $route = $this->getSubscribeRoute(2,"pm_card_visa",$dojo,"1");
-    //     $this->get($route);
-    //     $this->assertCount(1,$user->paymentMethods());
-    //     // when the user switched to a new plan
-    //     $route = $this->getSubscribeRoute(4,"pm_card_mastercard",$dojo,"1");
-    //     $this->get($route);
-    //     $this->assertCount(2,$user->paymentMethods());
-    // }
-
 
 }
