@@ -31,7 +31,7 @@ class DojoController extends Controller
                 $owned_by_auth_user = $user ? $dojo->user_id == $user->id : false;
                 $has_a_subscription = $dojo->isSubscribed();
                 $owner_is_activated = $dojo->user->is_active;
-                $not_yet_phase_2 = env('APP_PHASE') < 2; // in phase 2, users are limited by subscription type
+                $not_yet_phase_2 = config('app_phase') < 2; // in phase 2, users are limited by subscription type
                 return $owned_by_auth_user || ($has_a_subscription && $owner_is_activated) || ($not_yet_phase_2 && $owner_is_activated);
             }));
         }

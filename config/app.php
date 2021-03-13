@@ -123,6 +123,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'app_phase' => env('APP_PHASE'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers

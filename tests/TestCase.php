@@ -10,6 +10,8 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Auth;
 use App\Exceptions\Handler;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\StripeProductSeeder;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -28,6 +30,11 @@ abstract class TestCase extends BaseTestCase
 	protected function signout() {
 		Auth::logout();
 	}
+
+    protected function addProducts()
+    {
+        (new DatabaseSeeder())->call(StripeProductSeeder::class);
+    }
 
     protected function getSubscribeRoute($stripe_product_id,$payment_method,$dojo,$new_card="0") {
         return "/api/subscribe?plan=".StripeProduct::find($stripe_product_id)->product_id."&payment_method=".$payment_method."&dojo_id=".$dojo->id."&new_card=".$new_card;
