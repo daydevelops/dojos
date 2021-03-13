@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
 use Laravel\Cashier\Subscription;
-use Database\Seeders\DatabaseSeeder;
-use Database\Seeders\StripeProductSeeder;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -16,12 +14,6 @@ class SubscriptionsTest extends TestCase
 {
 
     use DatabaseMigrations;
-
-    protected function addProducts()
-    {
-        (new DatabaseSeeder())->call(StripeProductSeeder::class);
-    }
-
 
     //// PAYMENT AND DOJO INFORMATION /////
 

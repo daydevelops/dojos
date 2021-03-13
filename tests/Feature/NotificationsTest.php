@@ -20,12 +20,6 @@ class NotificationsTest extends TestCase
 {
     use DatabaseMigrations;
 
-
-    protected function addProducts()
-    {
-        (new DatabaseSeeder())->call(StripeProductSeeder::class);
-    }
-
     /** @test */
     public function a_user_is_notified_when_they_register() {
         Notification::fake();
