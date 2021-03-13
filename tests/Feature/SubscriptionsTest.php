@@ -390,6 +390,52 @@ class SubscriptionsTest extends TestCase
         $this->assertDatabaseHas('subscriptions', ['stripe_status' => "active"]);
     }
 
+    /** @test */
+    public function a_user_can_subscribe_a_dojo_in_phase_1() {
+        config(['app.app_phase'=>'1']); 
+        $this->assertEquals(config('app.app_phase'),1);
+
+        $this->addProducts();
+        $me = User::factory()->create();
+        $this->signIn($me);
+        $dojo = Dojo::factory()->create(['user_id' => $me->id]);
+        $new_plan = StripeProduct::find(4);
+        $route = $this->getSubscribeRoute(4,'pm_card_visa',$dojo);
+        $this->get($route);
+
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => 1]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->product_id,
+            'name' => $new_plan->description
+        ]);
+    }
+
+
+    /** @test */
+    public function a_user_cannot_subscribe_in_phase_0() {
+        config(['app.app_phase'=>'0']); 
+        $this->assertEquals(config('app.app_phase'),0);
+
+        $this->addProducts();
+        $me = User::factory()->create();
+        $this->signIn($me);
+        $dojo = Dojo::factory()->create(['user_id' => $me->id]);
+        $new_plan = StripeProduct::find(4);
+        $route = $this->getSubscribeRoute(4,'pm_card_visa',$dojo);
+        $this->get($route)->assertStatus(401);
+
+        $this->assertDatabaseCount('dojos', 1);
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseCount('subscriptions', 0);
+        $this->assertDatabaseCount('subscription_items', 0);
+        $this->assertDatabaseHas('dojos', ['subscription_id' => null]);
+    }
+
 
     ///// SWAPPING SUBSCRIPTIONS /////
 

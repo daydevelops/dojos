@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 Route::get('/dojos',[DojoController::class,'index']);
 Route::get('/dojos/category/{category}',[CategoryController::class,'dojos']);
-Route::get('/dojos/{dojo}/plan',[DojoController::class,'subscriptionPlan'])->middleware('auth:sanctum');
+Route::get('/dojos/{dojo}/plan',[DojoController::class,'subscriptionPlan'])->middleware('phase_1','auth:sanctum');
 Route::get('/dojos/{dojo}',[DojoController::class,'edit'])->middleware('auth:sanctum');
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth:sanctum');
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth:sanctum');
@@ -40,11 +40,11 @@ Route::patch('/users/{user}', [UserController::class,'update'])->middleware('adm
 
 Route::post('/avatar',[AvatarController::class,'store'])->middleware('auth:sanctum');
 
-Route::get('/subscribe',[PaymentsController::class,'subscribe'])->middleware('auth:sanctum');
-Route::get('/subscribe/plans',[PaymentsController::class,'plans']);
+Route::get('/subscribe',[PaymentsController::class,'subscribe'])->middleware('phase_1','auth:sanctum');
+Route::get('/subscribe/plans',[PaymentsController::class,'plans'])->middleware('phase_1');
 Route::get('/subscribe/coupons',[PaymentsController::class,'coupons'])->middleware('admin');
-Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('auth:sanctum');
-Route::get('/payments/getMethods',[PaymentsController::class,'getPaymentMethods'])->middleware('auth:sanctum');
+Route::get('/payments/getIntents',[PaymentsController::class,'getIntents'])->middleware('phase_1','auth:sanctum');
+Route::get('/payments/getMethods',[PaymentsController::class,'getPaymentMethods'])->middleware('phase_1','auth:sanctum');
 Route::post('/payments/webhook',[PaymentsController::class,'handleStripeWebhook']);// custom stripe webhook endpoint
-Route::get('/payments/invoice',[PaymentsController::class,'invoice'])->middleware('auth:sanctum');
-Route::get('/payments/invoice/{id}',[PaymentsController::class,'downloadInvoice'])->middleware('auth:sanctum');
+Route::get('/payments/invoice',[PaymentsController::class,'invoice'])->middleware('phase_1','auth:sanctum');
+Route::get('/payments/invoice/{id}',[PaymentsController::class,'downloadInvoice'])->middleware('phase_1','auth:sanctum');
