@@ -55,7 +55,7 @@ class SubscriptionsTest extends TestCase
     /** @test */
     public function a_user_cannot_see_the_subscription_for_a_dojo_they_do_not_own()
     {
-        Dojo::factory()->create(['subscription_id' => 1]);
+        $data = $this->createSubscribedDojo();
 
         // test that the dojos subscription_id is hidden
         $dojos = $this->get('/api/dojos')->json();
