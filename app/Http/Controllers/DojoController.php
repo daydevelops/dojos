@@ -34,9 +34,11 @@ class DojoController extends Controller
                 $not_yet_phase_2 = config('app_phase') < 2; // in phase 2, users are limited by subscription type
                 return $owned_by_auth_user || ($has_a_subscription && $owner_is_activated) || ($not_yet_phase_2 && $owner_is_activated);
             }));
-        }
 
-        return $result;
+            return $result;
+        } else {
+            return $dojos;
+        }
     }
 
     /**
