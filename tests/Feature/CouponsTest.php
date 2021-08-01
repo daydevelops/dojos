@@ -83,4 +83,12 @@ class CouponsTest extends TestCase
         $this->signIn($user);
         $this->get('/api/subscribe/coupons')->assertStatus(401);
     }
+    /** @test */
+    public function a_phase_1_discount_is_applied_when_viewing_plans() {
+        config(['app.app_phase'=>'1']); 
+        $this->addProducts();
+        $this->signIn();
+        $plans = $this->json('get', '/api/subscribe/plans')->original;
+        $this->assertEquals(5*0.85,$plans[1]->price);
+    }
 }

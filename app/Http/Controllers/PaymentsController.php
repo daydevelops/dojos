@@ -109,13 +109,23 @@ class PaymentsController extends Controller
 
     public function plans() {
         $plans = StripeProduct::all();
+        $discounts = [0];
+
+        // get any personal discounts applied to the user
         if (auth()->check() && auth()->user()->coupon_id) {
             $coupon = auth()->user()->coupon;
-            $discount = $coupon->discount;
-            foreach($plans as $plan) {
-                $plan->price *= 1 - $discount * 0.01;
-            }
+            $discounts[] = $coupon->discount;
         }
+
+        // get any global discounts
+        if (config('app.app_phase') == 1) {
+            $discounts[] = Coupon::where(['description'=>'15% off'])->first()->discount;
+        }
+
+        foreach($plans as $plan) {
+            $plan->price *= 1 - max($discounts) * 0.01;
+        }
+
         return $plans;
     }
 
