@@ -91,4 +91,15 @@ class CouponsTest extends TestCase
         $plans = $this->json('get', '/api/subscribe/plans')->original;
         $this->assertEquals(5*0.85,$plans[1]->price);
     }
+
+    /** @test */
+    public function the_global_coupon_helper_knows_of_global_coupons() {
+        $this->addProducts();
+        config(['app.app_phase'=>'0']); 
+        $this->assertEquals(null,globalCoupon());
+        config(['app.app_phase'=>'1']); 
+        $this->assertEquals('15% off',globalCoupon()->description);
+        config(['app.app_phase'=>'2']); 
+        $this->assertEquals(null,globalCoupon());
+    }
 }

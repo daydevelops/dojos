@@ -118,8 +118,9 @@ class PaymentsController extends Controller
         }
 
         // get any global discounts
-        if (config('app.app_phase') == 1) {
-            $discounts[] = Coupon::where(['description'=>'15% off'])->first()->discount;
+        $global_coupon = globalCoupon();
+        if ($global_coupon) {
+            $discounts[] = $global_coupon->discount;
         }
 
         foreach($plans as $plan) {
