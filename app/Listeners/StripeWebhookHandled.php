@@ -44,7 +44,6 @@ class StripeWebhookHandled
         $plan_id = $data['object']['plan']['id'];
         $plan = StripeProduct::where(['product_id' => $plan_id])->first();
         $dojo = Dojo::find($dojo_id);
-        $user = $dojo->user;
         if ($event['type'] == 'customer.subscription.deleted') {
             $subscription_id = null;
             $cost = null;
@@ -52,7 +51,7 @@ class StripeWebhookHandled
         } else {
             $subscription_id = DB::table('subscriptions')->where(['stripe_id'=>$data['object']['id']])->get()[0]->id;
             // calculate the cost the user is paying, taking into account the users coupons
-            $cost = $user->getCostFor($plan);
+            $cost = $this->calculatePrice($data);
             $cycle = $plan->cycle;
         }
 
@@ -66,5 +65,15 @@ class StripeWebhookHandled
         //     $plan,
         //     $cost
         // ));
+    }
+
+    public function calculatePrice($data) {
+        if (array_key_exists('discount',$data['object']) && array_key_exists('coupon',$data['object']['discount'])) {
+            $discount = $data['object']['discount']['coupon']['percent_off'] * 0.01;
+        } else {
+            $discount = 0;
+        }
+
+        return $data['object']['plan']['amount'] * 0.01 * (1 - $discount);
     }
 }
