@@ -57,5 +57,10 @@ class StripeProductSeeder extends Seeder
             'description' => '100% off',
             'discount' => 100
         ]);
+        DB::table('coupons')->insert([
+            'code' => env('FIFTEEN_OFF_COUPON_CODE'),
+            'description' => '15% off',
+            'discount' => 15
+        ]);
     }
 }
