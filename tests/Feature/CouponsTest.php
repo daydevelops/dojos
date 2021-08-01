@@ -83,6 +83,35 @@ class CouponsTest extends TestCase
         $this->signIn($user);
         $this->get('/api/subscribe/coupons')->assertStatus(401);
     }
+
+    /** @test */
+    public function a_users_coupon_is_applied_to_their_payment() {
+        config(['app.app_phase'=>'1']); // apply a 15% off coupon
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $me = $dojo->user;
+        $this->signIn($me);
+
+        // subscribe to a plan
+        $plan_id = 2;
+        
+        $new_plan = StripeProduct::find($plan_id);
+        $this->get($this->getSubscribeRoute($plan_id,'pm_card_visa',$dojo));
+
+        // assert the coupon is applied
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', [
+            'subscription_id' => 1,
+            'cost' => 4.25
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->product_id,
+            'name' => $new_plan->description . ": 15% off"
+        ]);
+        
+    }
     /** @test */
     public function a_phase_1_discount_is_applied_when_viewing_plans() {
         config(['app.app_phase'=>'1']); 

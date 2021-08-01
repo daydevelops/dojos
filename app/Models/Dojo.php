@@ -93,8 +93,11 @@ class Dojo extends Model
 
     public function subscribe($plan) {
         $user = $this->user;
-        if ($user->coupon_id) {
-            $subscription_name = $plan->description . ": " . $user->coupon->description;
+        $coupon = $user->highestCoupon();
+        
+        // get coupon to apply
+        if ($coupon) {
+            $subscription_name = $plan->description . ": " . $coupon->description;
         } else {
             $subscription_name = $plan->description;
         }
@@ -106,7 +109,6 @@ class Dojo extends Model
             
         } else {
             // else create a new subscription
-            $coupon = $user->coupon;
             if ($coupon) {
                 $subscription = $user
                     ->newSubscription($subscription_name, $plan->product_id)

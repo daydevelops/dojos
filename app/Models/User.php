@@ -63,6 +63,31 @@ class User extends Authenticatable
 
     // given a stripe plan, and any coupon the user has, return the cost of the plan
     public function getCostFor(StripeProduct $plan) {
-        return $this->coupon ? $plan->price * ( 1 - 0.01 * $this->coupon->discount) : $plan->price;
+        $coupon = $this->highestCoupon();
+        return $coupon ? $plan->price * ( 1 - 0.01 * $coupon->discount) : $plan->price;
+    }
+
+    public function highestCoupon() {
+        // given that a user may have a personal coupon, and there may be global coupons to apply, return the best coupon
+        $personal = $this->coupon;
+        $global = globalCoupon();
+
+        if ($personal && !$global) {
+            // use has only personal coupon
+            return $personal;
+
+        } else if (!$personal && $global) {
+            // user has only global coupon
+            return $global;
+
+        } else if ($personal && $global) {
+            // user has both, get the highest
+            return $personal->discount > $global->discount ? $personal : $global;
+
+        } else {
+            // no coupon
+            return null;
+        }
+
     }
 }
