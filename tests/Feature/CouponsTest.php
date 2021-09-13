@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Coupon;
 use App\Models\Dojo;
+use App\Models\StripeProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Database\Seeders\DatabaseSeeder;
@@ -112,6 +113,71 @@ class CouponsTest extends TestCase
         ]);
         
     }
+
+    /** @test */
+    public function if_a_user_with_a_current_discount_subscribes_in_phase_1_their_largest_discount_takes_effect() {
+        $user = User::factory()->create();
+        $admin = User::factory()->create(['is_admin'=>1]);
+        $this->signIn($admin);
+        $this->addProducts();
+        $this->assertEquals(null,$user->coupon_id);
+        $this->json('patch','/api/users/'.$user->id.'/coupon',['coupon_id'=>1]);
+        $this->assertEquals(50,$user->fresh()->coupon->discount);
+
+        config(['app.app_phase'=>'1']); // apply a 15% off coupon
+
+        $dojo = Dojo::factory()->create(['user_id' => $user->id]);
+
+        // subscribe to a plan
+        $plan_id = 2;
+        
+        $new_plan = StripeProduct::find($plan_id);
+        $this->get($this->getSubscribeRoute($plan_id,'pm_card_visa',$dojo));
+
+        // assert the 50% coupon is applied
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', [
+            'subscription_id' => 1,
+            'cost' => 2.5
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->product_id,
+            'name' => $new_plan->description . ": 50% off"
+        ]);
+    }
+
+    /** @test */
+    public function a_user_subscribing_in_phase_2_has_to_pay_full_price_by_default() {
+        config(['app.app_phase'=>'2']); // no coupon
+        $this->addProducts();
+        $dojo = Dojo::factory()->create();
+        $me = $dojo->user;
+        $this->signIn($me);
+
+        // subscribe to a plan
+        $plan_id = 2;
+
+        $this->assertNull($me->fresh()->highestCoupon());
+        
+        $new_plan = StripeProduct::find($plan_id);
+        $this->get($this->getSubscribeRoute($plan_id,'pm_card_visa',$dojo));
+
+        // assert the coupon is applied
+        $this->assertDatabaseCount('subscriptions', 1);
+        $this->assertDatabaseCount('subscription_items', 1);
+        $this->assertDatabaseHas('dojos', [
+            'subscription_id' => 1,
+            'cost' => 5
+        ]);
+        $this->assertDatabaseHas('subscriptions', [
+            'user_id' => 1,
+            'stripe_plan' => $new_plan->product_id,
+            'name' => $new_plan->description
+        ]);
+    }
+
     /** @test */
     public function a_phase_1_discount_is_applied_when_viewing_plans() {
         config(['app.app_phase'=>'1']); 
