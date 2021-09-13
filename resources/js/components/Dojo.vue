@@ -49,6 +49,7 @@
               <p class="mb-1">
                 <span v-if="JSON.parse(dojo.location).geometry">
                 {{JSON.parse(dojo.location).formatted_address}}
+                <button v-if="showPremiumFeatures" class='btn btn-primary btn-sm' @click="show_map = 1">Show map?</button>
                 </span>
               </p>
             </div>
@@ -82,11 +83,11 @@
           </div>
         </div>
       </div>
-      <div v-if="JSON.parse(this.dojo.location).geometry && showPremiumFeatures" class="row">
+      <div v-if="JSON.parse(this.dojo.location).geometry && showPremiumFeatures && show_map" class="row">
         <div class="col-12">
-          <!-- <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
+          <gmap-map :center="JSON.parse(this.dojo.location).geometry.location" :zoom="11" style="width:100%;  height: 200px;">
             <gmap-marker :position="JSON.parse(this.dojo.location).geometry.location"></gmap-marker>
-          </gmap-map> -->
+          </gmap-map>
         </div>
       </div>
     </div>
@@ -103,6 +104,11 @@
 <script>
 export default {
   props: ["dojo"],
+  data() {
+    return {
+      show_map: 0,
+    }
+  },
   computed: {
     canEdit() {
       if (window.App.user != null) {
