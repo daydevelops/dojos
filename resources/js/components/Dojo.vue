@@ -21,7 +21,7 @@
             <div class="col-sm-8">
               <i><small v-text="dojo.category.name"></small></i>
               <p class='text-danger' v-if="!dojo.is_active">Hidden: Owner is deactivated</p>
-              <p class='text-danger' v-if="dojo.subscription_level=='free' && canEdit">Hidden: subscribe this dojo to show it publicly</p>
+              <p class='text-danger' v-if="dojo.subscription_level=='free' && canEdit && phase2">Hidden: subscribe this dojo to show it publicly</p>
               <h4 class="card-title">{{dojo.name}}</h4>
             </div>
             <div v-if="canEdit" class="col-sm-4 text-sm-right">
@@ -113,9 +113,12 @@ export default {
         return false;
       }
     },
+    phase2() {
+      return window.App.app_phase == 2;
+    },
     showPremiumFeatures() {
       // show premium features if we are in the initial phase of the apps release, or the dojo has premium membership
-      return window.App.app_phase < 1 || this.dojo.subscription_level == 'premium';
+      return window.App.app_phase < 2 || this.dojo.subscription_level == 'premium';
     }
   },
   methods: {
