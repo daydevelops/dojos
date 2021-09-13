@@ -3,7 +3,7 @@
     <div>
       <label>
         <gmap-autocomplete @place_changed="setPlace"></gmap-autocomplete>
-        <button type="button" class="pac-button btn btn-primary w-20 mr-0" @click="updateMarker">Update Location</button>
+        <button type="button" class="pac-button btn btn-primary w-20 mr-0" @click="updateMarker">Update Map</button>
       </label>
       <br />
     </div>
