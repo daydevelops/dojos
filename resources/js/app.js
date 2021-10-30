@@ -29,3 +29,6 @@ function initializeCSRF() {
     });
     return false;
 }
+
+window.showLoader = () => {$('#loader').css("display","block")};
+window.hideLoader = () => {$('#loader').css("display","none")};
