@@ -85,8 +85,8 @@ class BrowsingTest extends TestCase
          * 
          */
         
-        config(['app_phase'=>'2']); 
-        $this->assertEquals(config('app_phase'),2);
+        config(['app.app_phase'=>'2']); 
+        $this->assertEquals(config('app.app_phase'),2);
 
         $dojo_000 = Dojo::factory()->create();
         $dojo_000->user->update(['is_active'=>0]);
@@ -144,8 +144,8 @@ class BrowsingTest extends TestCase
 
         
         // TESTS FOR PHASE 1
-        config(['app_phase'=>'1']); 
-        $this->assertEquals(config('app_phase'),1);
+        config(['app.app_phase'=>'1']); 
+        $this->assertEquals(config('app.app_phase'),1);
 
         $dojo_000 = Dojo::factory()->create();
         $dojo_000->user->update(['is_active'=>0]);
