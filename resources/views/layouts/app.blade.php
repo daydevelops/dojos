@@ -71,9 +71,11 @@
                         <li class="nav-item">
                             <router-link class="nav-link" to="/dojos/new">New Dojo</router-link>
                         </li>
+                        @if(env('APP_PHASE') > 0)
                         <li class="nav-item">
-                            <router-link class="nav-link" to="/account">Settings</router-link>
+                            <a href="/billing" class="nav-link" target="_blank">Billing</a>
                         </li>
+                        @endif
                         <li class="nav-item">
                             <a class="nav-link" href="/logout" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">

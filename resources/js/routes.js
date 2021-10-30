@@ -11,10 +11,6 @@ let routes = [
         component: require('./views/Users.vue').default
     },
     {
-        path: '/account',
-        component: require('./views/Account.vue').default
-    },
-    {
         path: '/categories',
         component: require('./views/Categories.vue').default
     },
