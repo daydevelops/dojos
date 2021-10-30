@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Coupon;
 use Illuminate\Support\Facades\DB;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
@@ -396,6 +397,7 @@ class SubscriptionsTest extends TestCase
         $this->assertEquals(config('app.app_phase'),1);
 
         $this->addProducts();
+        Coupon::truncate(); // remove any coupons
         $me = User::factory()->create();
         $this->signIn($me);
         $dojo = Dojo::factory()->create(['user_id' => $me->id]);
