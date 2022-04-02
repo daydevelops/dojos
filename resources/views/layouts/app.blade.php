@@ -98,26 +98,31 @@
     </div>
     <div id="footer" class="m-0 pb-1 pt-4 container-fluid">
         <div class="row">
-            <div class="col-sm-6 text-sm-left text-center">
-                <p class="m-0">
-                    Built by
-                    <u>
-                        <a href="https://daydevelops.com" class='text-dark'>DayDevelops</a>
-                    </u>
-                </p>
-            </div>
-            <div class="col-sm-6 text-sm-right text-center">
-                <p class="m-0">
-                    Have questions? Contact me
-                    <u>
-                        <a href="https://portfolio.daydevelops.com/contact" class='text-dark'>here</a>
-                    </u>
-                </p>
-            </div>
+            <p class="col-sm-3 text-sm-center m-0">
+                Built by
+                <u>
+                    <a href="https://daydevelops.com" class='text-dark'>DayDevelops</a>
+                </u>
+            </p>
+            <p class="col-sm-3 text-sm-center m-0">
+                <u>
+                    <a href="/documents/privacypolicy" class='text-dark'>Privacy Policy</a>
+                </u>
+            </p>
+            <p class="col-sm-3 text-sm-center m-0">
+                <u>
+                    <a href="/documents/termsofservice" class='text-dark'>Terms of Service</a>
+                </u>
+            </p>
+            <p class="col-sm-3 text-sm-center m-0">
+                <u>
+                    <a href="https://portfolio.daydevelops.com/contact" class='text-dark'>Contact</a>
+                </u>
+            </p>
         </div>
     </div>
 
-    
+
     <div id="loader">
         <div class="sk-cube-grid">
             <div class="sk-cube sk-cube1"></div>
@@ -132,7 +137,7 @@
         </div>
     </div>
 
-<script src="https://js.stripe.com/v3/"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
 </body>
 

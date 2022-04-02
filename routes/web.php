@@ -23,3 +23,13 @@ Route::get('/billing',function (Request $request) {
     $user->createOrGetStripeCustomer();
     return $user->redirectToBillingPortal();
 });
+
+Route::get('/documents/{name}', function(Request $request, $doc_name) {
+    $text = file_get_contents(base_path() . '/' . 'documents/' . $doc_name . '.txt');
+    return response($text)
+        ->withHeaders([
+            'Content-Type' => 'text/plain',
+            'Cache-Control' => 'no-store, no-cache',
+            'Content-Disposition' => 'attachment; filename="' . $doc_name . '.txt"',
+        ]);
+});
