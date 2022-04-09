@@ -16,6 +16,11 @@ class SubscriptionsTest extends TestCase
 
     use DatabaseMigrations;
 
+    public function setUp(): void {
+        parent::setUp();
+        config(['app.app_phase'=>'2']); 
+    }
+
     //// PAYMENT AND DOJO INFORMATION /////
 
     /** @test */

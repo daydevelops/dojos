@@ -18,6 +18,7 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
 	protected function setUp(): void {
 		parent::setUp();
+        config(['app.app_phase'=>'0']); 
 		// $this->withoutExceptionHandling();
 	}
 

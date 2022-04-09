@@ -58,6 +58,7 @@ class CouponsTest extends TestCase
 
     /** @test */
     public function a_users_coupon_is_applied_when_viewing_plans() {
+        config(['app.app_phase'=>'1']); 
         $this->addProducts();
         $user = User::factory()->create();
         $admin = User::factory()->create(['is_admin'=>1]);
