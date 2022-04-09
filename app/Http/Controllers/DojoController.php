@@ -76,11 +76,11 @@ class DojoController extends Controller
         ]);
 
         $data['location'] = json_encode($data['location']);
-        $data['website'] = request('website');
-        $data['facebook'] = request('facebook');
-        $data['twitter'] = request('twitter');
-        $data['youtube'] = request('youtube');
-        $data['instagram'] = request('instagram');
+        $data['website'] = request('website') == "" ? null : request('website');
+        $data['facebook'] = request('facebook') == "" ? null : request('facebook');
+        $data['twitter'] = request('twitter') == "" ? null : request('twitter');
+        $data['youtube'] = request('youtube') == "" ? null : request('youtube');
+        $data['instagram'] = request('instagram') == "" ? null : request('instagram');
 
         $data['user_id'] = auth()->id();
         Dojo::create($data)->save();

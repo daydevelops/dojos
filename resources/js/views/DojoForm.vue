@@ -162,7 +162,7 @@
                   class="form-control"
                   name="website"
                   v-model="form.website"
-                  placeholder="https://"
+                  placeholder="Include full url (https://...)"
                 />
                 <span
                   class="help"
@@ -186,7 +186,7 @@
                   class="form-control"
                   name="facebook"
                   v-model="form.facebook"
-                  placeholder="https://"
+                  placeholder="Include full url (https://...)"
                 />
                 <span
                   class="help"
@@ -210,7 +210,7 @@
                   class="form-control"
                   name="youtube"
                   v-model="form.youtube"
-                  placeholder="https://"
+                  placeholder="Include full url (https://...)"
                 />
                 <span
                   class="help"
@@ -234,7 +234,7 @@
                   class="form-control"
                   name="twitter"
                   v-model="form.twitter"
-                  placeholder="https://"
+                  placeholder="Include full url (https://...)"
                 />
                 <span
                   class="help"
@@ -258,7 +258,7 @@
                   class="form-control"
                   name="instagram"
                   v-model="form.instagram"
-                  placeholder="https://"
+                  placeholder="Include full url (https://...)"
                 />
                 <span
                   class="help"
@@ -340,6 +340,11 @@ export default {
         price: "How much do you charge for your services?",
         contact: "How can people contact you?",
         classes: "Describe your class schedule",
+        facebook: "",
+        youtube: "",
+        twitter: "",
+        instagram: "",
+        website: "",
         category_id: 2, // none
         image: null,
       }),
