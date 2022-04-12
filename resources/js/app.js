@@ -7,6 +7,9 @@ window.flash = function( message, level ) {
 };
 
 import router from './routes.js';
+import VueObserveVisibility from 'vue-observe-visibility'
+
+Vue.use(VueObserveVisibility)
 
 Vue.component('dojo', require('./components/Dojo.vue').default);
 Vue.component('AreYouSureModal', require('./components/AreYouSureModal.vue').default);

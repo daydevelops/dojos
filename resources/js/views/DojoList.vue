@@ -4,8 +4,19 @@
       <div class="col col-md-9">
         <div class="form-group row">
           <label class="col-sm-2 text-center text-sm-left">Category:</label>
-          <select class="form-control col-sm-10" name='category' @change="filterDojos()" v-model="selected_category">
-            <option v-for="cat in categories" :key="cat.id" v-bind:value="cat.id">{{cat.name}}</option>
+          <select
+            class="form-control col-sm-10"
+            name="category"
+            @change="filterDojos()"
+            v-model="selected_category"
+          >
+            <option
+              v-for="cat in categories"
+              :key="cat.id"
+              v-bind:value="cat.id"
+            >
+              {{ cat.name }}
+            </option>
           </select>
         </div>
       </div>
@@ -28,22 +39,62 @@
 
     <div v-if="filtered_dojos.length > 0" class="row">
       <!-- Show Premium dojos first -->
-      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'premium'+dojo.id">
-        <dojo v-if="dojo.subscription_level=='premium'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      <div
+        class="col col-12"
+        v-for="(dojo, index) in filtered_dojos"
+        :key="'premium' + dojo.id"
+      >
+        <dojo
+          v-observe-visibility="{
+            callback: visibilityChanged,
+            once: true,
+          }"
+          v-if="dojo.subscription_level == 'premium'"
+          v-bind:dojo="dojo"
+          v-on:deleted="filtered_dojos.splice(index, 1)"
+          :id="'dojo-'+dojo.id"
+        ></dojo>
       </div>
       <!-- Show standard dojos second -->
-      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'standard'+dojo.id">
-        <dojo v-if="dojo.subscription_level=='standard'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      <div
+        class="col col-12"
+        v-for="(dojo, index) in filtered_dojos"
+        :key="'standard' + dojo.id"
+      >
+        <dojo
+          v-observe-visibility="{
+            callback: visibilityChanged,
+            once: true,
+          }"
+          v-if="dojo.subscription_level == 'standard'"
+          v-bind:dojo="dojo"
+          v-on:deleted="filtered_dojos.splice(index, 1)"
+          :id="'dojo-'+dojo.id"
+        ></dojo>
       </div>
       <!-- show free dojos last -->
-      <div class="col col-12" v-for="(dojo,index) in filtered_dojos" :key="'free'+dojo.id">
-        <dojo v-if="dojo.subscription_level=='free'" v-bind:dojo="dojo" v-on:deleted="filtered_dojos.splice(index,1)"></dojo>
+      <div
+        class="col col-12"
+        v-for="(dojo, index) in filtered_dojos"
+        :key="'free' + dojo.id"
+      >
+        <dojo
+          v-observe-visibility="{
+            callback: visibilityChanged,
+            once: true,
+          }"
+          v-if="dojo.subscription_level == 'free'"
+          v-bind:dojo="dojo"
+          v-on:deleted="filtered_dojos.splice(index, 1)"
+          :id="'dojo-'+dojo.id"
+        ></dojo>
       </div>
     </div>
     <div v-else class="row">
-      <div class="col-12"><h4 class="text-center">There are no dojos here yet</h4></div>
+      <div class="col-12">
+        <h4 class="text-center">There are no dojos here yet</h4>
+      </div>
     </div>
-
   </div>
 </template>
 
@@ -61,19 +112,19 @@ export default {
     };
   },
   mounted() {
-    axios.get("/api/categories").then(response => {
+    axios.get("/api/categories").then((response) => {
       this.categories = response.data;
       this.selected_category = 1;
     });
 
-    axios.get("/api/dojos").then(response => {
+    axios.get("/api/dojos").then((response) => {
       this.dojos = response.data;
       // filter dojos by incoming user id
       if (this.$route.params.user_id) {
         this.user_id_filter = parseInt(this.$route.params.user_id);
         this.filter_by_user = 1;
       }
-      this.filterDojos()
+      this.filterDojos();
     });
   },
   methods: {
@@ -86,9 +137,9 @@ export default {
       }
     },
     filterByUser() {
-      if ((this.filter_by_user == true)) {
+      if (this.filter_by_user == true) {
         this.filtered_dojos = this.filtered_dojos.filter(
-          d => d.user_id == this.user_id_filter
+          (d) => d.user_id == this.user_id_filter
         );
       }
     },
@@ -97,7 +148,7 @@ export default {
         // do nothing
       } else {
         this.filtered_dojos = this.filtered_dojos.filter(
-          d => d.category_id == this.selected_category
+          (d) => d.category_id == this.selected_category
         );
       }
     },
@@ -106,6 +157,12 @@ export default {
       this.filterByCategory();
       this.filterByUser();
     },
-  }
+    visibilityChanged(isVisible, entry) {
+      if (entry.isVisible || entry.isIntersecting) {
+        let dojo_id = entry.target.id.substring(5);
+        axios.post("/api/dojos/view/" + dojo_id);
+      }
+    },
+  },
 };
 </script>

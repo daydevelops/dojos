@@ -198,4 +198,22 @@ class BrowsingTest extends TestCase
         $res = $this->get('/api/dojos')->json();
         $this->assertEquals($dojo_110->id,$res[0]['id']);
     }
+
+    /** @test */
+    public function the_view_count_can_be_increased_for_a_dojo() {
+        $dojo = Dojo::factory()->create();
+        $this->signIn(User::factory()->create(['is_admin'=>true]));
+        $this->assertEquals(0,$dojo->fresh()->views);
+        $this->post('api/dojos/view/'.$dojo->id);
+        $this->assertEquals(1,$dojo->fresh()->views);
+    }
+
+    /** @test */
+    public function the_view_count_is_not_increased_for_a_dojo_if_viewed_by_the_owner() {
+        $dojo = Dojo::factory()->create();
+        $this->signIn($dojo->user);
+        $this->assertEquals(0,$dojo->fresh()->views);
+        $this->post('api/dojos/view/'.$dojo->id);
+        $this->assertEquals(0,$dojo->fresh()->views);
+    }
 }
