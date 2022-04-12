@@ -190,4 +190,13 @@ class DojoController extends Controller
             return response("You Cannot See This Dojo's Subscription", 403);
         }
     }
+
+    public function view(Request $request, Dojo $dojo) {
+        if ($dojo->user_id == auth()->id()) {
+            return false;
+        } else {
+            $dojo->increment('views');
+            return true;
+        }
+    }
 }

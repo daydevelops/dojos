@@ -15,6 +15,9 @@
             <a v-if="dojo.youtube"   :href="dojo.youtube" target="_blank"><i class="social-media-icon fab fa-2x fa-youtube"></i></a>
             </small>
           </div>
+          <div v-if="canSeeViews" class="text-center mt-2">
+            <i class="fa fa-eye" aria-hidden="true"></i> <span v-text="' ' + dojo.views"></span>
+          </div>
         </div>
         <div class="col-lg-9">
           <div class="row">
@@ -111,6 +114,12 @@ export default {
   },
   computed: {
     canEdit() {
+      return this.isOwner;
+    },
+    canSeeViews() {
+      return this.isOwner;
+    },
+    isOwner() {
       if (window.App.user != null) {
         return (
           window.App.user.is_admin || window.App.user.id == this.dojo.user_id

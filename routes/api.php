@@ -24,6 +24,7 @@ Route::get('/dojos/category/{category}',[CategoryController::class,'dojos']);
 Route::get('/dojos/{dojo}/plan',[DojoController::class,'subscriptionPlan'])->middleware('phase_1','auth:sanctum');
 Route::get('/dojos/{dojo}',[DojoController::class,'edit'])->middleware('auth:sanctum');
 Route::post('/dojos',[DojoController::class,'store'])->middleware('auth:sanctum');
+Route::post('/dojos/view/{dojo}',[DojoController::class,'view']);
 Route::delete('dojos/{dojo}',[DojoController::class,'destroy'])->middleware('auth:sanctum');
 Route::patch('/dojos/{dojo}', [DojoController::class,'update'])->middleware('auth:sanctum');
 
