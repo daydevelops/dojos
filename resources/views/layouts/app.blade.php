@@ -7,9 +7,11 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    
     <title>{{ config('app.name', 'Laravel') }}</title>
-
+    <meta name="description" content="A collection of dojos and martial arts clubs operating in St. John's Newfoundland. Here you can find contact information and class times / schedules for each club.">
+    <meta name="keywords" content="{{config('app.keywords') . ',' . implode(',',App\Models\Category::select('name')->get()->pluck('name')->toArray())}}">
+    
     <!-- Scripts -->
     <script src="https://kit.fontawesome.com/4719078df9.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
