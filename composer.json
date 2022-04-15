@@ -18,7 +18,8 @@
         "laravel/sanctum": "^2.8",
         "laravel/telescope": "^4.3",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.1"
+        "laravel/ui": "^3.1",
+        "spatie/laravel-backup": "^6.16"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
