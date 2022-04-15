@@ -35,8 +35,8 @@ class Dojo extends Model
 
     // returns either "free", "standard", or "premium" depending on what type of subscription this dojo has
     public function getSubscriptionLevelAttribute() {
-        $standards = [env('STANDARD_MONTHLY_PLAN_ID'),env('STANDARD_YEARLY_PLAN_ID')];
-        $premiums = [env('PREMIUM_MONTHLY_PLAN_ID'),env('PREMIUM_YEARLY_PLAN_ID')];
+        $standards = [config('payments.plans.standard.monthly'),config('payments.plans.standard.monthly')];
+        $premiums = [config('payments.plans.premium.monthly'),config('payments.plans.premium.monthly')];
 
         if (!$this->isSubscribed()) {
             return "free";

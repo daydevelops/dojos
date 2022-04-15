@@ -22,25 +22,25 @@ class StripeProductSeeder extends Seeder
             'cycle' => 'month'
         ]);
         StripeProduct::insert([
-            'product_id' => env("STANDARD_MONTHLY_PLAN_ID"),
+            'product_id' => config('payments.plans.standard.monthly'),
             'description' => "5 CAD/month",
             'price' => 5,
             'cycle' => 'month'
         ]);
         StripeProduct::insert([
-            'product_id' => env("STANDARD_YEARLY_PLAN_ID"),
+            'product_id' => config('payments.plans.standard.yearly'),
             'description' => "50 CAD/year",
             'price' => 50,
             'cycle' => 'year'
         ]);
         StripeProduct::insert([
-            'product_id' => env("PREMIUM_MONTHLY_PLAN_ID"),
+            'product_id' => config('payments.plans.premium.monthly'),
             'description' => "10 CAD/month",
             'price' => 10,
             'cycle' => 'month'
         ]);
         StripeProduct::insert([
-            'product_id' => env("PREMIUM_YEARLY_PLAN_ID"),
+            'product_id' => config('payments.plans.premium.yearly'),
             'description' => "100 CAD/year",
             'price' => 100,
             'cycle' => 'year'
@@ -48,17 +48,17 @@ class StripeProductSeeder extends Seeder
 
         // add coupons
         DB::table('coupons')->insert([
-            'code' => env('HALF_OFF_COUPON_CODE'),
+            'code' => config('payments.discount.half'),
             'description' => '50% off',
             'discount' => 50
         ]);
         DB::table('coupons')->insert([
-            'code' => env('FULL_OFF_COUPON_CODE'),
+            'code' => config('payments.discount.full'),
             'description' => '100% off',
             'discount' => 100
         ]);
         DB::table('coupons')->insert([
-            'code' => env('FIFTEEN_OFF_COUPON_CODE'),
+            'code' => config('payments.discount.fifteen'),
             'description' => '15% off',
             'discount' => 15
         ]);

@@ -17,10 +17,10 @@ class ProductionSeeder extends Seeder
     public function run()
     {
         User::factory()->create([
-            'name'=>env('ADMIN_NAME'),
-            'email'=> env('ADMIN_EMAIL'),
-            'password' => Hash::make(env('ADMIN_PASSWORD')),
-            'is_admin' => true
+            'name'      => config('app.admin.name'),
+            'email'     => config('app.admin.email'),
+            'password'  => Hash::make(config('app.admin.password'),),
+            'is_admin'  => true
         ]);
         Category::factory()->create(['name'=>'All']);
         Category::factory()->create(['name'=>'None']);

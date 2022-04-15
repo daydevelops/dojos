@@ -30,7 +30,7 @@ class StripeWebhookHandled
     {
 
         // after stripe handles the webhook, we need to update the dojo information and notify the user 
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+        \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
         $event = $event->payload;
 
         // only listening for subscription events

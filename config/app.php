@@ -234,5 +234,13 @@ return [
 
     'keywords' => "dojos, martial arts, fitness, exercise, physical activity, self defense, st. john's, nl, newfoundland",
 
-    'enable_backups' => env('ENABLE_BACKUPS')
+    'enable_backups' => env('ENABLE_BACKUPS'),
+
+    'admin' => [
+        'name' => env('ADMIN_NAME'),
+        'email' => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
+    'phase' => env('APP_PHASE')
 ];

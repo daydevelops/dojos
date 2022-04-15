@@ -33,8 +33,8 @@
 	    window.App = {!! json_encode([
 		    'signedIn' => Auth::check(),
             'user' => Auth::user(),
-            'google_api_key' => env('GOOGLE_API_KEY'),
-            'app_phase' => env('APP_PHASE')
+            'google_api_key' => config('services.google.key'),
+            'app_phase' => config('app.phase')
 		]) !!};
 	</script>
 </head>
@@ -79,7 +79,7 @@
                         <li class="nav-item">
                             <router-link class="nav-link" to="/dojos/new">New Dojo</router-link>
                         </li>
-                        @if(env('APP_PHASE') > 0)
+                        @if(config('app.phase') > 0)
                         <li class="nav-item">
                             <a href="/billing" class="nav-link" target="_blank">Billing</a>
                         </li>

@@ -23,7 +23,7 @@ class UserTest extends TestCase
     /** @test */
     public function it_has_a_coupon() {
         DB::table('coupons')->insert([
-            'code' => env('HALF_OFF_COUPON_CODE'),
+            'code' => config('payments.discount.half'),
             'description' => '50% off',
             'discount' => 50
         ]);
