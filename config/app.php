@@ -234,4 +234,5 @@ return [
 
     'keywords' => "dojos, martial arts, fitness, exercise, physical activity, self defense, st. john's, nl, newfoundland",
 
+    'enable_backups' => env('ENABLE_BACKUPS')
 ];
