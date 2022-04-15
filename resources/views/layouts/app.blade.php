@@ -141,6 +141,16 @@
 
     <script src="https://js.stripe.com/v3/"></script>
 
+    @if(config('app.env') == 'production')
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VTBVDVF4XY"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VTBVDVF4XY');
+    </script>
+    @endif
 </body>
 
 </html>
