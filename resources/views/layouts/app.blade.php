@@ -4,6 +4,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="icon" type="image/png" href="{{asset('images/favicon-16x16.png')}}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{asset('images/favicon-32x32.png')}}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{asset('images/android-chrome-192x192.png')}}" sizes="192x192">
+    <link rel="icon" type="image/png" href="{{asset('images/android-chrome-512x512.png')}}" sizes="512x512">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -38,6 +43,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md bg-primary navbar-light shadow-sm">
             <div class="container">
+                <img class="mr-3" style="max-height:50px" src="{{asset('/images/logo_main.png')}}" alt="">
                 <a class="navbar-brand" href="/">
                     {{ config('app.name', 'Laravel') }}
                 </a>
