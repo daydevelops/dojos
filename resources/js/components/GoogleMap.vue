@@ -2,7 +2,7 @@
   <div>
     <div>
       <label>
-        <gmap-autocomplete @place_changed="setPlace"></gmap-autocomplete>
+        <gmap-autocomplete @place_changed="setPlace" :options="{fields: ['geometry', 'address_components']}"></gmap-autocomplete>
         <button type="button" class="pac-button btn btn-primary w-20 mr-0" @click="updateMarker">Update Map</button>
       </label>
       <br />
