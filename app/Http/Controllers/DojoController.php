@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Dojo;
 use App\Models\StripeProduct;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class DojoController extends Controller
      */
     public function index()
     {
-        $dojos = Dojo::with('category')->get()->all();
+        $dojos = Dojo::with('categories')->get()->all();
 
         // for guests or non admins, filter the dojos
         if (!auth()->check() || !auth()->user()->is_admin) {
@@ -66,15 +67,13 @@ class DojoController extends Controller
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
             'location' => 'required',
-            'category_id' => [
-                'required',
-                'integer',
-                Rule::exists('categories', 'id')->where(function ($query) {
-                    $query->where('approved', 1);
-                }),
-            ]
         ]);
 
+        // validate categories
+        $categories = request()->validate(['categories' => "array"])['categories'];
+        $this->validateCategories($categories);
+
+        unset($data['categories']);
         $data['location'] = json_encode($data['location']);
         $data['website'] = request('website') == "" ? null : request('website');
         $data['facebook'] = request('facebook') == "" ? null : request('facebook');
@@ -83,8 +82,9 @@ class DojoController extends Controller
         $data['instagram'] = request('instagram') == "" ? null : request('instagram');
 
         $data['user_id'] = auth()->id();
-        Dojo::create($data)->save();
-        return Dojo::where(['name'=>$data['name']])->get();
+        $dojo = Dojo::create($data);
+        $dojo->categories()->sync($categories);
+        return $dojo;
     }
 
     /**
@@ -107,6 +107,7 @@ class DojoController extends Controller
     public function edit(Dojo $dojo)
     {
         if (auth()->user()->can('update', $dojo)) {
+            $dojo->categories;
             return $dojo;
         } else {
             return response('You Cannot Edit This Dojo', 403);
@@ -134,15 +135,13 @@ class DojoController extends Controller
             'price' => 'required|max:120',
             'contact' => 'required|max:200',
             'location' => 'required',
-            'category_id' => [
-                'required',
-                'integer',
-                Rule::exists('categories', 'id')->where(function ($query) {
-                    $query->where('approved', 1);
-                }),
-            ]
         ]);
 
+        // validate categories
+        $categories = request()->validate(['categories' => "array"])['categories'];
+        $this->validateCategories($categories);
+        
+        unset($data['categories']);
         $data['location'] = json_encode($data['location']);
         $data['website'] = request('website');
         $data['facebook'] = request('facebook');
@@ -152,6 +151,7 @@ class DojoController extends Controller
 
         if (auth()->user()->can('update', $dojo)) {
             $dojo->update($data);
+            $dojo->categories()->sync($categories);
         } else {
             return response('You Cannot Edit This Dojo', 403);
         }
@@ -197,6 +197,14 @@ class DojoController extends Controller
         } else {
             $dojo->increment('views');
             return true;
+        }
+    }
+
+    private function validateCategories($categories) {
+        $existing_categories = Category::whereIn('id',$categories)->where('approved',1)->get();
+        if (count($existing_categories) !== count($categories)) {
+            // throw validation error
+            abort(422);
         }
     }
 }

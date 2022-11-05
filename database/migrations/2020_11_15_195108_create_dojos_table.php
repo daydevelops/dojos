@@ -16,7 +16,7 @@ class CreateDojosTable extends Migration
         Schema::create('dojos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('category_id');
+            $table->foreignId('category_id')->nullable();
             $table->foreignId('subscription_id')->nullable();
             $table->string('name')->unique();
             $table->json('location')->nullable();

@@ -12,6 +12,6 @@ class Category extends Model
     protected $fillable = ['name','approved'];
 
     public function dojos() {
-        return $this->hasMany(Dojo::class);
+        return $this->belongsToMany(Dojo::class);
     }
 }

@@ -148,7 +148,7 @@ export default {
         // do nothing
       } else {
         this.filtered_dojos = this.filtered_dojos.filter(
-          (d) => d.category_id == this.selected_category
+          (d) => d.categories.map((c) => c.id).indexOf(this.selected_category) != -1
         );
       }
     },

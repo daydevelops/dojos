@@ -56,10 +56,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        
         if (auth()->user()->can('delete',$category)) {
-            $none = Category::where(['name'=>'None'])->first();
-            $category->dojos()->update(['category_id' => $none->id]);
             $category->delete();
         }
     }

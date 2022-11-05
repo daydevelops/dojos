@@ -14,10 +14,9 @@ class DojoCRUDTest extends TestCase
 
     use DatabaseMigrations;
 
-    public function sampleDojo($cat_id=1,$encode_location=false) {
-        return [
+    public function sampleDojo($encode_location=false,$with_categories = true) {
+        $data = [
             'name' => 'foobar',
-            'category_id' => $cat_id,
             'price' => '99$/month',
             'classes' => 'Monday-Friday at 730pm-9pm',
             'contact' => 'Call me at my 1111111111',
@@ -28,6 +27,10 @@ class DojoCRUDTest extends TestCase
                 nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in 
                 reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
         ];
+        if ($with_categories) {
+            $data['categories'] = ["1"];
+        }
+        return $data;
     }
 
     // ADDING
@@ -46,13 +49,6 @@ class DojoCRUDTest extends TestCase
     public function a_guest_cannot_create_a_dojo() {
         Category::factory()->create(['approved'=>1]);
         $this->assertDatabaseCount('dojos',0);
-        $this->post('/api/dojos',$this->sampleDojo());
-        $this->assertDatabaseMissing('dojos',['name'=>'foobar']);
-    }
-
-    /** @test */
-    public function a_dojo_must_have_an_existing_category() {
-        $this->signIn();
         $this->post('/api/dojos',$this->sampleDojo());
         $this->assertDatabaseMissing('dojos',['name'=>'foobar']);
     }
@@ -87,35 +83,59 @@ class DojoCRUDTest extends TestCase
     /** @test */
     public function a_user_can_edit_a_dojo() {
         $this->signIn();
-        Dojo::factory()->create(['user_id'=>User::first()->id]);
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
-        $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseHas('dojos',$this->sampleDojo(1,true));
+        Category::factory(2)->create(['approved'=>1]);
+        $dojo = Dojo::factory()->create(['user_id'=>auth()->id()]);
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
+        $data = $this->sampleDojo();
+        $data['categories'] = ["1","2"];
+        $this->json('patch','/api/dojos/1',$data);
+        $this->assertDatabaseHas('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseHas('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseHas('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
     }
-
+    
     /** @test */
     public function an_admin_can_edit_a_dojo() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
-        Dojo::factory()->create();
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
-        $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseHas('dojos',$this->sampleDojo(1,true));
+        Category::factory(2)->create(['approved'=>1]);
+        $dojo = Dojo::factory()->create();
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
+        $data = $this->sampleDojo();
+        $data['categories'] = ["1","2"];
+        $this->json('patch','/api/dojos/1',$data);
+        $this->assertDatabaseHas('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseHas('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseHas('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
     }
 
     /** @test */
     public function a_guest_cannot_edit_a_dojo() {
-        Dojo::factory()->create();
-        $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
+        $dojo = Dojo::factory()->create();
+        $data = $this->sampleDojo();
+        $data['categories'] = ["1","2"];
+        $this->json('patch','/api/dojos/1',$data);
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
     }
 
     /** @test */
     public function a_user_can_only_edit_a_dojo_they_own() {
         $this->signIn(User::factory()->create());
-        Dojo::factory()->create();
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
-        $this->json('patch','/api/dojos/1',$this->sampleDojo());
-        $this->assertDatabaseMissing('dojos',$this->sampleDojo(1,true));
+        $dojo = Dojo::factory()->create();
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
+        $data = $this->sampleDojo();
+        $data['categories'] = ["1","2"];
+        $this->json('patch','/api/dojos/1',$data);
+        $this->assertDatabaseMissing('dojos',$this->sampleDojo(true,false));
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>1]);
+        $this->assertDatabaseMissing('category_dojo',["dojo_id"=>$dojo->id,"category_id"=>2]);
     }
 
     // DELETING

@@ -65,18 +65,6 @@ class CategoryCRUDTest extends TestCase
     }
 
     /** @test */
-    public function dojo_category_is_set_to_none_if_its_category_is_deleted() {
-        $this->signIn(User::factory()->create(['is_admin'=>true]));
-        $none = $this->addNone();
-        $cat = Category::factory()->create();
-        Dojo::factory(3)->create(['category_id'=>$cat->id]);
-        $this->assertDatabaseHas('dojos',['category_id'=>$cat->id]);
-        $this->json('delete','/api/categories/2');
-        $this->assertDatabaseMissing('dojos',['category_id'=>$cat->id]);
-        $this->assertDatabaseHas('dojos',['category_id'=>$none->id]);
-    }
-
-    /** @test */
     public function categories_all_and_none_cannot_be_deleted() {
         $this->signIn(User::factory()->create(['is_admin'=>true]));
         $cat1 = Category::factory()->create(['name'=>'All']);

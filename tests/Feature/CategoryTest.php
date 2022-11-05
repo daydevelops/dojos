@@ -14,7 +14,13 @@ class CategoryTest extends TestCase
 
     /** @test */
     public function it_has_dojos() {
-        Dojo::factory()->create();
-        $this->assertInstanceOf(Dojo::class,Category::first()->dojos[0]);
+        $dojos = Dojo::factory(2)->create();
+        $cats = Category::factory(2)->create();
+        $dojos[0]->categories()->attach($cats->pluck('id')->toArray());
+        $dojos[1]->categories()->attach($cats->pluck('id')->toArray());
+        $this->assertInstanceOf(Dojo::class,$cats[0]->dojos[0]);
+        $this->assertInstanceOf(Dojo::class,$cats[0]->dojos[1]);
+        $this->assertInstanceOf(Dojo::class,$cats[1]->dojos[0]);
+        $this->assertInstanceOf(Dojo::class,$cats[1]->dojos[1]);
     }
 }

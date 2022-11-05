@@ -53,8 +53,8 @@ class BrowsingTest extends TestCase
     public function a_guest_can_see_all_dojos() {
         Dojo::factory(2)->create();
         $res = $this->get('/api/dojos')->json();
-        $this->assertContains(Dojo::with('category')->find(1)->toArray(),$res);
-        $this->assertContains(Dojo::with('category')->find(2)->toArray(),$res);
+        $this->assertContains(Dojo::with('categories')->find(1)->toArray(),$res);
+        $this->assertContains(Dojo::with('categories')->find(2)->toArray(),$res);
     }
 
     /** @test */

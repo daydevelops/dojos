@@ -6,34 +6,6 @@
       </h3>
     </div>
     <div v-else>
-      <div class="m-3 p-1 form-group row">
-        <label class="col-sm-3 col-form-label text-center">Category:</label>
-        <div class="col-sm-6 mb-2">
-          <select
-            class="form-control"
-            name="category_id"
-            v-model="form.category_id"
-          >
-            <option
-              v-for="cat in categories"
-              :key="cat.id"
-              v-bind:value="cat.id"
-            >
-              {{ cat.name }}
-            </option>
-          </select>
-          <span
-            class="help"
-            v-if="form.errors.has('category_id')"
-            v-text="form.errors.get('category_id')"
-          ></span>
-        </div>
-        <div class="col col-sm-3 text-center">
-          <router-link to="/categories/new">
-            <button class="btn btn-primary">Add New Category</button>
-          </router-link>
-        </div>
-      </div>
       <div class="card mb-4 p-3">
         <h5
           v-if="showPremiumWarning"
@@ -292,6 +264,39 @@
               </div>
             </div>
 
+            <!-- Categories -->
+            <div class="m-1 mt-3 p-0 form-group row">
+              <label class="col-sm-3 col-form-label">
+                Categories:
+                <small class="d-block">Category not listed?<br><router-link to="/categories/new">Add a new one</router-link></small>
+              </label>
+              <div class="col-sm-9">
+                <span
+                  class="help"
+                  v-if="form.errors.has('categories')"
+                  v-text="form.errors.get('categories')"
+                ></span>
+                <div
+                  class="form-check form-check-inline"
+                  v-for="cat in categories"
+                  :key="cat.id"
+                >
+                  <label class="form-check-label">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      :name="'cat-' + cat.id"
+                      :id="'cat-' + cat.id"
+                      value="1"
+                      :checked="form.categories.indexOf(cat.id) != -1"
+                      @change="toggleCategory(cat.id)"
+                    />
+                    <span v-html="cat.name"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <!-- Buttons -->
             <div class="form-group row mt-4">
               <div class="col-12 text-right">
@@ -345,7 +350,7 @@ export default {
         twitter: "",
         instagram: "",
         website: "",
-        category_id: 2, // none
+        categories: [],
         image: null,
       }),
       is_editing: false, // are we editing an existing dojo. or creating a new one?
@@ -375,7 +380,7 @@ export default {
   },
   mounted() {
     axios.get("/api/categories").then((response) => {
-      this.categories = response.data;
+      this.categories = response.data.filter((c) => c.name != "All");
     });
 
     // was an id given to this form?
@@ -398,7 +403,7 @@ export default {
             twitter: response.data.twitter,
             youtube: response.data.youtube,
             instagram: response.data.instagram,
-            category_id: response.data.category_id,
+            categories: response.data.categories.map((c)=>c.id),
             image: response.data.image,
           });
           this.dojo_id = response.data.id;
@@ -418,6 +423,13 @@ export default {
     }
   },
   methods: {
+    toggleCategory(id) {
+      if (this.form.categories.indexOf(id) == -1) {
+        this.form.categories.push(id);
+      } else {
+        this.form.categories = this.form.categories.filter(c => c != id);
+      }
+    },
     updateLocation(loc) {
       this.location_selected = true;
       this.form.location = loc;
@@ -440,7 +452,7 @@ export default {
         .submit(action, path)
         .then((data) => {
           if (!this.is_editing) {
-            this.$router.push("/dojos/" + data[0].id);
+            this.$router.push("/dojos/" + data.id);
           } else {
             window.flash("Your dojo has been updated!", "success");
           }

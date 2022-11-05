@@ -22,7 +22,7 @@
         <div class="col-lg-9">
           <div class="row">
             <div class="col-sm-8">
-              <i><small v-text="dojo.category.name"></small></i>
+              <i><small v-text="this.categories"></small></i>
               <p class='text-danger' v-if="!dojo.is_active">Hidden: Owner is deactivated</p>
               <p class='text-danger' v-if="dojo.subscription_level=='free' && canEdit && phase2">Hidden: subscribe this dojo to show it publicly</p>
               <h4 class="card-title">{{dojo.name}}</h4>
@@ -113,6 +113,9 @@ export default {
     }
   },
   computed: {
+    categories() {
+      return this.dojo.categories.map((c) => c.name).join(', ');
+    },
     canEdit() {
       return this.isOwner;
     },
