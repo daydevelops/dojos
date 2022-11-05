@@ -15,6 +15,5 @@ class CategorySeeder extends Seeder
     public function run()
     {
         Category::factory()->create(['name'=>'All']);
-        Category::factory()->create(['name'=>'None']);
     }
 }

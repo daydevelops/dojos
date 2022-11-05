@@ -83,13 +83,11 @@ class DojoListingsTest extends DuskTestCase
     {
 
         Category::factory()->create(['name'=>'All']);
-        Category::factory()->create(['name'=>'None']);
         $cats = Category::factory(3)->create();
         $this->browse(function (Browser $browser) use ($cats) {
             $browser->visit('/')
                 ->waitFor('select.form-control>option')
                 ->assertSee('All')
-                ->assertSee('None')
                 ->assertSee($cats[0]->name)
                 ->assertSee($cats[1]->name)
                 ->assertSee($cats[2]->name);

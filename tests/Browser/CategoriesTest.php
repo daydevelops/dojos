@@ -88,7 +88,6 @@ class CategoriesTest extends DuskTestCase
 
     /** @test */
     public function category_removed_from_list_when_deleted() {
-        $cats[0] = Category::factory()->create(['name'=>'None']);
         $cats[1] = Category::factory()->create();
         $cats[2] = Category::factory()->create();
         $this->browse(function (Browser $browser) use ($cats) {

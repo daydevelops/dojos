@@ -65,7 +65,7 @@ class CategoryPolicy
      */
     public function delete(User $user, Category $category)
     {
-        $is_protected = $category->name == "All" || $category->name == "None";
+        $is_protected = $category->name == "All";
         return ! $is_protected && auth()->user()->is_admin;
     }
 
