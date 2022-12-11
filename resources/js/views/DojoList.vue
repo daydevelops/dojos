@@ -3,9 +3,9 @@
     <div class="row mb-3">
       <div class="col col-md-9">
         <div class="form-group row">
-          <label class="col-sm-2 text-center text-sm-left">Category:</label>
+          <label class="col-md-3 text-center text-md-left"><h3>Category:</h3></label>
           <select
-            class="form-control col-sm-10"
+            class="form-control col-md-4"
             name="category"
             @change="filterDojos()"
             v-model="selected_category"
