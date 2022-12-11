@@ -41,7 +41,7 @@
       <!-- Show Premium dojos first -->
       <div
         class="col col-12"
-        v-for="(dojo, index) in filtered_dojos"
+        v-for="dojo in shownDojos"
         :key="'premium' + dojo.id"
       >
         <dojo
@@ -51,14 +51,14 @@
           }"
           v-if="dojo.subscription_level == 'premium'"
           v-bind:dojo="dojo"
-          v-on:deleted="filtered_dojos.splice(index, 1)"
+          v-on:deleted="deleteDojo(dojo.id)"
           :id="'dojo-'+dojo.id"
         ></dojo>
       </div>
       <!-- Show standard dojos second -->
       <div
         class="col col-12"
-        v-for="(dojo, index) in filtered_dojos"
+        v-for="dojo in shownDojos"
         :key="'standard' + dojo.id"
       >
         <dojo
@@ -68,14 +68,14 @@
           }"
           v-if="dojo.subscription_level == 'standard'"
           v-bind:dojo="dojo"
-          v-on:deleted="filtered_dojos.splice(index, 1)"
+          v-on:deleted="deleteDojo(dojo.id)"
           :id="'dojo-'+dojo.id"
         ></dojo>
       </div>
       <!-- show free dojos last -->
       <div
         class="col col-12"
-        v-for="(dojo, index) in filtered_dojos"
+        v-for="dojo in shownDojos"
         :key="'free' + dojo.id"
       >
         <dojo
@@ -85,7 +85,7 @@
           }"
           v-if="dojo.subscription_level == 'free'"
           v-bind:dojo="dojo"
-          v-on:deleted="filtered_dojos.splice(index, 1)"
+          v-on:deleted="deleteDojo(dojo.id)"
           :id="'dojo-'+dojo.id"
         ></dojo>
       </div>
@@ -127,6 +127,16 @@ export default {
       this.filterDojos();
     });
   },
+  computed: {
+    shownDojos() {
+      let dojos = this.filtered_dojos;
+      for (let i = dojos.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [dojos[i], dojos[j]] = [dojos[j], dojos[i]];
+      }
+      return dojos;
+    }
+  },
   methods: {
     toggleUserFilter() {
       if (this.filter_by_user) {
@@ -156,6 +166,14 @@ export default {
       this.filtered_dojos = this.dojos;
       this.filterByCategory();
       this.filterByUser();
+    },
+    deleteDojo(id) {
+      this.filtered_dojos = this.filtered_dojos.filter(
+        (d) => d.id != id
+      );
+      this.dojos = this.dojos.filter(
+        (d) => d.id != id
+      );
     },
     visibilityChanged(isVisible, entry) {
       if (entry.isVisible || entry.isIntersecting) {
