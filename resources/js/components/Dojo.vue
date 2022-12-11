@@ -49,11 +49,11 @@
               <p class="mb-0"><strong>Location:</strong></p>
             </div>
             <div class="col-12 col-md-10">
-              <p class="mb-1">
+              <p class="mb-1 d-flex justify-content-between">
                 <span v-if="JSON.parse(dojo.location).geometry">
                 {{JSON.parse(dojo.location).formatted_address}}
-                <button v-if="showPremiumFeatures" class='btn btn-primary btn-sm' @click="show_map = 1">Show map?</button>
                 </span>
+                <button v-if="showPremiumFeatures" class='btn btn-primary btn-sm' @click="show_map = 1">Show map?</button>
               </p>
             </div>
           </div>
