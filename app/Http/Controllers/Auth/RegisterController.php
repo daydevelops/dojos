@@ -71,6 +71,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
         $user->notify(new NewUserRegistered());
+        User::where('email',config('app.admin.email'))->first()->notify(new NewUserRegistered());
         return $user;
     }
 }
