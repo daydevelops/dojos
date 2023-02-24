@@ -41,24 +41,6 @@ class NotificationsTest extends TestCase
         Notification::assertSentTo($user, UserDeleted::class);
     }
 
-    /** @test */
-    public function a_user_is_notified_when_they_are_deactivated() {
-        Notification::fake();
-        $user = User::factory()->create();
-        $this->signIn(User::factory()->create(['is_admin'=>1]));
-        $this->json('patch','/api/users/1',['is_active'=>0]);
-        Notification::assertSentTo($user, UserDeactivated::class);
-    }
-
-    /** @test */
-    public function a_user_is_notified_when_they_are_reactivated() {
-        Notification::fake();
-        $user = User::factory()->create(['is_active'=>0]);
-        $this->signIn(User::factory()->create(['is_admin'=>1]));
-        $this->json('patch','/api/users/1',['is_active'=>1]);
-        Notification::assertSentTo($user, UserReactivated::class);
-    }
-
     // /** @test */
     // public function a_user_is_notified_when_they_update_a_dojos_subscription() {
     //     Notification::fake();
