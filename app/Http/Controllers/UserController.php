@@ -32,9 +32,9 @@ class UserController extends Controller
         $data = request()->validate(['is_active' => 'required|boolean']);
         $user->update($data);
         if ($data['is_active']) {
-            $user->notify(new UserReactivated());
+            //$user->notify(new UserReactivated());
         } else {
-            $user->notify(new UserDeactivated());
+            //$user->notify(new UserDeactivated());
         }
         return $user->fresh()->is_active;
     }
